@@ -18,9 +18,14 @@ export const useLogOut = () => {
     mutationFn: async () => authApi.logout(),
     onSuccess: async (res: any) => {
       logout()
+
+      localStorage.clear()
+
       router.push('/')
+
       queryClient.clear()
       setWishList([])
+
       toast.success(res?.message)
     },
     onError: (error) => {

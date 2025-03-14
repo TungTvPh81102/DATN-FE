@@ -23,10 +23,7 @@ export const messageSchema = z.object({
     invalid_type_error:
       'type phải là một trong các giá trị: text, image, file, video, audio',
   }),
-  parent_id: z
-    .string()
-    .regex(/^\d+$/, 'parent_id phải tồn tại trong bảng messages')
-    .optional(),
+  parent_id: z.number().optional(),
   file: z
     .any()
     .refine((file) => {

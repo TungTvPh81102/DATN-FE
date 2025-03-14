@@ -1,4 +1,6 @@
+'use client'
 import Link from 'next/link'
+import { toast } from 'react-toastify'
 
 const SocialLogin = () => {
   const handleGoogleRedirect = async () => {

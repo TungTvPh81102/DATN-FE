@@ -62,7 +62,9 @@ const MeBanner = () => {
           <div className="col-lg-4">
             <div className="right-content">
               <button className="tf-btn" onClick={handleBecomeInstructor}>
-                Đăng ký trở thành giảng viên
+                {role === 'instructor'
+                  ? 'Giảng dạy trên CourseMeLy'
+                  : 'Đăng ký trở thành giảng viên'}
                 <i className="icon-arrow-top-right"></i>
               </button>
             </div>

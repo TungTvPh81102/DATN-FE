@@ -55,6 +55,9 @@ export const chatApi = {
     if (data.type) {
       formData.append('type', data.type)
     }
+    if (data.parent_id) {
+      formData.append('parent_id', data.parent_id.toString())
+    }
     if (data.file && data.file.length > 0) {
       formData.append('file', data.file[0].blob)
       formData.append('type', data.file[0].type)
