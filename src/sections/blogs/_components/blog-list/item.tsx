@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import BlogListPagination from '@/sections/blogs/_components/blog-list/pagination'
+import { formatDate } from '@/lib/common'
 
 interface BlogListItemProps {
   initialBlogs: any
@@ -9,7 +10,7 @@ interface BlogListItemProps {
 
 const BlogListItem = ({ initialBlogs }: BlogListItemProps) => {
   const posts = initialBlogs?.data
-
+  console.log('posts', posts)
   return (
     <>
       <div className="wrap-blog-list">
@@ -28,19 +29,23 @@ const BlogListItem = ({ initialBlogs }: BlogListItemProps) => {
               />
             </div>
             <div className="article-content">
-              <div className="article-label">
-                <Link href="#" className="">
-                  {blog.category.name}
-                </Link>
-              </div>
+              <div className="article-label">{blog.category.name}</div>
               <h3 className="fw-5">
-                <Link href="#">{blog.title}</Link>
+                <Link href={`/blogs/${blog.slug}`}>{blog.title}</Link>
               </h3>
-              <p dangerouslySetInnerHTML={{ __html: blog.description }} />
+              <p
+                className="text-justify leading-relaxed"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    blog.description.length > 260
+                      ? blog.description.substring(0, 260) + '...'
+                      : blog.description,
+                }}
+              />
               <div className="meta">
                 <div className="meta-item">
                   <i className="flaticon-calendar"></i>
-                  <p>06 April 2024</p>
+                  <p>{formatDate(blog.created_at)}</p>
                 </div>
                 <div className="meta-item">
                   <i className="flaticon-message"></i>

@@ -32,7 +32,7 @@ const CommentItem = ({
   })
 
   return (
-    <div className="review-item mb-6">
+    <div className="mb-6 w-full">
       <div className="flex items-start gap-4">
         <img
           src={comment.user.avatar}
@@ -41,11 +41,9 @@ const CommentItem = ({
         />
         <div className="flex-1">
           <div className="rounded-lg bg-gray-50 p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <div>
-                <span className="font-semibold">{comment.user.name}</span>
-                <span className="ml-2 text-sm text-gray-500">{timeAgo}</span>
-              </div>
+            <div className="mb-2 flex w-full items-center justify-between">
+              <span className="font-semibold">{comment.user.name}</span>
+              <span className="text-sm text-gray-500">{timeAgo}</span>
             </div>
             <p className="text-gray-800">{comment.content}</p>
           </div>
@@ -53,7 +51,7 @@ const CommentItem = ({
           <div className="mt-2 flex gap-4">
             <button
               onClick={() => setShowReplyForm(!showReplyForm)}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-gray-700 hover:text-blue-800"
             >
               Phản hồi
             </button>

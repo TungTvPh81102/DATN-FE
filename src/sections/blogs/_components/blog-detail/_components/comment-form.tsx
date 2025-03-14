@@ -9,6 +9,7 @@ import {
   useStoreCommentBlog,
   useStoreReplyCommentBlog,
 } from '@/hooks/comment-blog/useCommentBlog'
+import { Button } from '@/components/ui/button'
 
 interface CommentFormProps {
   postId?: string
@@ -68,20 +69,17 @@ const CommentForm = ({
         </p>
       )}
       <div className="flex gap-2">
-        <button
-          type="submit"
-          className="inline-flex items-center rounded-lg bg-blue-700 px-4 py-2.5 text-center text-xs font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-200"
-        >
+        <Button type="submit" className="">
           {isReply ? 'Gửi phản hồi' : 'Đăng bình luận'}
-        </button>
+        </Button>
         {isReply && (
-          <button
+          <Button
             type="button"
             onClick={onCancel}
-            className="inline-flex items-center rounded-lg bg-gray-100 px-4 py-2.5 text-center text-xs font-medium text-gray-900 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200"
+            className="bg-white text-gray-900 hover:bg-gray-200"
           >
             Hủy
-          </button>
+          </Button>
         )}
       </div>
     </form>

@@ -7,16 +7,17 @@ import { useGetBlogs } from '@/hooks/blog/useBlog'
 import BlogListBanner from '../_components/blog-list/banner'
 import BlogListItem from '../_components/blog-list/item'
 import BlogListSideBar from '../_components/blog-list/sidebar'
+import { Loader2 } from 'lucide-react'
 
 const BlogListView = () => {
-  const { data: blogs } = useGetBlogs()
-  // if (isLoading) {
-  //   return (
-  //     <div className="mt-20">
-  //       <Loader2 className="mx-auto size-8 animate-spin" />
-  //     </div>
-  //   )
-  // }
+  const { data: blogs, isLoading } = useGetBlogs()
+  if (isLoading) {
+    return (
+      <div className="mt-20">
+        <Loader2 className="mx-auto size-8 animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div>

@@ -10,12 +10,12 @@ import BlogDetailProfileItem from '../_components/blog-detail/profile-item'
 import BlogDetailReviewList from '../_components/blog-detail/review-list'
 import BlogDetailSharePost from '../_components/blog-detail/share-post'
 import BlogDetailSimilarPosts from '../_components/blog-detail/similar-posts'
+import Image from 'next/image'
 
 const BlogDetailView = ({ slug }: { slug: string }) => {
   const { data: blogDetail, isLoading: isLoadingBlogDetail } =
     useGetBlogBySlug(slug)
   const postId = blogDetail?.data?.id
-  // const currentUserId = blogDetail?.data?.user?.id
 
   if (isLoadingBlogDetail) {
     return (
@@ -30,10 +30,12 @@ const BlogDetailView = ({ slug }: { slug: string }) => {
       <section className="tf-spacing tf-spacing-3">
         <div className="page-blog-single">
           <div className="image-head">
-            <img
-              className="w-100 lazyload"
+            <Image
+              className="lazyload h-[400px] w-full object-cover"
               src={blogDetail?.data?.thumbnail}
               alt={blogDetail?.data?.title}
+              width={400}
+              height={400}
             />
           </div>
           <div className="blog-single-wrap">
@@ -41,29 +43,8 @@ const BlogDetailView = ({ slug }: { slug: string }) => {
             <BlogDetailSharePost initialBlogDetail={blogDetail?.data} />
             <BlogDetailProfileItem initialBlogDetail={blogDetail?.data} />
             <div className="post-control flex flex-wrap items-center justify-between gap-[20px]">
-              <div className="prev wow fadeInLeft">
-                <a href="#" className="fw-5 h6 flex items-center">
-                  <i className="icon-arrow-left"></i>
-                  Previous Post
-                </a>
-                <div className="fs-15">
-                  Given Set was without from god divide rule Hath
-                </div>
-              </div>
-              <div className="next wow fadeInRight">
-                <a href="#" className="fw-5 h6 flex items-center justify-end">
-                  Next Post
-                  <i className="icon-arrow-right"></i>
-                </a>
-                <div className="fs-15">
-                  Tree earth fowl given moveth deep lesser After
-                </div>
-              </div>
+              <BlogDetailReviewList postId={postId} />
             </div>
-            <BlogDetailReviewList
-              postId={postId}
-              // currentUserId={currentUserId}
-            />
           </div>
         </div>
       </section>

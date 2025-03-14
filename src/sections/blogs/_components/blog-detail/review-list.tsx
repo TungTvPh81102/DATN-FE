@@ -20,10 +20,10 @@ const BlogDetailReviewList = ({ postId }: { postId: string }) => {
   }
 
   return (
-    <div className="review-wrap">
+    <div className="review-wrap w-full">
       <div className="review-title mb-6 flex items-center justify-between">
         <h3 className="text-2xl font-medium">
-          Bình luận ({comments?.data?.length || 0})
+          Bình luận {/*({comments?.data?.length || 0})*/}
         </h3>
       </div>
 
@@ -31,15 +31,21 @@ const BlogDetailReviewList = ({ postId }: { postId: string }) => {
         <CommentForm postId={postId} onSuccess={refetch} />
       </div>
 
-      <div className="space-y-6">
-        {comments?.data?.map((comment: any) => (
-          <CommentItem
-            key={comment.id}
-            comment={comment}
-            currentUserId={currentUserId}
-            onReplySuccess={refetch}
-          />
-        ))}
+      <div className="space-y-12">
+        {comments?.data?.length > 0 ? (
+          comments?.data?.map((comment: any) => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              currentUserId={currentUserId}
+              onReplySuccess={refetch}
+            />
+          ))
+        ) : (
+          <p className="py-4 text-center text-gray-500">
+            Bài viết này chưa có bình luận!
+          </p>
+        )}
       </div>
     </div>
   )
