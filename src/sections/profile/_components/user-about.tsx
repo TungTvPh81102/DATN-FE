@@ -3,7 +3,7 @@ import { timeAgo } from '@/lib/common'
 import Link from 'next/link'
 
 type Props = {
-  totalStudent: string
+  totalFollowers: number
   totalCourses: number
   timeJoined: Date
   email?: string
@@ -12,7 +12,7 @@ type Props = {
 }
 
 export const UserAbout = ({
-  totalStudent,
+  totalFollowers,
   totalCourses,
   timeJoined,
   email,
@@ -25,7 +25,7 @@ export const UserAbout = ({
         <div className="flex items-center">
           <Users size={20} />{' '}
           <p className="ml-1">
-            <strong>{totalStudent}</strong> theo dõi
+            <strong>{totalFollowers}</strong> theo dõi
           </p>
         </div>
 

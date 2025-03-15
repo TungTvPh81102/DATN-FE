@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { Eye } from 'lucide-react'
+import { Calendar, Eye, Star } from 'lucide-react'
 
 import { useGetEvaluations } from '@/hooks/instructor/evaluation/useEvaluation'
 
@@ -18,6 +18,9 @@ import {
 } from '@/components/ui/dialog'
 import { DataTable } from '@/components/shared/data-table'
 import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 
 const EvaluationView = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -80,7 +83,7 @@ const EvaluationView = () => {
       header: 'STT',
       accessorFn: (_row, index) => index + 1,
       cell: ({ getValue }: any) => (
-        <div className="text-sm font-medium text-gray-900">{getValue()}</div>
+        <div className="font-medium text-gray-700">{getValue()}</div>
       ),
       size: 50,
     },
@@ -92,9 +95,17 @@ const EvaluationView = () => {
       cell: ({ row }: any) => {
         const feedback = row.original
         return (
-          <p className="text-sm font-medium text-gray-900">
-            {feedback.course.name}
-          </p>
+          <div className="flex items-center space-x-2">
+            <Badge
+              variant="outline"
+              className="border-blue-200 bg-blue-50 text-blue-700"
+            >
+              Khoá học
+            </Badge>
+            <span className="font-medium text-gray-800">
+              {feedback.course.name}
+            </span>
+          </div>
         )
       },
     },
@@ -105,26 +116,47 @@ const EvaluationView = () => {
       ),
       cell: ({ row }: any) => {
         const feedback = row.original
+        const initials = feedback.user.name
+          .split(' ')
+          .map((n: string) => n[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2)
+
         return (
-          <p className="text-sm font-medium text-gray-900">
-            {feedback.user.name}
-          </p>
+          <div className="flex items-center gap-2">
+            <Avatar className="size-8 bg-gray-100">
+              <AvatarFallback className="text-xs text-gray-600">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <span className="font-medium text-gray-800">
+              {feedback.user.name}
+            </span>
+          </div>
         )
       },
     },
     {
       accessorKey: 'rate',
       header: ({ column }: any) => (
-        <DataTableColumnHeader column={column} title="Số sao đánh giá" />
+        <DataTableColumnHeader column={column} title="Đánh giá" />
       ),
       cell: ({ row }: any) => {
         const feedback = row.original
-        const stars = Array.from({ length: feedback.rate }, (_, i) => (
-          <span key={i}>⭐</span>
+        const stars = Array.from({ length: 5 }, (_, i) => (
+          <Star
+            key={i}
+            size={16}
+            className={`${i < feedback.rate ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+          />
         ))
         return (
-          <div className="flex items-center font-medium text-gray-900">
-            {stars.length > 0 ? stars : 'Chưa đánh giá'}{' '}
+          <div className="flex items-center">
+            {stars}
+            <span className="ml-2 text-sm text-gray-500">
+              ({feedback.rate}/5)
+            </span>
           </div>
         )
       },
@@ -136,7 +168,14 @@ const EvaluationView = () => {
       ),
       cell: ({ row }: any) => {
         const feedback = row.original
-        return <>{format(new Date(feedback.created_at), 'dd/MM/yyyy')}</>
+        return (
+          <div className="flex items-center gap-2">
+            <Calendar size={14} className="text-gray-500" />
+            <span className="text-gray-600">
+              {format(new Date(feedback.created_at), 'dd/MM/yyyy')}
+            </span>
+          </div>
+        )
       },
     },
     {
@@ -144,8 +183,14 @@ const EvaluationView = () => {
       cell: ({ row }: any) => {
         const feedback = row.original
         return (
-          <Button variant="ghost" onClick={() => openDialog(feedback)}>
-            <Eye />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openDialog(feedback)}
+            className="border-[#E27447] text-[#E27447] transition-colors hover:bg-[#E27447] hover:text-white"
+          >
+            <Eye size={16} className="mr-1" />
+            <span className="hidden sm:inline">Xem</span>
           </Button>
         )
       },
@@ -174,43 +219,94 @@ const EvaluationView = () => {
         </div>
       </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold">
-              Thông tin đánh giá
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold text-gray-800">
+              <Badge className="bg-[#E27447] text-white">
+                <Star size={14} className="mr-1 fill-white" />
+                Đánh giá
+              </Badge>
+              Chi tiết đánh giá
             </DialogTitle>
             <DialogDescription className="text-sm text-gray-500">
               Xem chi tiết về đánh giá của học viên.
             </DialogDescription>
           </DialogHeader>
           {selectedFeedback && (
-            <div className="space-y-3">
-              <p>
-                <strong>Học viên:</strong> {selectedFeedback.user.name}
-              </p>
-              <p>
-                <strong>Khoá học:</strong> {selectedFeedback.course.name}
-              </p>
-              <p>
-                <strong>Số sao:</strong> {selectedFeedback.rate} ⭐
-              </p>
-              <p>
-                <strong>Nội dung đánh giá:</strong>{' '}
-                {selectedFeedback.content || 'Không có'}
-              </p>
-              <p>
-                <strong>Ngày đánh giá:</strong>{' '}
-                {format(new Date(selectedFeedback.created_at), 'dd/MM/yyyy')}
-              </p>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Avatar className="size-10 bg-gray-100">
+                  <AvatarFallback className="text-gray-600">
+                    {selectedFeedback.user.name
+                      .split(' ')
+                      .map((n: string) => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-gray-800">
+                    {selectedFeedback.user.name}
+                  </h3>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <Star
+                        key={i}
+                        size={16}
+                        className={`${i < selectedFeedback.rate ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                      />
+                    ))}
+                    <span className="ml-1 text-sm text-gray-500">
+                      ({selectedFeedback.rate}/5)
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-600">Khoá học:</span>
+                  <span className="text-gray-800">
+                    {selectedFeedback.course.name}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-600">
+                    Ngày đánh giá:
+                  </span>
+                  <span className="flex items-center gap-1 text-gray-800">
+                    <Calendar size={14} className="text-gray-500" />
+                    {format(
+                      new Date(selectedFeedback.created_at),
+                      'dd/MM/yyyy'
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-gray-700">
+                  Nội dung đánh giá:
+                </h4>
+                <div className="min-h-20 rounded-lg bg-gray-50 p-3 text-gray-700">
+                  {selectedFeedback.content || 'Không có nội dung đánh giá'}
+                </div>
+              </div>
             </div>
           )}
           <DialogFooter>
-            <button
+            <Button
               onClick={closeDialog}
-              className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+              className="bg-[#E27447] text-white transition-colors hover:bg-[#c96640]"
             >
               Đóng
-            </button>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

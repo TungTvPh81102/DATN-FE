@@ -1,3 +1,5 @@
+import { ICourseDataResponse } from '@/types/Course'
+
 export interface IInstructorProfile {
   id?: number
   user_id?: number
@@ -13,6 +15,7 @@ export interface IInstructorProfile {
   avg_rating?: string | null
   total_student?: string | null
   total_courses?: number | null
+  total_followers?: number
   created_at: Date
   updated_at: Date
 }
@@ -49,4 +52,18 @@ export interface IQuestionTeacher {
   description: string
   question: string
   options: string[]
+}
+
+export interface IInstructorProfileResponse {
+  message: string
+  instructor: IInstructorProfile
+}
+
+export interface IInstructorCourseResponse {
+  message: string
+  courses: ICourseDataResponse
+}
+
+export interface IInstructorFollow {
+  followed: boolean
 }

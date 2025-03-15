@@ -76,7 +76,7 @@ export const updateCourseOverViewSchema = z
             message: 'Chỉ chấp nhận định dạng video MP4',
           }),
         z.string(),
-        z.undefined(),
+        z.null(),
       ])
       .optional(),
     price_sale: z.coerce

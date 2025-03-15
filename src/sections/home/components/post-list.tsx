@@ -77,7 +77,7 @@ export const fakePosts = [
 
 const PostList = ({ title, description }: PostListProps) => {
   return (
-    <section className="section-blog tf-spacing-7 pt-0">
+    <section className="section-blog pt-0">
       <div className="tf-container">
         <div className="row">
           <div className="col-12">

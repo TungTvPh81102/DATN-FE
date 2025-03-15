@@ -22,7 +22,7 @@ export const InstructorDetail = ({ instructorDetail }: Props) => {
         </div>
         <div className="entry-content">
           <h5 className="entry-title">
-            <Link href={`/instructor/${instructorDetail?.code}`}>
+            <Link href={`/profile/${instructorDetail?.code}`}>
               {instructorDetail?.name}
             </Link>
           </h5>

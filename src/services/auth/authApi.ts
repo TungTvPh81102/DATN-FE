@@ -12,8 +12,12 @@ export const authApi = {
   logout: async () => {
     return await api.post('auth/logout')
   },
+  getUserWithToken: async () => {
+    return await api.get('auth/get-user-with-token')
+  },
   googleRedirect: async () => {
-    return await api.get('auth/google')
+    const res = await api.get('auth/google')
+    return res.data
   },
   googleCallback: async (query: string) => {
     return await api.get(`auth/google/callback?${query}`)

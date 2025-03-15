@@ -30,7 +30,9 @@ const PostManageView = () => {
     {
       accessorKey: 'index',
       header: '#',
-      cell: ({ row }) => <span>{row.index + 1}</span>,
+      cell: ({ row }) => (
+        <span className="font-medium text-gray-700">{row.index + 1}</span>
+      ),
     },
     {
       accessorKey: 'title',
@@ -38,22 +40,23 @@ const PostManageView = () => {
       cell: ({ row }) => {
         const post = row.original
         return (
-          <div className="flex items-center gap-3">
-            <Image
-              alt={post.title ?? ''}
-              className="size-[100px] rounded-lg"
-              height={100}
-              src={
-                post.thumbnail ||
-                'https://res.cloudinary.com/dvrexlsgx/image/upload/v1734990491/oxbmdtk4x3jvfhxvhnec.jpg'
-              }
-              width={100}
-            />
+          <div className="flex items-center gap-4">
+            <div className="relative size-20 overflow-hidden rounded-lg shadow-md">
+              <Image
+                alt={post.title ?? ''}
+                className="object-cover"
+                fill
+                src={
+                  post.thumbnail ||
+                  'https://res.cloudinary.com/dvrexlsgx/image/upload/v1734990491/oxbmdtk4x3jvfhxvhnec.jpg'
+                }
+              />
+            </div>
             <div className="flex flex-col gap-1">
-              <h3 className="whitespace-nowrap text-sm font-bold lg:text-base">
+              <h3 className="line-clamp-2 font-bold text-gray-800">
                 {post.title}
               </h3>
-              <h4 className="text-xs text-slate-500 lg:text-sm">
+              <h4 className="text-sm text-gray-500">
                 {post?.category?.name || 'Chưa có danh mục'}
               </h4>
             </div>
@@ -79,7 +82,11 @@ const PostManageView = () => {
           color: 'bg-red-500',
         }
 
-        return <Badge className={cn('text-white', color)}>{label}</Badge>
+        return (
+          <Badge className={cn('px-3 py-1 font-medium text-white', color)}>
+            {label}
+          </Badge>
+        )
       },
     },
     {
@@ -88,7 +95,7 @@ const PostManageView = () => {
         <DataTableColumnHeader column={column} title="Ngày tạo" />
       ),
       cell: ({ row }) => (
-        <span>
+        <span className="text-sm text-gray-600">
           {format(new Date(row.original.created_at), 'dd/MM/yyyy HH:mm')}
         </span>
       ),
@@ -97,10 +104,16 @@ const PostManageView = () => {
       accessorKey: 'actions',
       header: 'Hành động',
       cell: ({ row }) => (
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <Link href={`/instructor/posts/update/${row.original.slug}`}>
-            <Button type="button">
-              <Eye />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 border-[#E27447] text-[#E27447] transition-colors hover:bg-[#E27447] hover:text-white"
+            >
+              <Eye size={16} />
+              <span className="hidden sm:inline">Xem</span>
             </Button>
           </Link>
         </div>

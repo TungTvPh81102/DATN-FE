@@ -45,7 +45,7 @@ const CourseSlide = ({ courses }: Props) => {
                   <Link href="#" className="item free best-seller">
                     Miễn phí
                   </Link>
-                ) : course?.price_sale && +course.price_sale > 0 ? (
+                ) : course?.price_sale && course.price_sale > 0 ? (
                   <Link href="#" className="item sale best-seller">
                     Đang giảm giá
                   </Link>

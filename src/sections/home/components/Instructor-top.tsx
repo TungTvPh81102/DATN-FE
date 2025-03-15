@@ -95,7 +95,7 @@ const InstructorTop = ({
   description: string
 }) => {
   return (
-    <section className="section-instructor tf-spacing-3 pt-0">
+    <section className="section-instructor tf-spacing-2 pt-0">
       <div className="tf-container">
         <div className="row">
           <div className="col-12">

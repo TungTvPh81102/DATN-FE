@@ -2,7 +2,15 @@
 
 import React, { useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, ChevronDown, Loader2 } from 'lucide-react'
+import {
+  Calendar,
+  Check,
+  ChevronDown,
+  Ghost,
+  ImagePlus,
+  Loader2,
+  Tag,
+} from 'lucide-react'
 import DatePicker from 'react-datepicker'
 import { useForm } from 'react-hook-form'
 import CreatableSelect from 'react-select/creatable'
@@ -22,7 +30,7 @@ import { parseISO } from 'date-fns'
 
 import { useCreatePost } from '@/hooks/instructor/post/usePost'
 
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Command,
   CommandEmpty,
@@ -47,6 +55,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import QuillEditor from '@/components/shared/quill-editor'
+import { Separator } from '@/components/ui/separator'
 
 const PostAddView = () => {
   const router = useRouter()
@@ -106,133 +115,208 @@ const PostAddView = () => {
       }
     )
   }
+  const primaryColor = '#E27447'
+  const primaryLightColor = '#FAF0ED'
 
   return (
-    <div className="px-5 py-6">
+    <div className="min-h-screen bg-gray-50 px-5 py-6">
       <div className="mt-2">
-        <p className="text-xl font-bold">Thêm bài viết</p>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Thêm bài viết mới</h1>
+          <Button
+            variant="outline"
+            onClick={() => router.push('/instructor/posts')}
+            className="hover:bg-orange-50"
+          >
+            Quay lại
+          </Button>
+        </div>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="mt-4 grid grid-cols-[1fr,300px] gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,350px]">
             <div className="space-y-6">
-              <Card>
-                <CardContent className="space-y-4 p-6">
-                  <div>
-                    <h2 className="mb-2 text-lg font-medium">
-                      Thông tin bài viết
-                    </h2>
-                    <div className="space-y-4">
-                      <div>
-                        <FormField
-                          control={form.control}
-                          name="title"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Tiêu đề bài viết</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Nhập tiêu đề bài viết"
-                                  {...field}
+              <Card className="border-0 shadow-sm">
+                <CardHeader
+                  className="pb-3"
+                  style={{ background: primaryLightColor }}
+                >
+                  <CardTitle
+                    className="text-lg font-medium"
+                    style={{ color: primaryColor }}
+                  >
+                    Thông tin bài viết
+                  </CardTitle>
+                </CardHeader>
+                <Separator style={{ background: primaryColor, opacity: 0.2 }} />
+                <CardContent className="space-y-5 pt-5">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">
+                          Tiêu đề bài viết
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Nhập tiêu đề bài viết"
+                            className="h-10 focus:ring-2 focus:ring-opacity-50"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="space-y-3">
+                    <FormLabel className="text-base font-medium">
+                      Hình ảnh
+                    </FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="thumbnail"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            {!preview ? (
+                              <div
+                                className="flex h-64 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors hover:bg-orange-50"
+                                style={{ borderColor: `${primaryColor}40` }}
+                                onClick={() => fileInputRef.current?.click()}
+                              >
+                                <ImagePlus
+                                  className="mb-2 size-10"
+                                  style={{ color: primaryColor }}
                                 />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div>
-                        <Label>Hình ảnh</Label>
-                        <div className="mt-1">
-                          <FormField
-                            control={form.control}
-                            name="thumbnail"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
+                                <p className="text-center text-gray-600">
+                                  Kéo thả hoặc nhấn vào đây để tải lên hình ảnh
+                                </p>
+                                <p className="mt-1 text-xs text-gray-400">
+                                  PNG, JPG, GIF lên đến 10MB
+                                </p>
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(event) =>
+                                    handleFileChange(event, field)
+                                  }
+                                  ref={fileInputRef}
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="relative overflow-hidden rounded-lg border"
+                                style={{ borderColor: `${primaryColor}40` }}
+                              >
+                                <Image
+                                  src={preview}
+                                  alt="Preview"
+                                  width={800}
+                                  height={400}
+                                  className="h-64 w-full object-cover"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    onClick={() => handleReset(field)}
+                                    className="mx-2"
+                                  >
+                                    Xóa ảnh
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    onClick={() =>
+                                      fileInputRef.current?.click()
+                                    }
+                                    className="mx-2"
+                                    style={{
+                                      backgroundColor: primaryColor,
+                                      borderColor: primaryColor,
+                                    }}
+                                  >
+                                    Thay đổi
+                                  </Button>
                                   <Input
                                     type="file"
                                     accept="image/*"
-                                    className="cursor-pointer"
+                                    className="hidden"
                                     onChange={(event) =>
                                       handleFileChange(event, field)
                                     }
                                     ref={fileInputRef}
                                   />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
+                                </div>
+                              </div>
                             )}
-                          />
-                        </div>
-                        {preview && (
-                          <>
-                            <div className="mt-2">
-                              <Image
-                                src={preview}
-                                alt="Preview"
-                                width={300}
-                                height={300}
-                                className="h-[300px] w-full rounded-md object-cover"
-                              />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <FormLabel className="text-base font-medium">
+                      Mô tả bài viết
+                    </FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="overflow-hidden rounded-md border">
+                              <QuillEditor {...field} />
                             </div>
-                            <div className="mt-2 text-end">
-                              <Button
-                                type="button"
-                                onClick={() =>
-                                  handleReset(form.setValue as any)
-                                }
-                              >
-                                Reset
-                              </Button>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <FormLabel className="text-base font-medium">
+                      Nội dung bài viết
+                    </FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="content"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="overflow-hidden rounded-md border">
+                              <QuillEditor {...field} />
                             </div>
-                          </>
-                        )}
-                      </div>
-                      <div>
-                        <Label>Mô tả bài viết</Label>
-                        <div className="mt-1">
-                          <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <QuillEditor {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <Label>Nội dung</Label>
-                        <div className="mt-1">
-                          <FormField
-                            control={form.control}
-                            name="content"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <QuillEditor {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </CardContent>
               </Card>
             </div>
             <div className="space-y-4">
               <Card>
+                <CardHeader
+                  className="pb-3"
+                  style={{ background: primaryLightColor }}
+                >
+                  <CardTitle
+                    className="flex items-center text-lg font-medium"
+                    style={{ color: primaryColor }}
+                  >
+                    <Calendar className="mr-2 size-5" />
+                    Thời gian xuất bản
+                  </CardTitle>
+                </CardHeader>
+                <Separator style={{ background: primaryColor, opacity: 0.2 }} />
                 <CardContent className="p-4">
-                  <h2 className="mb-2 text-lg font-medium">Tuỳ chỉnh</h2>
-                  <div className="mb-2 border-t"></div>
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
@@ -273,14 +357,27 @@ const PostAddView = () => {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="p-4">
+
+              <Card className="border-0 shadow-sm">
+                <CardHeader
+                  className="pb-3"
+                  style={{ background: primaryLightColor }}
+                >
+                  <CardTitle
+                    className="flex items-center text-lg font-medium"
+                    style={{ color: primaryColor }}
+                  >
+                    <Ghost className="mr-2 size-5" />
+                    Danh mục bài viết
+                  </CardTitle>
+                </CardHeader>
+                <Separator style={{ background: primaryColor, opacity: 0.2 }} />
+                <CardContent className="pt-5">
                   <FormField
                     control={form.control}
                     name="category_id"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Danh mục khóa học</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -288,17 +385,21 @@ const PostAddView = () => {
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                  'justify-between',
+                                  'w-full justify-between',
                                   !field.value && 'text-muted-foreground'
                                 )}
+                                style={{
+                                  borderColor: `${primaryColor}40`,
+                                  color: field.value ? 'inherit' : '#9CA3AF',
+                                }}
                               >
                                 {field.value
                                   ? categoryData?.data.find(
                                       (category: ICategory) =>
                                         category.id === field.value
                                     )?.name
-                                  : 'Chọn danh mục cho khóa học'}
-                                <ChevronDown className="opacity-50" />
+                                  : 'Chọn danh mục bài viết'}
+                                <ChevronDown className="ml-2 size-4 opacity-50" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
@@ -321,6 +422,7 @@ const PostAddView = () => {
                                         onSelect={() => {
                                           field.onChange(category.id)
                                         }}
+                                        className="flex items-center justify-between"
                                       >
                                         {category.name}
                                         <Check
@@ -330,6 +432,7 @@ const PostAddView = () => {
                                               ? 'opacity-100'
                                               : 'opacity-0'
                                           )}
+                                          style={{ color: primaryColor }}
                                         />
                                       </CommandItem>
                                     )
@@ -339,16 +442,27 @@ const PostAddView = () => {
                             </Command>
                           </PopoverContent>
                         </Popover>
-                        <FormMessage />
+                        <FormMessage style={{ color: primaryColor }} />
                       </FormItem>
                     )}
                   />
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <h2 className="mb-2 text-lg font-medium">Tags</h2>
-                  <div className="mb-3 border-t"></div>
+              <Card className="border-0 shadow-sm">
+                <CardHeader
+                  className="pb-3"
+                  style={{ background: primaryLightColor }}
+                >
+                  <CardTitle
+                    className="flex items-center text-lg font-medium"
+                    style={{ color: primaryColor }}
+                  >
+                    <Tag className="mr-2 size-5" />
+                    Thẻ gắn kèm
+                  </CardTitle>
+                </CardHeader>
+                <Separator style={{ background: primaryColor, opacity: 0.2 }} />
+                <CardContent className="pt-5">
                   <FormField
                     control={form.control}
                     name="tags"
@@ -373,9 +487,45 @@ const PostAddView = () => {
                                 inputValue,
                               ])
                             }}
+                            styles={{
+                              control: (base) => ({
+                                ...base,
+                                borderColor: `${primaryColor}40`,
+                                borderRadius: '0.375rem',
+                                minHeight: '38px',
+                                boxShadow: 'none',
+                                '&:hover': {
+                                  borderColor: `${primaryColor}70`,
+                                },
+                              }),
+                              multiValue: (base) => ({
+                                ...base,
+                                backgroundColor: primaryLightColor,
+                                borderRadius: '0.25rem',
+                              }),
+                              multiValueLabel: (base) => ({
+                                ...base,
+                                color: primaryColor,
+                              }),
+                              multiValueRemove: (base) => ({
+                                ...base,
+                                color: primaryColor,
+                                ':hover': {
+                                  backgroundColor: primaryColor,
+                                  color: 'white',
+                                },
+                              }),
+                              option: (base, { isFocused }) => ({
+                                ...base,
+                                backgroundColor: isFocused
+                                  ? primaryLightColor
+                                  : 'white',
+                                color: isFocused ? primaryColor : 'inherit',
+                              }),
+                            }}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage style={{ color: primaryColor }} />
                       </FormItem>
                     )}
                   />

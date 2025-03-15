@@ -11,12 +11,19 @@ export interface IMessage {
     file_path: string
     [key: string]: any
   }
+  parent?: {
+    id: number
+    senderId: number
+    text: string
+    sender: {
+      name: string
+      avatar: string
+    }
+  } | null
   sender: {
     name: string
     avatar: string
-    id?: number
   }
-  parent?: any
 }
 
 export interface IChannel {

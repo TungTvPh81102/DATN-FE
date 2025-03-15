@@ -114,7 +114,12 @@ export const useUpdateCourseOverView = () => {
       if (data.thumbnail instanceof File) {
         formData.append('thumbnail', data.thumbnail)
       }
-      if (data.intro instanceof File) {
+
+      if (data.intro === null) {
+        formData.append('intro', '')
+      } else if (data.intro instanceof File) {
+        formData.append('intro', data.intro)
+      } else if (typeof data.intro === 'string') {
         formData.append('intro', data.intro)
       }
 

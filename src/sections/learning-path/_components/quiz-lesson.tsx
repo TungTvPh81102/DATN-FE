@@ -135,7 +135,7 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
   if (!quizData || !questions.length) return <p>Không có câu hỏi nào.</p>
 
   return (
-    <div className="mx-16 mb-40 mt-12 space-y-8">
+    <div className="mx-16 mb-40 mt-8 space-y-4">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">{lesson.title}</h1>
         <p className="text-sm text-muted-foreground">
@@ -156,13 +156,41 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
                 key={question.id!}
                 className={cn(currentQuestion !== questionIndex && 'hidden')}
               >
-                Câu hỏi {currentQuestion + 1}:{' '}
-                {question.answer_type === AnswerType.MultipleChoice && (
-                  <span className="text-sm text-muted-foreground">
-                    (Chọn nhiều đáp án)
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold">
+                    <span className="text-lg font-medium">
+                      Câu hỏi {currentQuestion + 1}:{' '}
+                    </span>
+                    {question.question}
+                    {question.answer_type === AnswerType.MultipleChoice && (
+                      <span className="text-sm text-muted-foreground">
+                        (Chọn nhiều đáp án)
+                      </span>
+                    )}
+                  </h3>
+                  <span className="text-sm">
+                    Tiến độ: {Object.keys(isCorrect).length}/{questions.length}{' '}
+                    câu hỏi
                   </span>
+                </div>
+
+                {question.image && (
+                  <div className="mt-4">
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_STORAGE}/${question.image}`}
+                      alt={`Hình ảnh cho câu hỏi ${currentQuestion + 1}`}
+                      className="max-h-80 rounded-md object-contain"
+                    />
+                  </div>
                 )}
-                <h3 className="text-lg font-semibold">{question.question}</h3>
+
+                {/* Display question description if available */}
+                {question.description && (
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    <p>{question.description}</p>
+                  </div>
+                )}
+
                 <div className="mt-4">
                   {question.answer_type === AnswerType.OneChoice ? (
                     <FormField
@@ -266,7 +294,6 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
                 </div>
               </div>
             ))}
-            {/*  */}
 
             <div className="mt-4 flex justify-between">
               {currentQuestion > 0 && (
@@ -292,7 +319,9 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
 
               {!isCompleted && isCorrectAll && (
                 <Button type="submit" disabled={isPending}>
-                  {isPending && <Loader2 className="animate-spin" />}
+                  {isPending && (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  )}
                   Nộp bài
                 </Button>
               )}

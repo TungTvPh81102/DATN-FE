@@ -30,13 +30,13 @@ export interface ICourse {
   user_id?: number
   category_id?: number
   category?: ICategory
-  code?: string
+  code: string
   name: string
   slug: string
   thumbnail?: string | null
   intro?: string | null
-  price?: string | null
-  price_sale?: string | null
+  price?: number | null
+  price_sale?: number | null
   description?: string | null
   content?: string | null
   level?: string | null
@@ -48,7 +48,7 @@ export interface ICourse {
   benefits?: string | string[]
   qa?: { question: string; answer: string }[]
   is_popular?: 0 | 1
-  status: `${CourseStatus}`
+  status: CourseStatus
   chapters?: IChapter[]
   lessons_count?: number
   chapters_count?: number
@@ -56,11 +56,11 @@ export interface ICourse {
   avg_rating?: string
   total_rating?: string
   accepted?: Date | null
-  user?: IUser
-  name_instructor?: string
-  code_instructor?: string
+  user: IUser
+  name_instructor: string
+  code_instructor: string
   deleted_at?: Date | null
-  created_at?: Date | string | null
+  created_at?: Date | null
   updated_at?: Date | null
   is_free?: 0 | 1
   total_video_duration?: number
@@ -77,7 +77,6 @@ export interface IChapter {
   total_video_duration?: number
   createdAt?: Date | null
   updatedAt?: Date | null
-  course_id?: number | null
 }
 
 export interface ILesson {
@@ -86,14 +85,14 @@ export interface ILesson {
   chapter_id?: number
   title: string
   duration?: number | null
-  content?: string
+  content: string
   playbackId?: string | null
   is_free_preview?: 0 | 1
   order?: number | null
-  type?: LessonType
+  type: LessonType
   lessonable_id?: number
   lessonable?: Lessonable
-  created_at?: string
+  created_at: string
   updated_at: string
   chapter?: IChapter
 }

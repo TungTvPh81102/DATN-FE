@@ -3,15 +3,15 @@
 import React, { useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { Eye } from 'lucide-react'
+import { Calendar, Eye } from 'lucide-react'
 
 import { useGetWithDrawalRequests } from '@/hooks/wallet/useWallet'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/shared/data-table'
 import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
 import DialogWithDrawRequest from '@/sections/instructor/components/with-draw-request/dialog-with-draw-request'
+import { formatCurrency } from '@/lib/common'
 
 const WithDrawRequestView = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -37,7 +37,22 @@ const WithDrawRequestView = () => {
   const { data: withDrawRequestData, isLoading } =
     useGetWithDrawalRequests(formattedFilters)
 
-  const columns: ColumnDef<any[]>[] = [
+  type WithDrawStatus =
+    | 'Đang xử lý'
+    | 'Đã xử lý'
+    | 'Chờ xác nhận lại'
+    | 'Từ chối'
+    | 'Hoàn thành'
+
+  const columns: ColumnDef<{
+    status: WithDrawStatus
+    bank_name: string
+    account_number: string
+    account_holder: string
+    amount: number
+    request_date: string
+    id: string
+  }>[] = [
     {
       header: 'STT',
       accessorFn: (_row, index) => index + 1,
@@ -94,11 +109,8 @@ const WithDrawRequestView = () => {
       cell: ({ row }: any) => {
         const withDrawRequest = row.original
         return (
-          <p className="font-medium text-gray-900">
-            {Number(withDrawRequest.amount).toLocaleString('vi-VN', {
-              style: 'currency',
-              currency: 'VND',
-            })}
+          <p className="rounded bg-green-50 px-3 py-1 font-semibold text-green-700">
+            {formatCurrency(withDrawRequest.amount ?? 0)}
           </p>
         )
       },
@@ -110,37 +122,27 @@ const WithDrawRequestView = () => {
       ),
       cell: ({ row }: any) => {
         const withDrawRequest = row.original
-        let variant = 'default'
 
-        switch (withDrawRequest.status) {
-          case 'Đang xử lý':
-            variant = 'warning'
-            break
-          case 'Đã xử lý':
-            variant = 'secondary'
-            break
-          case 'Chờ xác nhận lại':
-            variant = 'info'
-            break
-          case 'Từ chối':
-            variant = 'destructive'
-            break
-          case 'Hoàn thành':
-            variant = 'success'
-            break
-          default:
-            variant = 'default'
+        const statusStyles = {
+          'Đang xử lý': 'bg-amber-100 text-amber-800 border border-amber-300',
+          'Đã xử lý': 'bg-blue-100 text-blue-800 border border-blue-300',
+          'Chờ xác nhận lại':
+            'bg-purple-100 text-purple-800 border border-purple-300',
+          'Từ chối': 'bg-red-100 text-red-800 border border-red-300',
+          'Hoàn thành':
+            'bg-emerald-100 text-emerald-800 border border-emerald-300',
         }
 
+        const style =
+          statusStyles[withDrawRequest.status as WithDrawStatus] ||
+          'bg-gray-100 text-gray-800 border border-gray-300'
+
         return (
-          <>
-            <Badge
-              variant={variant as any}
-              className="text-sm font-semibold capitalize"
-            >
-              {withDrawRequest.status}
-            </Badge>
-          </>
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${style}`}
+          >
+            {withDrawRequest.status}
+          </span>
         )
       },
     },
@@ -152,7 +154,12 @@ const WithDrawRequestView = () => {
       cell: ({ row }: any) => {
         const withDrawRequest = row.original
         return (
-          <>{format(new Date(withDrawRequest.request_date), 'dd/MM/yyyy')}</>
+          <div className="flex items-center gap-1.5">
+            <Calendar size={14} className="text-gray-500" />
+            <span className="text-sm text-gray-600">
+              {format(new Date(withDrawRequest.request_date), 'dd/MM/yyyy')}
+            </span>
+          </div>
         )
       },
     },
@@ -167,8 +174,11 @@ const WithDrawRequestView = () => {
                 setOpenDialog(true)
                 setSelectWithDraw(withDrawRequest.id)
               }}
+              className="bg-[#E27447] text-white hover:bg-[#ce6a3e]"
+              size="sm"
             >
-              <Eye />
+              <Eye size={16} className="mr-1" />
+              <span>Chi tiết</span>
             </Button>
           </div>
         )

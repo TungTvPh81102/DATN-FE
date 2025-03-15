@@ -5,6 +5,7 @@ import EmojiPicker from 'emoji-picker-react'
 import type { EmojiClickData } from 'emoji-picker-react'
 import {
   Archive,
+  Film,
   Info,
   Loader2,
   Mic,
@@ -45,14 +46,17 @@ import echo from '@/lib/echo'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { MessagePayload } from '@/validations/chat'
 import { timeAgo } from '@/lib/common'
-import MessageContent from '@/components/shared/message-content'
+import {
+  EnhancedMessageItem,
+  ReplyPreview,
+} from '@/components/shared/message-content'
 import { IChannel, IMessage } from '@/types/Chat'
 import { SidebarChatInfo } from '@/components/shared/sidebar-chat-info'
 
 interface FilePreview {
   name: string
   url: string
-  type: 'file' | 'image'
+  type: 'file' | 'image' | 'video'
   blob: Blob
 }
 
@@ -60,6 +64,7 @@ const ChatView = () => {
   const { user } = useAuthStore()
 
   const [message, setMessage] = useState('')
+  const [replyTo, setReplyTo] = useState<IMessage | null>(null)
   const [chats, setChats] = useState<Record<number, IMessage[]>>({})
   const [addGroupChat, setAddGroupChat] = useState(false)
   const [selectedChannel, setSelectedChannel] = useState<IChannel | null>(
@@ -77,6 +82,7 @@ const ChatView = () => {
   const [filePreviews, setFilePreviews] = useState<FilePreview[]>([])
   const searchInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
@@ -109,7 +115,20 @@ const ChatView = () => {
           name: msg.sender.name,
           avatar: msg.sender.avatar,
         },
+        parent: msg.parent
+          ? {
+              id: msg.parent.id,
+              senderId: msg.parent.sender_id,
+              text: msg.parent.content,
+              sender: {
+                name: msg.parent.sender.name,
+                avatar: msg.parent.sender.avatar,
+              },
+            }
+          : null,
       }))
+
+      console.log(formattedMessages)
 
       setCurrentUser(user?.id ?? null)
 
@@ -145,7 +164,7 @@ const ChatView = () => {
 
   const handleFileSelect = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: 'file' | 'image'
+    type: 'file' | 'image' | 'video'
   ) => {
     const files = Array.from(e.target.files || [])
     if (files.length === 0) return
@@ -154,6 +173,11 @@ const ChatView = () => {
       .map((file) => {
         if (type === 'image' && !file.type.startsWith('image/')) {
           alert('Please select an image file')
+          return null
+        }
+
+        if (type === 'video' && !file.type.startsWith('video/')) {
+          alert('Please select a video file')
           return null
         }
 
@@ -224,6 +248,17 @@ const ChatView = () => {
                 name: event?.sender?.name || 'Unknown',
                 avatar: event?.sender?.avatar ?? '',
               },
+              parent: event.parent
+                ? {
+                    id: event.parent.id,
+                    senderId: event.parent.sender_id,
+                    text: event.parent.content,
+                    sender: {
+                      name: event.parent.sender.name,
+                      avatar: event.parent.sender.avatar,
+                    },
+                  }
+                : null,
             } satisfies IMessage,
           ],
         }))
@@ -236,6 +271,14 @@ const ChatView = () => {
       }
     }
   }, [selectedChannel])
+
+  const handleReply = (message: IMessage) => {
+    setReplyTo(message)
+  }
+
+  const clearReply = () => {
+    setReplyTo(null)
+  }
 
   const sendMessage = () => {
     if (!message.trim() && filePreviews.length === 0) return
@@ -253,16 +296,17 @@ const ChatView = () => {
 
     const newMessage: MessagePayload = {
       conversation_id: selectedChannel?.conversation_id,
-      parent_id: undefined,
+      parent_id: replyTo ? replyTo.id : undefined,
       content: message,
       type: 'text',
       file: filesData,
     }
 
     senderMessage(newMessage, {
-      onSuccess: (response: any) => {
-        console.log('Message sent successfully', response.data)
+      onSuccess: () => {
         setMessage('')
+        setReplyTo(null)
+        setFilePreviews([])
       },
     })
 
@@ -272,7 +316,12 @@ const ChatView = () => {
     setFilePreviews([])
   }
 
-  console.log(selectedChannel)
+  const getFileSize = (blob: Blob) => {
+    const bytes = blob.size
+    if (bytes < 1024) return bytes + ' B'
+    else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+    else return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  }
 
   return (
     <>
@@ -291,6 +340,14 @@ const ChatView = () => {
           className="hidden"
           onChange={(e) => handleFileSelect(e, 'image')}
           accept="image/*"
+          multiple
+        />
+        <input
+          type="file"
+          ref={videoInputRef}
+          className="hidden"
+          onChange={(e) => handleFileSelect(e, 'video')}
+          accept="video/*"
           multiple
         />
 
@@ -523,48 +580,15 @@ const ChatView = () => {
                 chats[selectedChannel.conversation_id]?.map((msg: IMessage) => {
                   const isCurrentUser = msg.senderId === currentUser
                   const isGroupChat = selectedChannel?.type === 'group'
-                  const isTextMessage = msg.type === 'text'
 
                   return (
-                    <div
+                    <EnhancedMessageItem
                       key={msg.id}
-                      className={`mr-4 flex items-start gap-3 ${
-                        isCurrentUser ? 'justify-end' : ''
-                      }`}
-                    >
-                      {!isCurrentUser && (
-                        <Avatar className="size-8">
-                          <AvatarImage
-                            src={msg.sender.avatar}
-                            alt={msg.sender.name}
-                          />
-                          <AvatarFallback>{msg.sender.name}</AvatarFallback>
-                        </Avatar>
-                      )}
-                      <div className={`${isCurrentUser ? 'text-right' : ''}`}>
-                        {isGroupChat && !isCurrentUser && (
-                          <div className="mb-1 text-sm font-medium text-gray-600">
-                            {msg.sender.name}
-                          </div>
-                        )}
-                        <div
-                          className={`rounded-lg ${
-                            isTextMessage
-                              ? `p-3 ${
-                                  isCurrentUser
-                                    ? 'bg-orange-500 text-white'
-                                    : 'bg-gray-200'
-                                }`
-                              : ''
-                          }`}
-                        >
-                          <MessageContent message={msg} />
-                        </div>
-                        <span className="text-xs text-gray-500">
-                          {msg.timestamp}
-                        </span>
-                      </div>
-                    </div>
+                      message={msg}
+                      isCurrentUser={isCurrentUser}
+                      isGroupChat={isGroupChat}
+                      onReply={handleReply}
+                    />
                   )
                 })
               )}
@@ -594,6 +618,36 @@ const ChatView = () => {
                             >
                               <X className="size-4" />
                             </Button>
+                          </div>
+                        </div>
+                      ) : preview.type === 'video' ? (
+                        <div className="group relative">
+                          <div className="relative h-24 w-full rounded-lg bg-black/10">
+                            <video
+                              src={preview.url}
+                              className="size-full rounded-lg object-cover"
+                              muted
+                            />
+                            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg">
+                              <Film className="mb-1 size-6 text-white/90" />
+                              <span className="line-clamp-1 rounded bg-black/30 px-1 text-xs text-white/90">
+                                {preview.name.substring(0, 15)}
+                                {preview.name.length > 15 ? '...' : ''}
+                              </span>
+                              <span className="mt-1 rounded bg-black/30 px-1 text-xs text-white/90">
+                                {getFileSize(preview.blob)}
+                              </span>
+                            </div>
+                            <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="size-8 text-white hover:text-white/80"
+                                onClick={() => removeFilePreview(index)}
+                              >
+                                <X className="size-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       ) : (
@@ -632,6 +686,13 @@ const ChatView = () => {
           )}
 
           <div className="border-t bg-white p-4">
+            {replyTo && (
+              <ReplyPreview
+                message={replyTo}
+                isReplyingToSelf={replyTo.senderId === currentUser}
+                onClear={clearReply}
+              />
+            )}
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-1.5">
                 <Button
@@ -662,6 +723,14 @@ const ChatView = () => {
                     <circle cx="8.5" cy="8.5" r="1.5" />
                     <path d="M20.4 14.5 16 10 4 20" />
                   </svg>
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="size-9 rounded-full hover:bg-secondary"
+                  onClick={() => videoInputRef.current?.click()}
+                >
+                  <Film className="size-5 text-muted-foreground" />
                 </Button>
                 <Popover>
                   <PopoverTrigger asChild>

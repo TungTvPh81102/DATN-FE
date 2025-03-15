@@ -12,7 +12,6 @@ import {
 } from '@/lib/common'
 import { useApplyCoupon } from '@/hooks/transation/useTransation'
 import { useGetCouponUser } from '@/hooks/user/useUser'
-import { useCreateVNPayPayment } from '@/hooks/vn-pay/useVnPay'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -26,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { useCreatePayment } from '@/hooks/payment/usePayment'
 
 interface BuyCourseModalProps {
   course: {
@@ -72,17 +72,18 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
   const [selectedCoupon, setSelectedCoupon] = useState<any>(null)
   const [discountAmount, setDiscountAmount] = useState(0)
   const [finalPrice, setFinalPrice] = useState(
-    course.price_sale > 0 ? course.price_sale : course.price
+    course?.price_sale > 0 ? course?.price_sale : course?.price
   )
   const [isCouponApplied, setIsCouponApplied] = useState(false)
   const [hasDiscountCode, setHasDiscountCode] = useState(false)
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false)
 
-  const originalPrice = course.price_sale > 0 ? course.price_sale : course.price
+  const originalPrice =
+    course?.price_sale > 0 ? course?.price_sale : course?.price
 
   const { data: couponData, isLoading } = useGetCouponUser()
-  const { mutate: createVNPayPayment, isPending: isPendingCreateVNPayPayment } =
-    useCreateVNPayPayment()
+  const { mutate: createPayment, isPending: isPendingCreatePayment } =
+    useCreatePayment()
   const { mutate: applyCoupon, isPending: isPendingApplyCoupon } =
     useApplyCoupon()
 
@@ -173,6 +174,7 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
     }
 
     switch (selectedPaymentMethod) {
+      case 'momo':
       case 'vnpay':
         const paymentData = {
           amount: finalPrice,
@@ -184,8 +186,9 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
           payment_method: selectedPaymentMethod,
         }
 
-        createVNPayPayment(paymentData, {
+        createPayment(paymentData, {
           onSuccess: (res: any) => {
+            console.log(res)
             window.location.href = res.data
           },
           onError: (res: any) => {
@@ -193,11 +196,6 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
             toast.warning(res.message)
           },
         })
-
-        break
-
-      case 'momo':
-        alert('Phương thức thanh toán Momo đang được phát triển')
         break
 
       case 'credit-card':
@@ -415,12 +413,12 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
               <Button
                 disabled={
                   (hasDiscountCode && !isCouponApplied) ||
-                  isPendingCreateVNPayPayment
+                  isPendingCreatePayment
                 }
                 onClick={handlePayment}
                 className="mt-6 w-full"
               >
-                {isPendingCreateVNPayPayment ? (
+                {isPendingCreatePayment ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="animate-spin" /> Loading...
                   </div>

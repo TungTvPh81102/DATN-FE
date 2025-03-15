@@ -4,7 +4,7 @@ import Link from 'next/link'
 const BecomeInstructorBanner = () => {
   return (
     <section
-      className="section-become-instructor tf-spacing-3 wow fadeInUp pt-0"
+      className="section-become-instructor wow fadeInUp mb-12 pt-0"
       data-wow-delay="0.2s"
     >
       <div className="tf-container">

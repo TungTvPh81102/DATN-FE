@@ -17,14 +17,23 @@ export const CourseIntro = () => (
       </li>
       <li>Danh sách khoá học</li>
     </ul>
-    <h2 className="fw-7">Khám Phá Tất Cả Khoá Học Của Chúng Tôi</h2>
-    <div className="mt-6">
-      <p>
+    <div className="relative mb-8">
+      <div className="absolute top-0 h-full w-1 rounded-full bg-gradient-to-b from-orange-500 to-orange-500"></div>
+      <h1 className="pl-4 text-3xl font-bold text-gray-800 md:text-4xl">
+        Khám Phá Tất Cả Khoá Học Của Chúng Tôi
+      </h1>
+    </div>
+    <div className="space-y-4 pl-4 leading-relaxed text-gray-700">
+      <p className="text-lg">
         Chào mừng bạn đến với danh sách khóa học trực tuyến! Tại đây, bạn có thể
-        tìm thấy hàng trăm khóa học thuộc nhiều lĩnh vực khác nhau, từ lập
-        trình, thiết kế, kinh doanh đến phát triển cá nhân.
+        tìm thấy hàng trăm khóa học thuộc nhiều lĩnh vực khác nhau, từ
+        <span className="font-medium text-orange-600"> lập trình</span>,
+        <span className="font-medium text-orange-600"> thiết kế</span>,
+        <span className="font-medium text-orange-600"> kinh doanh </span>
+        đến{' '}
+        <span className="font-medium text-orange-600">phát triển cá nhân</span>.
       </p>
-      <p>
+      <p className="text-lg">
         Dù bạn là người mới bắt đầu hay đã có kinh nghiệm, chúng tôi luôn có
         những khóa học phù hợp để giúp bạn nâng cao kỹ năng, mở rộng cơ hội và
         phát triển sự nghiệp. Hãy chọn lĩnh vực bạn quan tâm và bắt đầu hành

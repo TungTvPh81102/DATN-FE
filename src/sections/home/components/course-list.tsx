@@ -5,7 +5,6 @@ import { useCreateWishList } from '@/hooks/wish-list/useWishList'
 import { formatCurrency, formatDuration } from '@/lib/common'
 import { ICourse } from '@/types'
 import { CreateWishListPayload } from '@/validations/wish-list'
-import { Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Swal from 'sweetalert2'
@@ -60,6 +59,66 @@ const CourseList = ({
     })
   }
 
+  const CourseItemSkeleton = () => (
+    <div className="course-item hover-img title-small">
+      <div className="features image-wrap">
+        <div className="h-44 w-full rounded-t-lg bg-gray-300"></div>
+
+        <div className="box-tags">
+          <div className="item h-6 w-20 bg-gray-300"></div>
+        </div>
+
+        <div className="box-wishlist tf-action-btns size-8 rounded-full bg-gray-300"></div>
+      </div>
+
+      <div className="content">
+        <div className="meta !gap-0 md:gap-4">
+          <div className="meta-item flex items-center !pr-2 md:pr-[10px]">
+            <div className="mr-2 size-4 rounded-full bg-gray-300"></div>
+            <div className="h-4 w-16 rounded bg-gray-300"></div>
+          </div>
+
+          <div className="meta-item flex items-center pl-2 md:pl-[10px]">
+            <div className="mr-2 size-4 rounded-full bg-gray-300"></div>
+            <div className="h-4 w-16 rounded bg-gray-300"></div>
+          </div>
+        </div>
+
+        <div className="my-2 h-6">
+          <div className="h-5 w-full rounded bg-gray-300"></div>
+        </div>
+
+        <div className="ratings pb-30 flex items-center">
+          <div className="mr-2 h-5 w-8 rounded bg-gray-300"></div>
+          <div className="stars flex items-center">
+            {[...Array(5)].map((_, index) => (
+              <div
+                key={index}
+                className="mx-0.5 size-4 rounded-full bg-gray-300"
+              ></div>
+            ))}
+          </div>
+          <div className="ml-2 h-4 w-10 rounded bg-gray-300"></div>
+        </div>
+
+        <div className="author flex items-center gap-2">
+          <div className="size-5 rounded-full bg-gray-300"></div>
+          <div className="h-4 w-24 rounded bg-gray-300"></div>
+        </div>
+
+        <div className="bottom mt-4 flex items-center justify-between">
+          <div className="h6 price fw-5">
+            <div className="h-5 w-16 rounded bg-gray-300"></div>
+          </div>
+
+          <div className="tf-btn-arrow">
+            <div className="h-8 w-24 rounded bg-gray-300"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <section className="section-course mt-14 pt-0">
       <div className="tf-container">
@@ -84,7 +143,11 @@ const CourseList = ({
             </div>
 
             {isLoading ? (
-              <Loader2 className="mx-auto mt-32 size-8 animate-spin" />
+              <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
+                {[...Array(4)].map((_, index) => (
+                  <CourseItemSkeleton key={`skeleton-${index}`} />
+                ))}
+              </div>
             ) : (
               <Swiper
                 spaceBetween={30}
@@ -112,13 +175,15 @@ const CourseList = ({
                   <SwiperSlide key={course.id}>
                     <div className="course-item hover-img title-small">
                       <div className="features image-wrap">
-                        <Image
-                          width={256}
-                          height={187}
-                          className="lazyload"
-                          src={course.thumbnail ?? ''}
-                          alt={course.name}
-                        />
+                        <div style={{ width: '330px', height: '175px' }}>
+                          <Image
+                            width={256}
+                            height={187}
+                            className="lazyload"
+                            src={course.thumbnail ?? ''}
+                            alt={course.name}
+                          />
+                        </div>
 
                         <div className="box-tags">
                           {course.is_free ? (
@@ -195,7 +260,7 @@ const CourseList = ({
                               </div>
                             </>
                           ) : (
-                            <div className="text-sm text-gray-500">
+                            <div className="mb-2 text-sm text-gray-500">
                               Chưa có lượt đánh giá
                             </div>
                           )}

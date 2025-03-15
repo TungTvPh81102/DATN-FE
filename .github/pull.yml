@@ -1,5 +1,0 @@
-version: '1'
-rules:
-  - base: deploy
-    upstream: TungTvPh81102:deploy
-    mergeMethod: hardreset

@@ -1,9 +1,51 @@
+import React, { useState, useEffect } from 'react'
+
 interface BlogDetailPostProps {
   initialBlogDetail: any
+  document: any
 }
 
-const BlogDetailPost = ({ initialBlogDetail }: BlogDetailPostProps) => {
-  console.log('initialBlogDetail', initialBlogDetail)
+const BlogDetailPost = ({
+  initialBlogDetail,
+  document,
+}: BlogDetailPostProps) => {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [contentPreview, setContentPreview] = useState('')
+  const [hasMoreContent, setHasMoreContent] = useState(false)
+
+  const PREVIEW_LENGTH = 500
+
+  useEffect(() => {
+    if (initialBlogDetail?.content) {
+      const contentText = initialBlogDetail.content.replace(/<[^>]*>/g, '')
+
+      if (contentText.length > PREVIEW_LENGTH) {
+        let preview = initialBlogDetail.content.substring(
+          0,
+          PREVIEW_LENGTH * 1.5
+        )
+
+        const lastOpenBracket = preview.lastIndexOf('<')
+        const lastCloseBracket = preview.lastIndexOf('>')
+
+        if (lastOpenBracket > lastCloseBracket) {
+          preview = preview.substring(0, lastOpenBracket)
+        }
+
+        const lastPeriod = preview.lastIndexOf('.')
+        if (lastPeriod > PREVIEW_LENGTH * 0.7) {
+          preview = preview.substring(0, lastPeriod + 1)
+        }
+
+        setContentPreview(preview)
+        setHasMoreContent(true)
+      } else {
+        setContentPreview(initialBlogDetail.content)
+        setHasMoreContent(false)
+      }
+    }
+  }, [initialBlogDetail])
+
   return (
     <div className="blog-single-content">
       <div className="meta wow fadeInUp">
@@ -28,12 +70,46 @@ const BlogDetailPost = ({ initialBlogDetail }: BlogDetailPostProps) => {
           dangerouslySetInnerHTML={{ __html: initialBlogDetail?.description }}
         />
       </p>
-      <p className="fs-15 mt-3">
-        <div
-          className="text-justify leading-loose"
-          dangerouslySetInnerHTML={{ __html: initialBlogDetail?.content }}
-        />
-      </p>
+      <div className="content-container">
+        <p className="fs-15 mt-3">
+          <div
+            className="text-justify leading-loose"
+            dangerouslySetInnerHTML={{
+              __html: isExpanded ? initialBlogDetail?.content : contentPreview,
+            }}
+          />
+        </p>
+
+        {hasMoreContent && !isExpanded && (
+          <div className="mb-6 mt-4 text-center">
+            <button
+              onClick={() => setIsExpanded(true)}
+              className="read-more-btn rounded-md bg-primary px-6 py-2 text-white transition-all hover:bg-primary/90"
+            >
+              Xem thêm
+            </button>
+          </div>
+        )}
+
+        {isExpanded && (
+          <div className="mb-6 mt-4 text-center">
+            <button
+              onClick={() => {
+                setIsExpanded(false)
+                window.scrollTo({
+                  top:
+                    document.querySelector('.content-container')?.offsetTop ||
+                    0,
+                  behavior: 'smooth',
+                })
+              }}
+              className="read-less-btn rounded-md bg-gray-200 px-6 py-2 text-gray-700 transition-all hover:bg-gray-300"
+            >
+              Thu gọn
+            </button>
+          </div>
+        )}
+      </div>
       <div className="blockquote">
         <div className="desc fs-15">
           Professional Web Developer Lorem ipsum dolor sit amet. Qui incidunt

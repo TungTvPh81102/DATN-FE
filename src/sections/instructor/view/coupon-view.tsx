@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { Eye, MoreVertical, SquarePen, Trash2 } from 'lucide-react'
+import { Eye, MoreVertical, Plus, SquarePen, Tag, Trash2 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
 import QueryKey from '@/constants/query-key'
@@ -25,6 +25,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { DataTable } from '@/components/shared/data-table'
 import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
+import { Separator } from '@/components/ui/separator'
 
 const CouponView = () => {
   const queryClient = useQueryClient()
@@ -76,7 +77,14 @@ const CouponView = () => {
       cell: ({ row }: any) => {
         const coupon = row.original
         return (
-          <p className="text-sm font-medium text-gray-900">{coupon.code}</p>
+          <div className="flex items-center space-x-2">
+            <div className="text-primary/80">
+              <Tag className="size-4" />
+            </div>
+            <p className="text-sm font-medium uppercase text-gray-900">
+              {coupon.code}
+            </p>
+          </div>
         )
       },
     },
@@ -88,7 +96,16 @@ const CouponView = () => {
       cell: ({ row }: any) => {
         const coupon = row.original
         return (
-          <p className="text-sm font-medium text-gray-900">{coupon.name}</p>
+          <div className="max-w-xs">
+            <p className="truncate text-sm font-medium text-gray-900">
+              {coupon.name}
+            </p>
+            {coupon.description && (
+              <p className="truncate text-xs text-gray-500">
+                {coupon.description}
+              </p>
+            )}
+          </div>
         )
       },
     },
@@ -102,9 +119,13 @@ const CouponView = () => {
         return (
           <>
             {coupon.discount_type === 'percentage' ? (
-              <Badge variant="success">Phần trăm</Badge>
+              <Badge variant="success" className="font-normal">
+                Phần trăm
+              </Badge>
             ) : (
-              <Badge variant="info">Theo tiền</Badge>
+              <Badge variant="info" className="font-normal">
+                Theo tiền
+              </Badge>
             )}
           </>
         )
@@ -118,7 +139,7 @@ const CouponView = () => {
       cell: ({ row }: any) => {
         const coupon = row.original
         return (
-          <p className="font-medium text-gray-900">
+          <p className="text-sm font-medium text-gray-900">
             {coupon.max_usage !== null ? coupon.max_usage : 'Không giới hạn'}
           </p>
         )
@@ -149,7 +170,7 @@ const CouponView = () => {
                 })
               },
               onError: (error: any) => {
-                toast.success(error.message)
+                toast.error(error.message)
               },
             }
           )
@@ -163,7 +184,11 @@ const CouponView = () => {
               disabled={isPendingToggleStatus}
             />
             <span className="text-sm font-medium">
-              {coupon.status == 1 ? 'Hoạt động' : 'Không hoạt động'}
+              {coupon.status == 1 ? (
+                <span className="text-green-600">Hoạt động</span>
+              ) : (
+                <span className="text-gray-500">Không hoạt động</span>
+              )}
             </span>
           </div>
         )
@@ -176,7 +201,11 @@ const CouponView = () => {
       ),
       cell: ({ row }: any) => {
         const coupon = row.original
-        return <>{format(new Date(coupon.created_at), 'dd/MM/yyyy')}</>
+        return (
+          <span className="text-sm text-gray-600">
+            {format(new Date(coupon.created_at), 'dd/MM/yyyy')}
+          </span>
+        )
       },
     },
     {
@@ -193,19 +222,26 @@ const CouponView = () => {
                 <MoreVertical className="size-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem asChild>
-                <Link href={`/instructor/coupon/${coupon.id}`}>
-                  <Eye /> Xem
+                <Link
+                  href={`/instructor/coupon/${coupon.id}`}
+                  className="flex items-center space-x-2"
+                >
+                  <Eye className="size-4" /> <span>Xem chi tiết</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href={`/instructor/coupon/update/${coupon.id}`}>
-                  <SquarePen /> Sửa
+                <Link
+                  href={`/instructor/coupon/update/${coupon.id}`}
+                  className="flex items-center space-x-2"
+                >
+                  <SquarePen className="size-4" /> <span>Chỉnh sửa</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-                <Trash2 /> Xóa
+              <Separator className="my-1" />
+              <DropdownMenuItem className="flex items-center space-x-2 text-destructive focus:bg-destructive/10 focus:text-destructive">
+                <Trash2 className="size-4" /> <span>Xóa mã</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -221,7 +257,9 @@ const CouponView = () => {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Mã giảm giá</h1>
             <Link href="/instructor/coupon/create">
-              <Button>Tạo mã</Button>
+              <Button className="flex items-center space-x-2">
+                <Plus className="size-4" /> <span>Tạo mã mới</span>
+              </Button>
             </Link>
           </div>
         </div>

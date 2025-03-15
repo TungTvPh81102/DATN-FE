@@ -1,147 +1,252 @@
+'use client'
+
 import { UserProfile } from '@/sections/profile/_components/user-profile'
 import { FollowButton } from '@/sections/profile/_components/follow-button'
 import { UserAbout } from '@/sections/profile/_components/user-about'
 import { CourseItem } from '@/sections/profile/_components/course-item'
-import { IInstructorProfile } from '@/types'
-import { BookText } from 'lucide-react'
+import { BookText, Loader2, Users, CreditCard } from 'lucide-react'
+import {
+  useGetInstructorCourses,
+  useGetInstructorProfile,
+} from '@/hooks/instructor/profile/useGetProfile'
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { useEffect, useState } from 'react'
+import ModalLoading from '@/components/common/ModalLoading'
+import { CoursePagination } from '@/components/common/CoursePagination'
 
 type Props = {
   code: string
 }
 
-const fakeInstructorProfile: IInstructorProfile = {
-  id: 1,
-  user_id: 101,
-  code: 'INST20250307',
-  phone: '0987654321',
-  address: '123 Nguyễn Văn A, Quận 1, TP.HCM',
-  experience: 'Hơn 5 năm giảng dạy về lập trình web và React.js.',
-  bio: [
-    'Giảng viên tại Đại học Công nghệ TP.HCM.',
-    'Tác giả của nhiều khóa học về JavaScript và Frontend.',
-    'Đam mê chia sẻ kiến thức và giúp học viên phát triển sự nghiệp.',
-  ],
-  avatar: 'https://randomuser.me/api/portraits/men/45.jpg',
-  email: 'instructor@example.com',
-  name: 'Nguyễn Văn B',
-  about_me:
-    'Tôi là một lập trình viên và giảng viên với nhiều năm kinh nghiệm trong ngành công nghệ.',
-  avg_rating: '4.8',
-  total_student: '1200',
-  total_courses: 10,
-  created_at: new Date('2023-01-15T08:00:00Z'),
-  updated_at: new Date('2025-03-07T12:00:00Z'),
-}
-
-const fakeCourses: any = Array.from({ length: 16 }, (_, index) => ({
-  id: index + 1,
-  user_id: fakeInstructorProfile.user_id,
-  category_id: Math.floor(Math.random() * 5) + 1,
-  category: {
-    id: Math.floor(Math.random() * 5) + 1,
-    name: `Danh mục ${Math.floor(Math.random() * 5) + 1}`,
-  },
-  code: `COURSE${20250000 + index + 1}`,
-  name: `Khóa học lập trình ${index + 1}`,
-  slug: `khoa-hoc-lap-trinh-${index + 1}`,
-  thumbnail: `https://source.unsplash.com/random/400x300?sig=${index}`,
-  intro: `Giới thiệu về khóa học lập trình ${index + 1}.`,
-  price: Math.floor(Math.random() * 200) * 1000,
-  price_sale: Math.floor(Math.random() * 200) * 1000,
-  description: `Đây là mô tả của khóa học lập trình ${index + 1}.`,
-  content: `Nội dung chi tiết của khóa học lập trình ${index + 1}.`,
-  level: ['Beginner', 'Intermediate', 'Advanced'][
-    Math.floor(Math.random() * 3)
-  ],
-  duration: `${Math.floor(Math.random() * 10) + 5} giờ`,
-  total_student: Math.floor(Math.random() * 500) + 100,
-  total_lesson: Math.floor(Math.random() * 20) + 5,
-  total_duration: `${Math.floor(Math.random() * 100) + 10} phút`,
-  requirements: ['Máy tính', 'Kết nối internet'],
-  benefits: ['Nâng cao kỹ năng lập trình', 'Thực hành với bài tập thực tế'],
-  qa: [
-    {
-      question: 'Khóa học này dành cho ai?',
-      answer: 'Dành cho người mới bắt đầu và trung cấp.',
-    },
-    {
-      question: 'Tôi có thể học trên thiết bị nào?',
-      answer: 'Bạn có thể học trên máy tính và điện thoại.',
-    },
-  ],
-  is_popular: Math.random() > 0.5 ? 1 : 0,
-  status: 'published',
-  chapters: [],
-  lessons_count: Math.floor(Math.random() * 30) + 10,
-  chapters_count: Math.floor(Math.random() * 10) + 3,
-  ratings_count: Math.floor(Math.random() * 100) + 10,
-  avg_rating: (Math.random() * 2 + 3).toFixed(1),
-  total_rating: (Math.random() * 1000 + 500).toString(),
-  accepted: Math.random() > 0.5 ? new Date() : null,
-  user: {
-    id: fakeInstructorProfile.user_id,
-    name: fakeInstructorProfile.name,
-    email: fakeInstructorProfile.email,
-    avatar: fakeInstructorProfile.avatar,
-  },
-  name_instructor: fakeInstructorProfile.name,
-  code_instructor: fakeInstructorProfile.code,
-  deleted_at: null,
-  created_at: new Date(),
-  updated_at: new Date(),
-  is_free: Math.random() > 0.5 ? 1 : 0,
-  total_video_duration: Math.floor(Math.random() * 100) + 20,
-  is_enrolled: Math.random() > 0.5,
-}))
+type TabType = 'courses' | 'membership'
 
 export const ProfileView = ({ code }: Props) => {
-  console.log(code)
+  const router = useRouter()
+  const { user } = useAuthStore()
+  const [page, setPage] = useState<number>(1)
+  const [activeTab, setActiveTab] = useState<TabType>('courses')
+
+  if (code === user?.code) router.push('/me')
+
+  const {
+    data: instructorProfileData,
+    isLoading: instructorProfileDataLoading,
+    error,
+  } = useGetInstructorProfile(code)
+  const { data: instructorCourseData, isLoading: instructorCourseDataLoading } =
+    useGetInstructorCourses(code, page)
+
+  useEffect(() => {
+    const savePage = JSON.parse(
+      localStorage.getItem('instructorCoursePage') || '{}'
+    )
+    setPage(savePage)
+  }, [])
+
+  const handlePageChange = (pageUrl?: string | null) => {
+    if (!pageUrl) return
+
+    const url = new URL(pageUrl)
+    const page = Number(url.searchParams.get('page'))
+
+    if (page) {
+      setPage(page)
+      localStorage.setItem('instructorCoursePage', JSON.stringify(page))
+    }
+  }
+
+  if (instructorProfileDataLoading)
+    return (
+      <div className="min-h-screen">
+        <ModalLoading />
+      </div>
+    )
+
+  if (error)
+    return (
+      <div className="flex min-h-screen items-center justify-center text-5xl font-bold">
+        <h2>{error?.message}!</h2>
+      </div>
+    )
+
   return (
     <div className="mx-auto mb-16 mt-9 grid w-[90%] grid-cols-12 gap-16">
       <div className="col-span-3 space-y-5">
         {/* Avatar, Name and Bio */}
         <UserProfile
-          name={fakeInstructorProfile?.name}
-          avatar={fakeInstructorProfile?.avatar ?? ''}
-          bio={fakeInstructorProfile?.bio ?? []}
-          code={fakeInstructorProfile?.code ?? ''}
-          avgRating={fakeInstructorProfile?.avg_rating ?? '0'}
+          name={instructorProfileData?.instructor?.name ?? ''}
+          avatar={instructorProfileData?.instructor?.avatar ?? ''}
+          bio={instructorProfileData?.instructor?.bio ?? []}
+          aboutMe={instructorProfileData?.instructor?.about_me ?? ''}
+          avgRating={instructorProfileData?.instructor?.avg_rating ?? '0'}
         />
 
         {/* Button Follow */}
-        <FollowButton />
+        <FollowButton code={instructorProfileData?.instructor?.code ?? ''} />
 
         {/* About */}
         <UserAbout
-          totalStudent={fakeInstructorProfile?.total_student ?? ''}
-          totalCourses={fakeInstructorProfile?.total_courses ?? 0}
-          timeJoined={fakeInstructorProfile.created_at}
-          email={fakeInstructorProfile?.email}
-          address={fakeInstructorProfile?.address ?? ''}
-          phone={fakeInstructorProfile?.phone}
+          totalFollowers={
+            instructorProfileData?.instructor?.total_followers ?? 0
+          }
+          totalCourses={instructorProfileData?.instructor?.total_courses ?? 0}
+          timeJoined={
+            instructorProfileData?.instructor?.created_at ?? new Date()
+          }
+          email={instructorProfileData?.instructor?.email ?? ''}
+          address={instructorProfileData?.instructor?.address ?? ''}
+          phone={instructorProfileData?.instructor?.phone ?? ''}
         />
       </div>
 
       <div className="col-span-9">
-        <div
-          className="flex items-center space-x-2 p-2"
-          style={{ borderBottom: '1px solid #e0e0e0' }}
-        >
-          <BookText size={20} />
-          <p className="font-bold">
-            Khoá học của {fakeInstructorProfile?.name} ({fakeCourses?.length})
-          </p>
+        <div className="mb-6 flex border-b">
+          <button
+            onClick={() => setActiveTab('courses')}
+            className={`flex items-center space-x-2 px-6 py-3 text-base font-medium transition-all duration-200 ${
+              activeTab === 'courses'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <BookText size={18} />
+            <span>
+              Khóa học ({instructorProfileData?.instructor?.total_courses})
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('membership')}
+            className={`flex items-center space-x-2 px-6 py-3 text-base font-medium transition-all duration-200 ${
+              activeTab === 'membership'
+                ? 'border-b-2 border-orange-500 text-orange-500'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <CreditCard size={18} />
+            <span>Membership</span>
+          </button>
         </div>
 
-        <div className="mt-5 grid grid-cols-3 gap-6">
-          {fakeCourses && fakeCourses?.length > 0 ? (
-            fakeCourses.map((course: any) => (
-              <CourseItem course={course} key={course.id} />
-            ))
-          ) : (
-            <p className="text-xl font-bold">Danh sách khoá học trống...</p>
-          )}
-        </div>
+        {activeTab === 'courses' && (
+          <>
+            {instructorCourseDataLoading ? (
+              <div className="flex size-full items-center justify-center py-16">
+                <Loader2 className="mx-auto size-8 animate-spin text-orange-500" />
+              </div>
+            ) : (
+              <>
+                <div className="mt-5 grid grid-cols-3 gap-6">
+                  {instructorCourseData?.courses &&
+                  instructorCourseData?.courses?.data?.length > 0 ? (
+                    instructorCourseData?.courses?.data?.map((course: any) => (
+                      <CourseItem course={course} key={course.id} />
+                    ))
+                  ) : (
+                    <p className="text-xl font-bold">
+                      Danh sách khóa học trống...
+                    </p>
+                  )}
+                </div>
+
+                {instructorCourseData?.courses && (
+                  <CoursePagination
+                    data={instructorCourseData.courses}
+                    handlePageChange={handlePageChange}
+                  />
+                )}
+              </>
+            )}
+          </>
+        )}
+
+        {activeTab === 'membership' && (
+          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-6 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">
+                Gói Membership
+              </h3>
+              <button className="rounded-full bg-blue-50 px-4 py-1 text-sm font-medium text-blue-600 transition hover:bg-blue-100">
+                Xem tất cả
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-lg border border-orange-100 bg-orange-50 p-4 shadow-sm transition hover:shadow-md">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-orange-500 text-white">
+                      <CreditCard size={20} />
+                    </div>
+                    <h4 className="font-bold text-gray-900">Premium</h4>
+                  </div>
+                  <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-medium text-white">
+                    Phổ biến
+                  </span>
+                </div>
+                <div className="mb-2 flex items-baseline gap-1">
+                  <span className="text-2xl font-bold text-gray-900">
+                    1.200.000₫
+                  </span>
+                  <span className="text-sm text-gray-500">/năm</span>
+                </div>
+                <p className="mb-4 text-sm text-gray-600">
+                  Truy cập không giới hạn tất cả khóa học của giảng viên
+                </p>
+                <button className="w-full rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-orange-600">
+                  Đăng ký ngay
+                </button>
+              </div>
+
+              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-blue-500 text-white">
+                      <CreditCard size={20} />
+                    </div>
+                    <h4 className="font-bold text-gray-900">Basic</h4>
+                  </div>
+                </div>
+                <div className="mb-2 flex items-baseline gap-1">
+                  <span className="text-2xl font-bold text-gray-900">
+                    150.000₫
+                  </span>
+                  <span className="text-sm text-gray-500">/tháng</span>
+                </div>
+                <p className="mb-4 text-sm text-gray-600">
+                  Truy cập các khóa học cơ bản và hỗ trợ cơ bản
+                </p>
+                <button className="w-full rounded-lg border border-blue-500 bg-white px-4 py-2 text-sm font-medium text-blue-500 transition hover:bg-blue-50">
+                  Đăng ký ngay
+                </button>
+              </div>
+
+              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-green-500 text-white">
+                      <Users size={20} />
+                    </div>
+                    <h4 className="font-bold text-gray-900">Dùng thử</h4>
+                  </div>
+                  <span className="rounded-full bg-green-500 px-3 py-1 text-xs font-medium text-white">
+                    Miễn phí
+                  </span>
+                </div>
+                <div className="mb-2 flex items-baseline gap-1">
+                  <span className="text-2xl font-bold text-gray-900">0₫</span>
+                  <span className="text-sm text-gray-500">/7 ngày</span>
+                </div>
+                <p className="mb-4 text-sm text-gray-600">
+                  Truy cập một số khóa học và tính năng giới hạn
+                </p>
+                <button className="w-full rounded-lg border border-green-500 bg-white px-4 py-2 text-sm font-medium text-green-500 transition hover:bg-green-50">
+                  Dùng thử miễn phí
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

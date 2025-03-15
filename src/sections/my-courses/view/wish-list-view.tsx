@@ -104,9 +104,9 @@ const WishListView = () => {
               </Link>
             </div>
           ) : (
-            <div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {courseWishList?.map((course: any, index: number) => (
-                <div className="col-xl-3" key={index}>
+                <div key={index}>
                   <div className="course-item hover-img wow fadeInUp">
                     <div className="features image-wrap">
                       <Image
@@ -135,7 +135,15 @@ const WishListView = () => {
                         </div>
                       </div>
                       <h6 className="fw-5 line-clamp-2">
-                        <Link href={`/courses/${course.slug}`}>
+                        <Link
+                          style={{
+                            display: 'block',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                          href={`/courses/${course.slug}`}
+                        >
                           {course.name || ''}
                         </Link>
                       </h6>

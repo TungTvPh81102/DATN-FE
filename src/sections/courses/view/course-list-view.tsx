@@ -55,7 +55,7 @@ const CourseListView = () => {
 
   return (
     <>
-      <div className="style-2 has-tags-bg-white">
+      <div className="style-2 has-tags-bg-white mb-14">
         <div className="tf-container">
           <div className="row">
             <div className="col-12">
@@ -66,7 +66,7 @@ const CourseListView = () => {
       </div>
 
       <div className="pt-0">
-        <div className="page-inner tf-spacing-1 pt-0">
+        <div className="page-inner tf-spacing-9 pt-0">
           <div className="tf-container">
             <div
               className="tf-mobile-sidebar-btn btn-right"
@@ -95,7 +95,18 @@ const CourseListView = () => {
                     setDataFilters={setDataFilters}
                   />
                 ) : (
-                  'Danh sách bài học trống...'
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="mt-4 rounded-lg bg-white p-8 text-center shadow-sm">
+                      <div className="mb-3 text-5xl">📚</div>
+                      <h3 className="mb-2 text-xl font-medium">
+                        Không tìm thấy khóa học
+                      </h3>
+                      <p className="text-gray-600">
+                        Không có khóa học nào phù hợp với bộ lọc hiện tại. Vui
+                        lòng thử lại với các tiêu chí khác.
+                      </p>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

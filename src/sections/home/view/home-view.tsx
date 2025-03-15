@@ -25,7 +25,7 @@ const HomeView = () => {
   return (
     <div>
       <Banner />
-      <div className="pb-40">
+      <div className="pb-12">
         <CourseList
           title="Khoá học đang giảm giá"
           courses={discountedCourses?.data || []}

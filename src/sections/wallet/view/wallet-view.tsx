@@ -112,28 +112,38 @@ function WalletView() {
 
         <div className="grid gap-6 lg:grid-cols-12">
           <div className="space-y-6 lg:col-span-4">
-            <Card className="overflow-hidden">
-              <div className="bg-gradient-to-r from-primary to-primary/80 p-6">
+            <Card className="overflow-hidden shadow-lg">
+              <div className="bg-gradient-to-r from-[#E27447] to-[#E27447]/80 p-6">
                 <div className="flex items-center space-x-4">
-                  <Avatar className="size-16 border-4 border-white/20">
-                    <AvatarImage
-                      src={
-                        user?.avatar ||
-                        'https://storage.googleapis.com/a1aa/image/DCqdFGzcb1rqIdoeHHdr3Zjfo9rbmejO9ixlponF0VG2CmePB.jpg'
-                      }
-                    />
-                    <AvatarFallback>TN</AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    <Avatar className="size-16 border-4 border-white/30 shadow-md">
+                      <AvatarImage
+                        src={
+                          user?.avatar ||
+                          'https://storage.googleapis.com/a1aa/image/DCqdFGzcb1rqIdoeHHdr3Zjfo9rbmejO9ixlponF0VG2CmePB.jpg'
+                        }
+                      />
+                      <AvatarFallback>TN</AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -bottom-1 -right-1 rounded-full bg-green-500 p-1 ring-2 ring-white">
+                      <div className="size-2 rounded-full bg-white"></div>
+                    </div>
+                  </div>
                   <div className="text-white">
-                    <h3 className="text-xl font-semibold">
+                    <h3 className="text-xl font-bold tracking-tight">
                       {user?.name || 'Nguyễn Văn A'}
                     </h3>
-                    <p className="text-white/80">ID: {user?.code || ''}</p>
+                    <p className="font-medium text-white/90">
+                      {user?.code || ''}
+                    </p>
                   </div>
                 </div>
-                <div className="mt-6 rounded-lg bg-white/10 p-4 backdrop-blur-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/90">Số dư khả dụng</span>
+
+                <div className="mt-6 rounded-lg bg-white/15 p-4 shadow-inner backdrop-blur-sm">
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-sm text-white/80">
+                      Số dư khả dụng
+                    </span>
                     <span className="text-2xl font-bold text-white">
                       {formatCurrency(walletData?.data.balance || 0)}
                     </span>
