@@ -4,13 +4,14 @@ const data = [
   {
     image: '/images/su-menh.webp',
     title: 'Sứ mệnh',
-    content: 'Giúp mọi người tiếp cận tri thức dễ dàng, tiện lợi và hiệu quả.',
+    content:
+      'Chúng tôi cam kết giúp mọi người tiếp cận tri thức một cách dễ dàng, tiện lợi và hiệu quả nhất. Bằng cách xây dựng một nền tảng học tập trực tuyến hiện đại, chúng tôi mong muốn mang lại cơ hội học tập bình đẳng cho tất cả mọi người, bất kể họ ở đâu hay điều kiện như thế nào. Mỗi khóa học trên nền tảng đều được thiết kế để cung cấp kiến thức thực tiễn, có giá trị ứng dụng cao, giúp học viên nâng cao kỹ năng và phát triển bản thân.',
   },
   {
     image: '/images/tam-nhin.webp',
     title: 'Tầm nhìn',
     content:
-      'Trở thành nền tảng quản lý khóa học hàng đầu, hỗ trợ hàng triệu học viên.',
+      'Chúng tôi hướng đến việc trở thành nền tảng quản lý khóa học hàng đầu, nơi kết nối giảng viên và học viên trên khắp thế giới. Với sứ mệnh giúp hàng triệu người tiếp cận tri thức, chúng tôi không ngừng cải tiến công nghệ, nâng cao trải nghiệm người dùng và mở rộng hệ sinh thái giáo dục trực tuyến. Trong tương lai, chúng tôi đặt mục tiêu trở thành một trung tâm học tập thông minh, hỗ trợ cá nhân hóa lộ trình học tập và cung cấp các công cụ tối ưu để học viên phát triển sự nghiệp.',
   },
 ]
 
@@ -33,7 +34,7 @@ export const MissionVision = () => {
             <h3 className="text-xl font-semibold text-gray-700">
               {item.title}
             </h3>
-            <p className="mt-2 text-gray-600">{item.content}</p>
+            <p className="mt-2 text-left text-gray-600">{item.content}</p>
           </div>
         ))}
       </div>

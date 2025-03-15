@@ -41,13 +41,43 @@ export const useUpdateBank = () => {
 export const useDeleteBank = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: bankApi.deleteBank,
-    onSuccess: (res) => {
+    mutationFn: (id: string) => {
+      return toast.promise(bankApi.deleteBank(id), {
+        pending: 'Đang xử lý...',
+        success: {
+          render: ({ data }) => data.message as string,
+        },
+        error: {
+          render: ({ data }: { data: { message: string } }) => data.message,
+        },
+      })
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QueryKey.BANKS],
       })
-      toast.success(res.message)
     },
-    onError: (error) => toast.error(error.message),
+  })
+}
+
+export const useSetDefaultBank = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => {
+      return toast.promise(bankApi.setDefault(id), {
+        pending: 'Đang xử lý...',
+        success: {
+          render: ({ data }) => data.message as string,
+        },
+        error: {
+          render: ({ data }: { data: { message: string } }) => data.message,
+        },
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QueryKey.BANKS],
+      })
+    },
   })
 }

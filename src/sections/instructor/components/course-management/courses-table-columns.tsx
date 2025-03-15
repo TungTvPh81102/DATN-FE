@@ -2,7 +2,7 @@
 
 import type { DataTableRowAction } from '@/types/data-table.ts'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Ellipsis, Eye, SquarePen, Trash2 } from 'lucide-react'
+import { EllipsisVertical, Eye, SquarePen, Trash2 } from 'lucide-react'
 import * as React from 'react'
 
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
@@ -13,7 +13,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { formatCurrency, formatDate } from '@/lib/common'
@@ -54,6 +53,7 @@ export function getColumns({
       ),
       enableSorting: false,
       enableHiding: false,
+      size: 40,
     },
     {
       accessorKey: 'name',
@@ -174,9 +174,10 @@ export function getColumns({
               <Button
                 aria-label="Open menu"
                 variant="ghost"
-                className="flex size-8 p-0 data-[state=open]:bg-muted"
+                size="icon"
+                className="rounded-full data-[state=open]:bg-muted"
               >
-                <Ellipsis className="size-4" aria-hidden="true" />
+                <EllipsisVertical aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="max-w-40">
@@ -190,7 +191,6 @@ export function getColumns({
                   <SquarePen /> Sửa
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                 onSelect={() => setRowAction({ row, type: 'delete' })}

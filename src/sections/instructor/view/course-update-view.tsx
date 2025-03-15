@@ -62,6 +62,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { CourseStatus } from '@/types'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
+import Container from '@/components/shared/container'
 
 type GroupId = 'planning' | 'content'
 
@@ -190,93 +191,89 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
   }
 
   return (
-    <div className="px-5 py-6">
+    <Container>
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold">
           Cập nhật nội dung khoá học: {courseOverviewData?.data.name}
         </h3>
         <CourseStatusBadge status={courseOverviewData?.data.status} />
       </div>
-      <div className="mt-4">
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-4 xl:col-span-3">
-            <div>
-              {groups.map((group) => (
-                <div key={group.id} className="mb-8">
-                  <h1 className="mb-4 text-base font-bold">{group.title}</h1>
-                  <div className="flex flex-col gap-2 rounded-lg border-2 border-dashed p-4">
-                    {group.tabs.map((tab) => (
-                      <div
-                        key={tab.id}
-                        onClick={() => {
-                          handleTabClick(group.id, tab.id)
-                        }}
-                        className={`flex cursor-pointer items-center justify-between gap-2 rounded p-2 transition-all ${
+      <div className="grid grid-cols-12 gap-8">
+        <div className="col-span-4 xl:col-span-3">
+          <div>
+            {groups.map((group) => (
+              <div key={group.id} className="mb-8">
+                <h1 className="mb-4 text-base font-bold">{group.title}</h1>
+                <div className="flex flex-col gap-2 rounded-lg border-2 border-dashed p-4">
+                  {group.tabs.map((tab) => (
+                    <div
+                      key={tab.id}
+                      onClick={() => {
+                        handleTabClick(group.id, tab.id)
+                      }}
+                      className={`flex cursor-pointer items-center justify-between gap-2 rounded p-2 transition-all ${
+                        activeGroup === group.id &&
+                        activeTabs[group.id] === tab.id
+                          ? 'border-l-4 border-orange-500 bg-orange-50'
+                          : 'bg-white'
+                      }`}
+                    >
+                      <span
+                        className={`${
                           activeGroup === group.id &&
                           activeTabs[group.id] === tab.id
-                            ? 'border-l-4 border-orange-500 bg-orange-50'
-                            : 'bg-white'
+                            ? 'font-bold text-orange-500'
+                            : 'text-gray-700'
                         }`}
                       >
-                        <span
-                          className={`${
-                            activeGroup === group.id &&
-                            activeTabs[group.id] === tab.id
-                              ? 'font-bold text-orange-500'
-                              : 'text-gray-700'
-                          }`}
-                        >
-                          {tab.label}
-                        </span>
-                        {validateData?.data.completion_status[tab.id]
-                          ?.status === true ? (
-                          <CheckCircle
-                            className={cn('size-5 text-green-500')}
-                          />
-                        ) : (
-                          validateData?.data.completion_status[tab.id]
-                            ?.status === false && (
-                            <XCircle className={cn('size-5 text-red-500')} />
-                          )
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                        {tab.label}
+                      </span>
+                      {validateData?.data.completion_status[tab.id]?.status ===
+                      true ? (
+                        <CheckCircle className={cn('size-5 text-green-500')} />
+                      ) : (
+                        validateData?.data.completion_status[tab.id]?.status ===
+                          false && (
+                          <XCircle className={cn('size-5 text-red-500')} />
+                        )
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="flex items-center justify-between gap-2 rounded-lg border-2 border-dashed p-4">
-              <div>
-                <h1 className="mb-2 text-base font-bold">Điều kiện</h1>
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button
-                      disabled={
-                        progress === 100 ||
-                        isSubmitCoursePending ||
-                        isRequestModifyContent
-                      }
-                      type="button"
-                    >
-                      Xem chi tiết
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent
-                    aria-describedby={undefined}
-                    className="overflow-y-auto"
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-between gap-2 rounded-lg border-2 border-dashed p-4">
+            <div>
+              <h1 className="mb-2 text-base font-bold">Điều kiện</h1>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button
+                    disabled={
+                      progress === 100 ||
+                      isSubmitCoursePending ||
+                      isRequestModifyContent
+                    }
+                    type="button"
                   >
-                    <SheetHeader>
-                      <SheetTitle>Các tiêu chí chưa hoàn thành</SheetTitle>
-                    </SheetHeader>
+                    Xem chi tiết
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  aria-describedby={undefined}
+                  className="overflow-y-auto"
+                >
+                  <SheetHeader>
+                    <SheetTitle>Các tiêu chí chưa hoàn thành</SheetTitle>
+                  </SheetHeader>
 
-                    <Accordion
-                      type="single"
-                      collapsible
-                      className="space-y-4 py-4"
-                    >
-                      {Object?.entries(
-                        validateData?.data.completion_status
-                      ).map(([key, value]) => {
+                  <Accordion
+                    type="single"
+                    collapsible
+                    className="space-y-4 py-4"
+                  >
+                    {Object?.entries(validateData?.data.completion_status).map(
+                      ([key, value]) => {
                         const typedValue = value as {
                           status: boolean
                           errors: string[]
@@ -310,85 +307,85 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
                             </AccordionItem>
                           )
                         }
-                      })}
-                    </Accordion>
-                  </SheetContent>
-                </Sheet>
-              </div>
-              <div className="font-bold" style={{ width: 50, height: 50 }}>
-                <CircularProgressbar
-                  value={validateData?.data.progress || 0}
-                  text={formatPercentage(validateData?.data.progress || 0)}
-                  strokeWidth={3}
-                  styles={buildStyles({
-                    pathColor: `#FA802B`,
-                    textColor: '#FA802B',
-                    trailColor: '#D6D6D6',
-                  })}
+                      }
+                    )}
+                  </Accordion>
+                </SheetContent>
+              </Sheet>
+            </div>
+            <div className="font-bold" style={{ width: 50, height: 50 }}>
+              <CircularProgressbar
+                value={validateData?.data.progress || 0}
+                text={formatPercentage(validateData?.data.progress || 0)}
+                strokeWidth={3}
+                styles={buildStyles({
+                  pathColor: `#FA802B`,
+                  textColor: '#FA802B',
+                  trailColor: '#D6D6D6',
+                })}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href="/instructor/courses/">
+              <Button variant="outline">Quay trở lại</Button>
+            </Link>
+            <Button
+              disabled={
+                courseStatus === CourseStatus.Pending ||
+                isSubmitCoursePending ||
+                (courseStatus !== CourseStatus.Approved && progress < 100) ||
+                isRequestModifyContent ||
+                courseStatus === CourseStatus.ModifyRequest
+              }
+              onClick={
+                courseStatus === CourseStatus.Approved
+                  ? openDialog
+                  : courseHandleSubmit
+              }
+              className={
+                courseStatus === CourseStatus.Approved
+                  ? 'bg-green-500 text-white hover:bg-green-500/80'
+                  : courseStatus === CourseStatus.ModifyRequest
+                    ? 'bg-yellow-500 text-white'
+                    : ''
+              }
+            >
+              {courseStatus === CourseStatus.Approved
+                ? 'Yêu cầu sửa đổi nội dung'
+                : courseStatus === CourseStatus.Reject
+                  ? 'Gửi lại thông tin khoá học'
+                  : courseStatus === CourseStatus.ModifyRequest
+                    ? 'Chờ duyệt'
+                    : 'Gửi yêu cầu kiểm duyệt'}
+            </Button>
+          </div>
+        </div>
+        <div className="col-span-8 rounded border bg-white p-4 shadow-lg xl:col-span-9">
+          {activeGroup === 'planning' && (
+            <>
+              {activeTabs.planning === 'course_objectives' && (
+                <CourseObjective courseObjective={courseOverviewData?.data} />
+              )}
+              {activeTabs.planning === 'structure' && <CourseStructure />}
+            </>
+          )}
+
+          {activeGroup === 'content' && (
+            <>
+              {activeTabs.content === 'film' && <FilmEditing />}
+              {activeTabs.content === 'course_overview' && (
+                <CourseOverView courseOverView={courseOverviewData?.data} />
+              )}
+              {activeTabs.content === 'course_curriculum' && (
+                <CourseChapterTab
+                  slug={slug}
+                  chapters={courseOverviewData?.data.chapters}
                 />
-              </div>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link href="/instructor/courses/">
-                <Button variant="outline">Quay trở lại</Button>
-              </Link>
-              <Button
-                disabled={
-                  courseStatus === CourseStatus.Pending ||
-                  isSubmitCoursePending ||
-                  (courseStatus !== CourseStatus.Approved && progress < 100) ||
-                  isRequestModifyContent ||
-                  courseStatus === CourseStatus.ModifyRequest
-                }
-                onClick={
-                  courseStatus === CourseStatus.Approved
-                    ? openDialog
-                    : courseHandleSubmit
-                }
-                className={
-                  courseStatus === CourseStatus.Approved
-                    ? 'bg-green-500 text-white hover:bg-green-500/80'
-                    : courseStatus === CourseStatus.ModifyRequest
-                      ? 'bg-yellow-500 text-white'
-                      : ''
-                }
-              >
-                {courseStatus === CourseStatus.Approved
-                  ? 'Yêu cầu sửa đổi nội dung'
-                  : courseStatus === CourseStatus.Reject
-                    ? 'Gửi lại thông tin khoá học'
-                    : courseStatus === CourseStatus.ModifyRequest
-                      ? 'Chờ duyệt'
-                      : 'Gửi yêu cầu kiểm duyệt'}
-              </Button>
-            </div>
-          </div>
-          <div className="col-span-8 rounded border bg-white p-4 shadow-lg xl:col-span-9">
-            {activeGroup === 'planning' && (
-              <>
-                {activeTabs.planning === 'course_objectives' && (
-                  <CourseObjective courseObjective={courseOverviewData?.data} />
-                )}
-                {activeTabs.planning === 'structure' && <CourseStructure />}
-              </>
-            )}
-
-            {activeGroup === 'content' && (
-              <>
-                {activeTabs.content === 'film' && <FilmEditing />}
-                {activeTabs.content === 'course_overview' && (
-                  <CourseOverView courseOverView={courseOverviewData?.data} />
-                )}
-                {activeTabs.content === 'course_curriculum' && (
-                  <CourseChapterTab
-                    slug={slug}
-                    chapters={courseOverviewData?.data.chapters}
-                  />
-                )}
-              </>
-            )}
-          </div>
+              )}
+            </>
+          )}
         </div>
       </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -431,7 +428,7 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
           </Form>
         </DialogContent>
       </Dialog>
-    </div>
+    </Container>
   )
 }
 

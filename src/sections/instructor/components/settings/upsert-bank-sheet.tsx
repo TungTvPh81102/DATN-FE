@@ -1,7 +1,9 @@
 'use client'
+
 import { BankInfo, bankInfoSchema } from '@/validations/bank'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, ChevronDown, Loader2, Plus } from 'lucide-react'
+import Image from 'next/image'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -37,39 +39,87 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { useGetSupportBanks } from '@/hooks/support-bank/useSupportBank'
-import { useAddBank } from '@/hooks/user/use-bank'
+import { useAddBank, useUpdateBank } from '@/hooks/user/use-bank'
 import { cn } from '@/lib/utils'
-import Image from 'next/image'
+import { useEffect } from 'react'
 
-const AddBankSheet = () => {
+interface Props extends React.ComponentPropsWithoutRef<typeof Sheet> {
+  showTrigger?: boolean
+  bank?: BankInfo
+  onSuccess?: () => void
+}
+
+const UpsertBankSheet = ({ showTrigger = true, bank, ...props }: Props) => {
   const { data, isLoading } = useGetSupportBanks()
 
-  const { isPending, mutate } = useAddBank()
+  const { mutate: createBank, isPending: isCreating } = useAddBank()
+  const { mutate: updateBank, isPending: isUpdating } = useUpdateBank()
+
+  const isPending = isCreating || isUpdating
 
   const form = useForm<BankInfo>({
-    resolver: zodResolver(bankInfoSchema.omit({ id: true })),
+    resolver: zodResolver(
+      bankInfoSchema.omit({ id: !bank ? true : undefined })
+    ),
     defaultValues: {
       account_name: '',
       account_no: '',
-      is_default: false,
+      is_default: true,
+      bin: '',
     },
     disabled: isPending,
   })
 
-  const onSubmit = (values: Omit<BankInfo, 'id'>) => {
-    mutate(values, {
-      onSuccess: () => form.reset(),
+  const onSubmit = (values: BankInfo) => {
+    const submit = !bank ? createBank : updateBank
+
+    submit(values, {
+      onSuccess: () => {
+        form.reset()
+        props.onOpenChange?.(false)
+        props.onSuccess?.()
+      },
     })
   }
 
+  console.group('Form')
+  console.log('values', form.getValues())
+  console.log('errors', form.formState.errors)
+  console.groupEnd()
+
+  useEffect(() => {
+    if (bank)
+      form.reset({
+        ...bank,
+        bin: bank.acq_id,
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bank])
+
   return (
-    <Sheet onOpenChange={(isOpen) => !isOpen && form.reset()}>
-      <SheetTrigger asChild>
-        <Button>
-          <Plus />
-          Thêm tài khoản
-        </Button>
-      </SheetTrigger>
+    <Sheet
+      {...props}
+      onOpenChange={(open) => {
+        if (!open) {
+          form.reset({
+            account_name: '',
+            account_no: '',
+            is_default: true,
+            bin: '',
+          })
+        }
+        props.onOpenChange?.(open)
+      }}
+    >
+      {showTrigger && (
+        <SheetTrigger asChild>
+          <Button>
+            <Plus />
+            Thêm tài khoản
+          </Button>
+        </SheetTrigger>
+      )}
+
       <SheetContent className="max-w-lg">
         <SheetHeader>
           <SheetTitle>Thêm tài khoản ngân hàng</SheetTitle>
@@ -245,4 +295,4 @@ const AddBankSheet = () => {
     </Sheet>
   )
 }
-export default AddBankSheet
+export default UpsertBankSheet

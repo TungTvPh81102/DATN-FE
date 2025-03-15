@@ -37,4 +37,15 @@ export const bankApi = {
   }> => {
     return await api.delete(`${prefix}/remove-banking-info`, { data: { id } })
   },
+
+  setDefault: async (
+    id: string
+  ): Promise<{
+    message: string
+    data: {
+      banking_info: BankInfo[]
+    }
+  }> => {
+    return await api.put(`${prefix}/set-default`, { id })
+  },
 }

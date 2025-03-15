@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/shared/data-table'
 import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
+import Container from '@/components/shared/container'
 
 const PostManageView = () => {
   const { data: postData, isLoading } = useGetPosts()
@@ -122,23 +123,21 @@ const PostManageView = () => {
   ]
 
   return (
-    <div className="px-5 py-6">
-      <div className="mt-2">
-        <div className="flex justify-between">
-          <p className="text-xl font-bold">Quản lý bài viết</p>
-          <Link href={'/instructor/posts/create'}>
-            <Button>Viết blog</Button>
-          </Link>
-        </div>
-
-        <DataTable
-          isLoading={isLoading}
-          columns={columns}
-          data={filteredData || []}
-          onSearchChange={setSearchTerm}
-        />
+    <Container>
+      <div className="flex justify-between">
+        <p className="text-2xl font-medium">Quản lý bài viết</p>
+        <Link href={'/instructor/posts/create'}>
+          <Button>Viết blog</Button>
+        </Link>
       </div>
-    </div>
+
+      <DataTable
+        isLoading={isLoading}
+        columns={columns}
+        data={filteredData || []}
+        onSearchChange={setSearchTerm}
+      />
+    </Container>
   )
 }
 

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input, type InputProps } from '@/components/ui/input'
 
 const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, placeholder = 'Nhập mật khẩu', ...props }, ref) => {
     const [showPassword, setShowPassword] = React.useState(false)
     const disabled =
       props.value === '' || props.value === undefined || props.disabled
@@ -20,6 +20,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(
           type={showPassword ? 'text' : 'password'}
           className={cn('hide-password-toggle pr-10', className)}
           ref={ref}
+          placeholder={placeholder}
           {...props}
         />
         <Button

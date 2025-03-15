@@ -1,25 +1,37 @@
 import {
-  ChartPie,
-  Book,
-  UsersRound,
-  MessageSquareText,
-  MessageSquareQuote,
-  TicketPercent,
-  Wallet,
-  BadgeEuro,
-  Database,
-  Video,
   BadgeCheck,
+  BadgeEuro,
+  Book,
   Building2,
-  CreditCard,
-  KeyRound,
+  ChartPie,
+  Database,
   Link2,
+  LucideProps,
+  MessageSquareQuote,
+  MessageSquareText,
+  TicketPercent,
   User,
+  UsersRound,
+  Video,
+  Wallet,
 } from 'lucide-react'
 
-type type = 'settings' | 'instructor'
+import React from 'react'
 
-export const getMenuItem = (type: type = 'instructor') => {
+type type = 'settings' | 'instructor'
+type MenuItem = {
+  title: string
+  url: string
+  icon?: React.ForwardRefExoticComponent<
+    Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
+  >
+  items?: {
+    title: string
+    url: string
+  }[]
+}
+
+export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
   switch (type) {
     case 'instructor':
       return [
@@ -94,16 +106,6 @@ export const getMenuItem = (type: type = 'instructor') => {
           title: 'Hồ sơ',
           url: '/instructor/settings/profile',
           icon: User,
-        },
-        {
-          title: 'Ngân hàng',
-          url: '/instructor/settings/bank',
-          icon: CreditCard,
-        },
-        {
-          title: 'Mật khẩu',
-          url: '/instructor/settings/password',
-          icon: KeyRound,
         },
         {
           title: 'Mạng xã hội',

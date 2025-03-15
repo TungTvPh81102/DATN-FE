@@ -47,6 +47,7 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import Container from '@/components/shared/container'
 
 interface CourseOverview {
   total_courses: number
@@ -134,97 +135,87 @@ const LearnerInformationView = ({ code }: { code: string }) => {
   }, [learnerProcess])
 
   return (
-    <div className="bg-slate-50 px-5 py-6">
-      <div className="mx-auto max-w-7xl">
-        <div className="mt-2 space-y-6">
-          <div className="flex items-center gap-3 border-l-4 border-l-[#E27447] pl-4">
-            <h1 className="text-2xl font-bold text-gray-800">
-              Tiến độ học tập của:{' '}
-              <span className="text-[#E27447]">
-                {learnerProcess?.data.user.name}
-              </span>
-            </h1>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="overflow-hidden border-none shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
-              <div className="h-1 bg-[#E27447]"></div>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="rounded-full bg-orange-100 p-3">
-                    <Book className="size-6 text-[#E27447]" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-3xl font-bold text-[#E27447]">
-                      {courseOverView?.total_courses || 0}
-                    </h3>
-                    <p className="mt-2 text-sm font-medium text-gray-600">
-                      Tổng số khóa học
-                    </p>
-                  </div>
+    <Container>
+      <div className="space-y-6">
+        <h1 className="text-xl font-bold">
+          Tiến độ học tập của: {learnerProcess?.data.user.name}
+        </h1>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <Card className="overflow-hidden border-none shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="h-1 bg-[#E27447]"></div>
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="rounded-full bg-orange-100 p-3">
+                  <Book className="size-6 text-[#E27447]" />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="overflow-hidden border-none shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
-              <div className="h-1 bg-green-500"></div>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="rounded-full bg-green-100 p-3">
-                    <CheckCircle className="size-6 text-green-600" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-3xl font-bold text-green-600">
-                      {courseOverView?.completed_courses || 0}
-                    </h3>
-                    <p className="mt-2 text-sm font-medium text-gray-600">
-                      Khóa học đã hoàn thành
-                    </p>
-                  </div>
+                <div className="text-center">
+                  <h3 className="text-3xl font-bold text-[#E27447]">
+                    {courseOverView?.total_courses || 0}
+                  </h3>
+                  <p className="mt-2 text-sm font-medium text-gray-600">
+                    Tổng số khóa học
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card className="overflow-hidden border-none shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
-              <div className="h-1 bg-[#E27447]"></div>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="rounded-full bg-orange-100 p-3">
-                    <Clock className="size-6 text-[#E27447]" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-3xl font-bold text-[#E27447]">
-                      {courseOverView?.ongoing_courses || 0}
-                    </h3>
-                    <p className="mt-2 text-sm font-medium text-gray-600">
-                      Khóa học đang học
-                    </p>
-                  </div>
+          <Card className="overflow-hidden border-none shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="h-1 bg-green-500"></div>
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="rounded-full bg-green-100 p-3">
+                  <CheckCircle className="size-6 text-green-600" />
                 </div>
-              </CardContent>
-            </Card>
+                <div className="text-center">
+                  <h3 className="text-3xl font-bold text-green-600">
+                    {courseOverView?.completed_courses || 0}
+                  </h3>
+                  <p className="mt-2 text-sm font-medium text-gray-600">
+                    Khóa học đã hoàn thành
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card className="overflow-hidden border-none shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
-              <div className="h-1 bg-[#E27447]"></div>
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="rounded-full bg-orange-100 p-3">
-                    <LineChart className="size-6 text-[#E27447]" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-3xl font-bold text-[#E27447]">
-                      {courseOverView?.average_progress || 0}%
-                    </h3>
-                    <p className="mt-2 text-sm font-medium text-gray-600">
-                      Tiến độ trung bình
-                    </p>
-                  </div>
+          <Card className="overflow-hidden border-none shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="h-1 bg-[#E27447]"></div>
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="rounded-full bg-orange-100 p-3">
+                  <Clock className="size-6 text-[#E27447]" />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                <div className="text-center">
+                  <h3 className="text-3xl font-bold text-orange-600">
+                    {courseOverView?.ongoing_courses || 0}
+                  </h3>
+                  <p className="mt-2 text-sm font-medium text-gray-600">
+                    Khóa học đang học
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="overflow-hidden border-none shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="h-1 bg-[#E27447]"></div>
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="rounded-full bg-orange-100 p-3">
+                  <LineChart className="size-6 text-[#E27447]" />
+                </div>
+                <div className="text-center">
+                  <h3 className="text-3xl font-bold text-purple-600">
+                    {courseOverView?.average_progress || 0}%
+                  </h3>
+                  <p className="mt-2 text-sm font-medium text-gray-600">
+                    Tiến độ trung bình
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <div className="py-6">
@@ -556,7 +547,7 @@ const LearnerInformationView = ({ code }: { code: string }) => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </Container>
   )
 }
 

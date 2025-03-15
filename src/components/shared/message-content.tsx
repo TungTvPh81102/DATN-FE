@@ -220,7 +220,7 @@ const EnhancedMessageItem = ({
           </div>
         )}
 
-        {hasReplyTo && <ReplyToPreview parent={message?.parent} />}
+        {hasReplyTo && <ReplyToPreview parent={message?.parent as IMessage} />}
 
         <div
           className={`relative rounded-2xl ${

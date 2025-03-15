@@ -41,6 +41,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import ModalLoading from '@/components/common/ModalLoading'
 import { DataTable } from '@/components/shared/data-table'
+import Container from '@/components/shared/container'
 
 const CouponUpdateView = ({ id }: { id: string }) => {
   const queryClient = useQueryClient()
@@ -115,7 +116,7 @@ const CouponUpdateView = ({ id }: { id: string }) => {
     }
   }, [form])
 
-  const filteredData = learnerData?.data?.filter((learner: any) => {
+  const filteredData = learnerData?.filter((learner: any) => {
     const searchFields = ['name']
     return searchFields.some((field) =>
       learner[field]?.toLowerCase()?.includes(searchTerm.toLowerCase())
@@ -235,8 +236,8 @@ const CouponUpdateView = ({ id }: { id: string }) => {
   if (isCouponLoading) return <ModalLoading />
 
   return (
-    <div className="px-5 py-6">
-      <div className="mt-2 flex items-center justify-between">
+    <Container>
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">
           Cập nhật mã giảm giá
         </h1>
@@ -602,7 +603,7 @@ const CouponUpdateView = ({ id }: { id: string }) => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </Container>
   )
 }
 

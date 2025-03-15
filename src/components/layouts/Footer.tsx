@@ -124,7 +124,7 @@ const Footer = () => {
                         <a href="#">Blog</a>
                       </li>
                       <li>
-                        <a href="#">Điều khoản</a>
+                        <Link href="/terms">Điều khoản</Link>
                       </li>
                     </ul>
                   </div>
@@ -135,16 +135,16 @@ const Footer = () => {
                     <h5 className="fw-5">Chính sách và điều khoản</h5>
                     <ul>
                       <li>
-                        <a href="#">Chính sách bảo mật</a>
+                        <Link href="/terms">Chính sách bảo mật</Link>
                       </li>
                       <li>
-                        <a href="#">Điều khoản dịch vụ</a>
+                        <Link href="/terms">Điều khoản dịch vụ</Link>
                       </li>
                       <li>
-                        <a href="#">Chính sách hoàn tiền</a>
+                        <Link href="/terms">Chính sách hoàn tiền</Link>
                       </li>
                       <li>
-                        <a href="#">Chính sách xử lý khiếu nại</a>
+                        <Link href="/terms">Chính sách xử lý khiếu nại</Link>
                       </li>
                     </ul>
                   </div>

@@ -23,6 +23,7 @@ export interface IMessage {
   sender: {
     name: string
     avatar: string
+    id?: number
   }
 }
 

@@ -1,19 +1,16 @@
 'use client'
 
-import React, { useState } from 'react'
-import Link from 'next/link'
 import { useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { Eye, MoreVertical, Plus, SquarePen, Tag, Trash2 } from 'lucide-react'
+import { Eye, MoreVertical, SquarePen, Tag, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
 import { toast } from 'react-toastify'
 
-import QueryKey from '@/constants/query-key'
-import {
-  useGetCoupons,
-  useToggleStatus,
-} from '@/hooks/instructor/coupon/useCoupon'
-
+import Container from '@/components/shared/container'
+import { DataTable } from '@/components/shared/data-table'
+import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,10 +19,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Switch } from '@/components/ui/switch'
-import { DataTable } from '@/components/shared/data-table'
-import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
 import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
+import QueryKey from '@/constants/query-key'
+import {
+  useGetCoupons,
+  useToggleStatus,
+} from '@/hooks/instructor/coupon/useCoupon'
 
 const CouponView = () => {
   const queryClient = useQueryClient()
@@ -251,30 +251,22 @@ const CouponView = () => {
   ]
 
   return (
-    <>
-      <div className="px-5 py-6">
-        <div className="mt-2">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Mã giảm giá</h1>
-            <Link href="/instructor/coupon/create">
-              <Button className="flex items-center space-x-2">
-                <Plus className="size-4" /> <span>Tạo mã mới</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-        <div className="mt-4">
-          <DataTable
-            columns={columns}
-            data={filteredData || []}
-            isLoading={isLoading}
-            enableDateFilter={true}
-            onSearchChange={setSearchTerm}
-            onDateFilterChange={(filters) => setDateFilters(filters)}
-          />
-        </div>
+    <Container>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Mã giảm giá</h1>
+        <Link href="/instructor/coupon/create">
+          <Button>Tạo mã</Button>
+        </Link>
       </div>
-    </>
+      <DataTable
+        columns={columns}
+        data={filteredData || []}
+        isLoading={isLoading}
+        enableDateFilter={true}
+        onSearchChange={setSearchTerm}
+        onDateFilterChange={(filters) => setDateFilters(filters)}
+      />
+    </Container>
   )
 }
 

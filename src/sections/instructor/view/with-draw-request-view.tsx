@@ -12,6 +12,7 @@ import { DataTable } from '@/components/shared/data-table'
 import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
 import DialogWithDrawRequest from '@/sections/instructor/components/with-draw-request/dialog-with-draw-request'
 import { formatCurrency } from '@/lib/common'
+import Container from '@/components/shared/container'
 
 const WithDrawRequestView = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -199,8 +200,8 @@ const WithDrawRequestView = () => {
 
   return (
     <>
-      <div className="px-5 py-6">
-        <div className="mb-8 flex items-center justify-between">
+      <Container>
+        <div className="flex items-center justify-between">
           <h2 className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-2xl font-bold">
             Yêu cầu rút tiền
           </h2>
@@ -213,7 +214,7 @@ const WithDrawRequestView = () => {
           onSearchChange={setSearchTerm}
           onDateFilterChange={(filters) => setDateFilters(filters)}
         />
-      </div>
+      </Container>
       {openDialog && (
         <DialogWithDrawRequest
           selectWithDraw={selectWithDraw}

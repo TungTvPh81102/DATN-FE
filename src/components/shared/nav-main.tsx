@@ -2,6 +2,7 @@
 
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import {
   Collapsible,
@@ -19,7 +20,6 @@ import {
 } from '@/components/ui/sidebar'
 import { getMenuItem } from '@/lib/get-menu-items'
 import { cn } from '@/lib/utils'
-import { usePathname } from 'next/navigation'
 
 export function NavMain() {
   const pathname = usePathname()
@@ -32,9 +32,9 @@ export function NavMain() {
         {items?.map((item) => (
           <Collapsible
             key={item.title}
-            asChild
             defaultOpen={item.items?.some(({ url }) => pathname === url)}
             className="group/collapsible"
+            asChild
           >
             <SidebarMenuItem>
               {!item.items?.length ? (

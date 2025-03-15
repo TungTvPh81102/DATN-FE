@@ -49,6 +49,7 @@ import {
 } from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import QuillEditor from '@/components/shared/quill-editor'
+import Container from '@/components/shared/container'
 
 const PostUpdateView = ({ slug }: { slug: string }) => {
   const [preview, setPreview] = useState<string | null>(null)
@@ -152,12 +153,10 @@ const PostUpdateView = ({ slug }: { slug: string }) => {
   }
 
   return (
-    <div className="px-5 py-6">
-      <div className="mt-2">
-        <p className="text-xl font-bold">
-          Chỉnh sửa bài viết: {getPostBySlugData?.data.title}
-        </p>
-      </div>
+    <Container>
+      <h1 className="text-2xl font-medium">
+        Chỉnh sửa bài viết: {getPostBySlugData?.data.title}
+      </h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="mt-4 grid grid-cols-[1fr,300px] gap-6">
@@ -500,7 +499,7 @@ const PostUpdateView = ({ slug }: { slug: string }) => {
           </div>
         </form>
       </Form>
-    </div>
+    </Container>
   )
 }
 

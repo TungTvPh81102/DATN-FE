@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-} from '@/components/ui/alert-dialog'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -60,8 +60,8 @@ const DialogAddGroupChat = ({ open, onClose }: DialogAddGroupChatProps) => {
   })
 
   useEffect(() => {
-    if (!isLoading && learnerData?.data) {
-      const options = learnerData.data.map((learner: any) => ({
+    if (!isLoading && learnerData) {
+      const options = learnerData.map((learner: any) => ({
         value: learner.id.toString(),
         label: learner.name,
         avatar: learner.avatar,
@@ -87,15 +87,15 @@ const DialogAddGroupChat = ({ open, onClose }: DialogAddGroupChatProps) => {
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <AlertDialogContent className="max-w-3xl p-6">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Tạo nhóm của bạn</AlertDialogTitle>
-          <AlertDialogDescription>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Tạo nhóm của bạn</DialogTitle>
+          <DialogDescription>
             Hãy bắt đầu hỗ trợ học viên bằng cách tạo nhóm cùng danh sách các
             thành viên.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -162,11 +162,11 @@ const DialogAddGroupChat = ({ open, onClose }: DialogAddGroupChatProps) => {
               />
             </div>
 
-            <AlertDialogFooter className="flex justify-end gap-2">
+            <DialogFooter className="flex justify-end gap-2">
               <Button
                 disabled={isPending}
                 type="button"
-                variant="destructive"
+                variant="secondary"
                 onClick={onClose}
               >
                 Hủy
@@ -181,11 +181,11 @@ const DialogAddGroupChat = ({ open, onClose }: DialogAddGroupChatProps) => {
                   'Tạo nhóm'
                 )}
               </Button>
-            </AlertDialogFooter>
+            </DialogFooter>
           </form>
         </Form>
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   )
 }
 

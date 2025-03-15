@@ -34,6 +34,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { useUpdateBioProfile } from '@/hooks/profile/useProfile'
 import { ProfileBioFormValues, profileBioSchema } from '@/validations/profile'
+import { cn } from '@/lib/utils'
 
 interface Props {
   socialData?: any
@@ -97,103 +98,105 @@ export function SocialSection({ socialData }: Props) {
     : {}
 
   return (
-    <div className="container mx-auto px-4 pb-12 pt-8 sm:px-6 lg:px-8">
-      <Card className="w-full rounded">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Mạng xã hội</CardTitle>
-              <CardDescription className="mt-2">
-                Kết nối hồ sơ mạng xã hội và sự hiện diện trực tuyến của bạn
-              </CardDescription>
-            </div>
-            {!isEditing && (
-              <Button onClick={() => setIsEditing(true)}>Chỉnh sửa</Button>
-            )}
-          </div>
-        </CardHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                {Object.entries(socialLabels).map(([key, label]) => (
-                  <div
-                    key={key}
-                    className="flex flex-col rounded-lg border bg-card text-card-foreground"
-                  >
-                    <div className="flex flex-1 items-center gap-3 border-b p-4">
-                      <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        {socialIcons[key as keyof typeof socialIcons]}
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{label}</h4>
-                        {!isEditing && currentData[key] && (
-                          <a
-                            href={currentData[key]}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-muted-foreground hover:text-primary"
-                          >
-                            Truy cập đường dẫn{' '}
-                            <ExternalLink className="ml-1 inline size-3" />
-                          </a>
-                        )}
-                      </div>
+    <Card className="overflow-hidden bg-background/50 backdrop-blur-sm">
+      <CardHeader
+        className={cn(
+          'justify-between gap-4 space-y-0 bg-gradient-to-r shadow-md sm:flex-row sm:items-center',
+          'from-orange-50 to-orange-100'
+        )}
+      >
+        <div>
+          <CardTitle className="text-xl">Mạng xã hội</CardTitle>
+          <CardDescription>
+            Kết nối hồ sơ mạng xã hội và sự hiện diện trực tuyến của bạn
+          </CardDescription>
+        </div>
+        {!isEditing && (
+          <Button onClick={() => setIsEditing(true)}>Chỉnh sửa</Button>
+        )}
+      </CardHeader>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardContent className="space-y-6 p-6">
+            <div className="grid gap-4 lg:grid-cols-2 lg:gap-6 xl:grid-cols-4">
+              {Object.entries(socialLabels).map(([key, label]) => (
+                <div
+                  key={key}
+                  className="flex flex-col rounded-lg border bg-card text-card-foreground"
+                >
+                  <div className="flex flex-1 items-center gap-3 border-b p-4">
+                    <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      {socialIcons[key as keyof typeof socialIcons]}
                     </div>
-                    <div className="p-4">
-                      {isEditing ? (
-                        <FormField
-                          control={form.control}
-                          name={key as keyof ProfileBioFormValues}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder={
-                                    socialPlaceholders[
-                                      key as keyof typeof socialPlaceholders
-                                    ]
-                                  }
-                                  className="bg-background"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      ) : (
-                        <p className="truncate text-sm text-muted-foreground">
-                          {currentData[key] || 'Chưa cập nhật'}
-                        </p>
+                    <div>
+                      <h4 className="font-medium">{label}</h4>
+                      {!isEditing && currentData[key] && (
+                        <a
+                          href={currentData[key]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-muted-foreground hover:text-primary"
+                        >
+                          Truy cập đường dẫn{' '}
+                          <ExternalLink className="ml-1 inline size-3" />
+                        </a>
                       )}
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
+                  <div className="p-4">
+                    {isEditing ? (
+                      <FormField
+                        control={form.control}
+                        name={key as keyof ProfileBioFormValues}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder={
+                                  socialPlaceholders[
+                                    key as keyof typeof socialPlaceholders
+                                  ]
+                                }
+                                className="bg-background"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ) : (
+                      <p className="truncate text-sm text-muted-foreground">
+                        {currentData[key] || 'Chưa cập nhật'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
 
-            {isEditing && (
-              <CardFooter className="justify-end gap-2">
-                <Button
-                  type="reset"
-                  variant="outline"
-                  onClick={() => {
-                    setIsEditing(false)
-                    form.reset()
-                  }}
-                >
-                  Hủy
-                </Button>
-                <Button type="submit" disabled={isPending}>
-                  {isPending && <Loader2 className="animate-spin" />}
-                  Cập nhật
-                </Button>
-              </CardFooter>
-            )}
-          </form>
-        </Form>
-      </Card>
-    </div>
+          {isEditing && (
+            <CardFooter className="justify-end gap-2">
+              <Button
+                type="reset"
+                variant="outline"
+                onClick={() => {
+                  setIsEditing(false)
+                  form.reset()
+                }}
+              >
+                Hủy
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending && <Loader2 className="animate-spin" />}
+                Cập nhật
+              </Button>
+            </CardFooter>
+          )}
+        </form>
+      </Form>
+    </Card>
   )
 }

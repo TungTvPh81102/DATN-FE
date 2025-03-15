@@ -1,30 +1,37 @@
-import React, { useEffect, useState } from 'react'
-import Image from 'next/image'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
+  Award,
+  ChevronRight,
   FileText,
   Loader2,
   Plus,
-  X,
   Upload,
-  Award,
-  ChevronRight,
+  X,
 } from 'lucide-react'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { motion, AnimatePresence } from 'framer-motion'
 
+import { useUpdateCertificatesProfile } from '@/hooks/profile/useProfile'
 import {
   ACCEPTED_FILE_TYPES,
   certificatesProfileSchema,
   MAX_FILE_SIZE,
   UpdateCertificatesProfilePayload,
 } from '@/validations/profile'
-import { useUpdateCertificatesProfile } from '@/hooks/profile/useProfile'
 
-import { Button } from '@/components/ui/button'
-import { Form } from '@/components/ui/form'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Form } from '@/components/ui/form'
+import { cn } from '@/lib/utils'
 
 interface Props {
   certificateData: any
@@ -242,15 +249,18 @@ export function CertificateSection({ certificateData }: Props) {
     }
 
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <Card className="space-y-6 overflow-hidden bg-background/50 backdrop-blur-sm">
+        <CardHeader
+          className={cn(
+            'justify-between gap-4 space-y-0 bg-gradient-to-r shadow-md sm:flex-row sm:items-center',
+            'from-orange-50 to-orange-100'
+          )}
+        >
           <div>
-            <h3 className="text-xl font-semibold text-gray-900">
-              Quản lý chứng chỉ
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <CardTitle className="text-xl">Quản lý chứng chỉ</CardTitle>
+            <CardDescription>
               Tải lên các chứng chỉ, bằng cấp và giấy tờ quan trọng của bạn
-            </p>
+            </CardDescription>
           </div>
           <Button
             type="button"
@@ -267,185 +277,181 @@ export function CertificateSection({ certificateData }: Props) {
             <Plus className="mr-2 size-4" />
             Thêm chứng chỉ
           </Button>
+        </CardHeader>
+
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`relative rounded-lg border-2 border-dashed p-6 transition-all ${
+            dragActive
+              ? 'border-primary bg-primary/5 shadow-md'
+              : 'border-gray-200 hover:border-primary/30 hover:bg-gray-50/50'
+          }`}
+        >
+          <div className="flex flex-col items-center justify-center text-center">
+            <Upload className="mb-3 size-12 text-primary/60" />
+            <h4 className="mb-1.5 text-base font-medium text-gray-900">
+              Kéo và thả tệp vào đây
+            </h4>
+            <p className="mb-3 text-sm text-gray-500">
+              hoặc nhấp vào nút Thêm chứng chỉ để tải lên
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              {ACCEPTED_FILE_TYPES.map((type) => (
+                <Badge
+                  key={type}
+                  variant="secondary"
+                  className="text-xs font-normal"
+                >
+                  {type.split('/')[1].toUpperCase()}
+                </Badge>
+              ))}
+              <Badge variant="secondary" className="text-xs font-normal">
+                Tối đa 5MB
+              </Badge>
+            </div>
+          </div>
         </div>
 
-        <Card className="overflow-hidden border-none bg-white/50 shadow-md backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`relative mb-6 rounded-lg border-2 border-dashed p-6 transition-all ${
-                dragActive
-                  ? 'border-primary bg-primary/5 shadow-md'
-                  : 'border-gray-200 hover:border-primary/30 hover:bg-gray-50/50'
-              }`}
-            >
-              <div className="flex flex-col items-center justify-center text-center">
-                <Upload className="mb-3 size-12 text-primary/60" />
-                <h4 className="mb-1.5 text-base font-medium text-gray-900">
-                  Kéo và thả tệp vào đây
-                </h4>
-                <p className="mb-3 text-sm text-gray-500">
-                  hoặc nhấp vào nút Thêm chứng chỉ để tải lên
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-1.5">
-                  {ACCEPTED_FILE_TYPES.map((type) => (
-                    <Badge
-                      key={type}
-                      variant="secondary"
-                      className="text-xs font-normal"
-                    >
-                      {type.split('/')[1].toUpperCase()}
-                    </Badge>
-                  ))}
-                  <Badge variant="secondary" className="text-xs font-normal">
-                    Tối đa 5MB
-                  </Badge>
-                </div>
+        <AnimatePresence>
+          {existingCertificates.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="flex items-center gap-2 font-medium text-gray-900">
+                <Award className="size-5 text-primary" />
+                Chứng chỉ hiện có
+              </h4>
+              <div className="divide-y rounded-lg border bg-gray-50">
+                {existingCertificates.map((cert) => (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    key={cert}
+                    className="group flex items-center gap-4 p-3 hover:bg-gray-100"
+                  >
+                    <div className="shrink-0">
+                      <FileText className="size-8 text-primary" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <a
+                        href={`${process.env.NEXT_PUBLIC_STORAGE}/${cert}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-gray-900 hover:text-primary"
+                      >
+                        {getFileName(cert)}
+                      </a>
+                      <Badge variant="secondary" className="text-xs">
+                        {getFileExtension(cert).toUpperCase()}
+                      </Badge>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
+          )}
 
-            <AnimatePresence>
-              {existingCertificates.length > 0 && (
-                <div className="mb-6 space-y-3">
-                  <h4 className="flex items-center gap-2 font-medium text-gray-900">
-                    <Award className="size-5 text-primary" />
-                    Chứng chỉ hiện có
-                  </h4>
-                  <div className="divide-y rounded-lg border bg-gray-50">
-                    {existingCertificates.map((cert) => (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        key={cert}
-                        className="group flex items-center gap-4 p-3 hover:bg-gray-100"
-                      >
-                        <div className="shrink-0">
-                          <FileText className="size-8 text-primary" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <a
-                            href={`${process.env.NEXT_PUBLIC_STORAGE}/${cert}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-medium text-gray-900 hover:text-primary"
-                          >
-                            {getFileName(cert)}
-                          </a>
-                          <Badge variant="secondary" className="text-xs">
-                            {getFileExtension(cert).toUpperCase()}
-                          </Badge>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {selectedFiles.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="flex items-center gap-2 font-medium text-gray-900">
-                    <Upload className="size-5 text-primary" />
-                    Chứng chỉ mới
-                  </h4>
-                  <div className="divide-y rounded-lg border bg-primary/5">
-                    {selectedFiles.map((file, index) => (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        key={`new-${index}`}
-                        className="flex items-center justify-between p-3"
-                      >
-                        <div className="flex items-center gap-4">
-                          <FileText className="size-8 text-primary" />
-                          <span className="font-medium text-primary">
-                            {file.name}
-                          </span>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeNewFile(index)}
-                          className="text-primary hover:bg-primary/10"
-                        >
-                          <X className="size-4" />
-                        </Button>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </AnimatePresence>
-          </CardContent>
-        </Card>
-      </div>
+          {selectedFiles.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="flex items-center gap-2 font-medium text-gray-900">
+                <Upload className="size-5 text-primary" />
+                Chứng chỉ mới
+              </h4>
+              <div className="divide-y rounded-lg border bg-primary/5">
+                {selectedFiles.map((file, index) => (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    key={`new-${index}`}
+                    className="flex items-center justify-between p-3"
+                  >
+                    <div className="flex items-center gap-4">
+                      <FileText className="size-8 text-primary" />
+                      <span className="font-medium text-primary">
+                        {file.name}
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeNewFile(index)}
+                      className="text-primary hover:bg-primary/10"
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
+        </AnimatePresence>
+      </Card>
     )
   }
 
   return (
-    <div className="mx-4 mt-8 max-w-4xl space-y-6 pb-16 lg:mx-auto">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {isEditing ? (
-            <>
-              {renderCertificates()}
-              <div className="flex gap-3 border-t pt-6">
-                <Button
-                  type="submit"
-                  className="min-w-[140px] bg-primary hover:bg-primary/90"
-                  disabled={isPending}
-                >
-                  {isPending ? (
-                    <>
-                      <Loader2 className="mr-2 size-4 animate-spin" />
-                      Đang lưu...
-                    </>
-                  ) : (
-                    'Lưu thay đổi'
-                  )}
-                </Button>
-                <Button
-                  disabled={isPending}
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setIsEditing(false)
-                    setSelectedFiles([])
-                    const certificates = parseCertificates(certificateData)
-                    setExistingCertificates(certificates)
-                  }}
-                >
-                  Quay lại
-                </Button>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {isEditing ? (
+          <>
+            {renderCertificates()}
+            <div className="flex justify-end gap-3 border-t pt-6">
+              <Button
+                disabled={isPending}
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsEditing(false)
+                  setSelectedFiles([])
+                  const certificates = parseCertificates(certificateData)
+                  setExistingCertificates(certificates)
+                }}
+              >
+                Quay lại
+              </Button>
+              <Button
+                type="submit"
+                className="min-w-[140px] bg-primary hover:bg-primary/90"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Đang lưu...
+                  </>
+                ) : (
+                  'Lưu thay đổi'
+                )}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <Card className="overflow-hidden bg-background/50 backdrop-blur-sm">
+            <CardHeader
+              className={cn(
+                'justify-between gap-4 space-y-0 bg-gradient-to-r shadow-md sm:flex-row sm:items-center',
+                'from-orange-50 to-orange-100'
+              )}
+            >
+              <div>
+                <CardTitle className="text-xl">Chứng chỉ & Giấy tờ</CardTitle>
+                <CardDescription>
+                  Quản lý các chứng chỉ và giấy tờ quan trọng của bạn
+                </CardDescription>
               </div>
-            </>
-          ) : (
-            <Card className="overflow-hidden border bg-white/50 shadow-md backdrop-blur-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b bg-gray-50/50 px-6 py-4">
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                    <Award className="size-5 text-primary" />
-                    Chứng chỉ & Giấy tờ
-                  </CardTitle>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Quản lý các chứng chỉ và giấy tờ quan trọng của bạn
-                  </p>
-                </div>
-                <Button disabled={isPending} onClick={() => setIsEditing(true)}>
-                  Cập nhật
-                </Button>
-              </CardHeader>
-              <CardContent className="px-6 py-4">
-                {renderCertificates()}
-              </CardContent>
-            </Card>
-          )}
-        </form>
-      </Form>
-    </div>
+              <Button disabled={isPending} onClick={() => setIsEditing(true)}>
+                Cập nhật
+              </Button>
+            </CardHeader>
+            <CardContent className="px-6 py-4">
+              {renderCertificates()}
+            </CardContent>
+          </Card>
+        )}
+      </form>
+    </Form>
   )
 }

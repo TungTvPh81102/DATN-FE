@@ -16,6 +16,7 @@ import { DataTable } from '@/components/shared/data-table'
 import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
 import DialogLiveStreamCreate from '@/sections/instructor/components/course-detail/_components/dialog-live-stream-create'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Container from '@/components/shared/container'
 
 const getLocalizedLevel = (level: string) => {
   switch (level) {
@@ -169,8 +170,8 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
   }
 
   return (
-    <div className="px-5 py-6">
-      <div className="mt-2 space-y-6">
+    <Container>
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
@@ -357,7 +358,7 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
           onOpenChange={setIsOpenCreateLiveStream}
         />
       )}
-    </div>
+    </Container>
   )
 }
 

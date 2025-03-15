@@ -353,7 +353,7 @@ const ChatView = () => {
 
         <div className="flex w-80 flex-col border-r">
           <div className="border-b p-4">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="my-4 flex items-center justify-between">
               <h2 className="text-xl font-semibold">Chats</h2>
             </div>
             <div className="relative">
@@ -473,6 +473,7 @@ const ChatView = () => {
             )}
           </ScrollArea>
         </div>
+
         <div className="flex flex-1 flex-col">
           {selectedChannel ? (
             <div className="flex h-16 items-center justify-between border-b px-4">

@@ -55,6 +55,11 @@ export function DataTable<TData>({
                       style={{
                         ...getCommonPinningStyles({ column: header.column }),
                       }}
+                      className={cn(
+                        'font-semibold',
+                        header.column.columnDef.meta?.className,
+                        header.column.columnDef.meta?.headClassName
+                      )}
                     >
                       {header.isPlaceholder
                         ? null
@@ -81,6 +86,10 @@ export function DataTable<TData>({
                       style={{
                         ...getCommonPinningStyles({ column: cell.column }),
                       }}
+                      className={cn(
+                        cell.column.columnDef.meta?.className,
+                        cell.column.columnDef.meta?.cellClassName
+                      )}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

@@ -21,6 +21,7 @@ import { DataTableColumnHeader } from '@/components/shared/data-table-column-hea
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import Container from '@/components/shared/container'
 
 const EvaluationView = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -199,25 +200,21 @@ const EvaluationView = () => {
 
   return (
     <>
-      <div className="px-5 py-6">
-        <div className="mt-2">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Danh sách đánh giá
-            </h1>
-          </div>
+      <Container>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Danh sách đánh giá
+          </h1>
         </div>
-        <div className="mt-4">
-          <DataTable
-            columns={columns}
-            data={filteredData || []}
-            isLoading={isLoading}
-            enableDateFilter={true}
-            onSearchChange={setSearchTerm}
-            onDateFilterChange={(filters) => setDateFilters(filters)}
-          />
-        </div>
-      </div>
+        <DataTable
+          columns={columns}
+          data={filteredData || []}
+          isLoading={isLoading}
+          enableDateFilter={true}
+          onSearchChange={setSearchTerm}
+          onDateFilterChange={(filters) => setDateFilters(filters)}
+        />
+      </Container>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

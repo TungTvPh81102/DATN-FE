@@ -22,6 +22,7 @@ import { DataTableColumnHeader } from '@/components/shared/data-table-column-hea
 import { Card, CardContent } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/common'
 import { Separator } from '@/components/ui/separator'
+import Container from '@/components/shared/container'
 
 export default function TransactionManageView() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -190,29 +191,28 @@ export default function TransactionManageView() {
   ]
 
   return (
-    <div className="px-5 py-4">
-      <div className="mt-2 space-y-6">
+    <Container>
+      <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h4 className="text-2xl font-bold text-gray-900">
-              Lịch sử mua hàng
-            </h4>
-            <p className="mt-1 text-gray-500">Quản lý các giao dịch khóa học</p>
+            <h1 className="text-2xl font-medium">Lịch sử mua hàng</h1>
+            <p className="mt-1 text-muted-foreground">
+              Quản lý các giao dịch khóa học
+            </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 border-[#E27447] text-[#E27447] hover:bg-[#E27447]/10 hover:text-[#E27447]"
-            >
-              <Download size={16} />
-              Xuất báo cáo
-            </Button>
-          </div>
+
+          <Button
+            variant="outline"
+            className="gap-2 border-[#E27447] text-[#E27447] hover:bg-[#E27447]/10 hover:text-[#E27447]"
+          >
+            <Download />
+            Xuất báo cáo
+          </Button>
         </div>
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <Card className="border border-gray-200 bg-white shadow-sm">
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">Tổng giao dịch</p>
+              <p className="text-sm text-muted-foreground">Tổng giao dịch</p>
               <h3 className="mt-1 text-2xl font-bold text-gray-900">
                 {filteredData?.length || 0}
               </h3>
@@ -320,6 +320,6 @@ export default function TransactionManageView() {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+    </Container>
   )
 }

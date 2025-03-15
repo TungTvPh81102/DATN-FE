@@ -56,6 +56,7 @@ import {
 } from '@/components/ui/popover'
 import QuillEditor from '@/components/shared/quill-editor'
 import { Separator } from '@/components/ui/separator'
+import Container from '@/components/shared/container'
 
 const PostAddView = () => {
   const router = useRouter()
@@ -119,19 +120,18 @@ const PostAddView = () => {
   const primaryLightColor = '#FAF0ED'
 
   return (
-    <div className="min-h-screen bg-gray-50 px-5 py-6">
-      <div className="mt-2">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Thêm bài viết mới</h1>
-          <Button
-            variant="outline"
-            onClick={() => router.push('/instructor/posts')}
-            className="hover:bg-orange-50"
-          >
-            Quay lại
-          </Button>
-        </div>
+    <Container>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-medium">Thêm bài viết</h1>
+        <Button
+          variant="outline"
+          onClick={() => router.push('/instructor/posts')}
+          className="hover:bg-orange-50"
+        >
+          Quay lại
+        </Button>
       </div>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,350px]">
@@ -290,7 +290,7 @@ const PostAddView = () => {
                         <FormItem>
                           <FormControl>
                             <div className="overflow-hidden rounded-md border">
-                              <QuillEditor {...field} />
+                              <QuillEditor fullToolbar {...field} />
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -544,7 +544,7 @@ const PostAddView = () => {
           </div>
         </form>
       </Form>
-    </div>
+    </Container>
   )
 }
 

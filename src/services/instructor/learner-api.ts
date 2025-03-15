@@ -1,10 +1,12 @@
 import api from '@/configs/api'
+import { Learner } from '@/types/learner'
 
 const prefix = 'instructor/manage/learners'
 
 export const instructorLearnerApi = {
-  getLearners: async () => {
-    return await api.get(`${prefix}`)
+  getLearners: async (): Promise<Learner[]> => {
+    const res = await api.get(`${prefix}`)
+    return res.data
   },
   getLearnerProcess: async (
     learner: string,
