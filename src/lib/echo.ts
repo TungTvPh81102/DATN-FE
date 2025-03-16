@@ -13,11 +13,11 @@ const token = Cookies.get(StorageKey.ACCESS_TOKEN)
 // }
 
 const echo = new Echo({
-  broadcaster: 'reverb',
-  key: process.env.NEXT_PUBLIC_REVERB_KEY!,
-  wsHost: process.env.NEXT_PUBLIC_REVERB_HOST,
-  wsPort: process.env.NEXT_PUBLIC_REVERB_PORT,
-  forceTLS: false,
+  broadcaster: 'pusher',
+  key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
+  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+  forceTLS: true,
+  encrypted: true,
   authEndpoint: `${process.env.NEXT_PUBLIC_API_URL}/broadcasting/auth`,
   auth: {
     headers: {
