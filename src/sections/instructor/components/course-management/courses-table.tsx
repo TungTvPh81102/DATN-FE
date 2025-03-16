@@ -5,7 +5,7 @@ import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-adv
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton'
 import { useGetCourses } from '@/hooks/instructor/course/useCourse'
 import { useDataTable } from '@/hooks/use-data-table'
-import { ICourse } from '@/types'
+import { CourseStatusMap, ICourse } from '@/types'
 import {
   DataTableAdvancedFilterField,
   DataTableRowAction,
@@ -41,28 +41,10 @@ const advancedFilterFields: DataTableAdvancedFilterField<ICourse>[] = [
     id: 'status',
     label: 'Trạng thái',
     type: 'multi-select',
-    options: [
-      {
-        label: 'Bản nháp',
-        value: 'draft',
-      },
-      {
-        label: 'Chờ duyệt',
-        value: 'pending',
-      },
-      {
-        label: 'Đã duyệt',
-        value: 'approved',
-      },
-      {
-        label: 'Từ chối',
-        value: 'rejected',
-      },
-      {
-        label: 'Sửa đổi',
-        value: 'modify_request',
-      },
-    ],
+    options: Object.entries(CourseStatusMap).map(([key, value]) => ({
+      label: value.label,
+      value: key,
+    })),
   },
 ]
 
@@ -108,10 +90,9 @@ const CoursesTable = () => {
     </>
   ) : (
     <DataTableSkeleton
-      columnCount={6}
-      searchableColumnCount={1}
-      filterableColumnCount={1}
-      cellWidths={['10rem', '18rem', '6rem', '6rem', '6rem', '6rem']}
+      columnCount={7}
+      filterableColumnCount={2}
+      cellWidths={['2.5rem', '15rem', '6rem', '6rem', '6rem', '6rem', '2.5rem']}
       shrinkZero
     />
   )

@@ -1,11 +1,9 @@
 'use client'
 
-import type { DataTableRowAction } from '@/types/data-table.ts'
 import type { ColumnDef } from '@tanstack/react-table'
-import { EllipsisVertical, Eye, SquarePen, Trash2 } from 'lucide-react'
+import { EllipsisVertical, SquarePen } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import * as React from 'react'
 
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
@@ -17,19 +15,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { formatCurrency, formatDate } from '@/lib/common'
+import { formatDate, formatNumber } from '@/lib/common'
 import { dateRangeFilterFn } from '@/lib/data-table'
-import { CourseStatusMap, ICourse } from '@/types'
+import { IPost, PostStatusMap } from '@/types'
 
-interface GetColumnsProps {
-  setRowAction: React.Dispatch<
-    React.SetStateAction<DataTableRowAction<ICourse> | null>
-  >
-}
-
-export function getColumns({
-  setRowAction,
-}: GetColumnsProps): ColumnDef<ICourse>[] {
+export function getColumns(): ColumnDef<IPost>[] {
   return [
     {
       id: 'select',
@@ -56,25 +46,25 @@ export function getColumns({
       size: 40,
     },
     {
-      accessorKey: 'name',
+      accessorKey: 'title',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Khóa học" />
+        <DataTableColumnHeader column={column} title="Bài viết" />
       ),
       cell: ({ row }) => {
-        const course = row.original
+        const post = row.original
         return (
           <div className="flex min-w-80 items-center gap-4">
             <Image
-              alt={course.name ?? ''}
+              alt={post.title}
               className="size-16 rounded-lg object-cover"
               height={128}
               width={128}
-              src={course?.thumbnail ?? ''}
+              src={post?.thumbnail ?? ''}
             />
             <div className="flex-1 space-y-1">
-              <h3 className="line-clamp-2 font-semibold">{course.name}</h3>
+              <h3 className="line-clamp-2 font-semibold">{post.title}</h3>
               <h4 className="text-xs text-muted-foreground">
-                {course.category?.name}
+                {post.category.name}
               </h4>
             </div>
           </div>
@@ -82,7 +72,7 @@ export function getColumns({
       },
       enableHiding: false,
       meta: {
-        label: 'Khóa học',
+        label: 'Bài viết',
       },
     },
     {
@@ -122,38 +112,19 @@ export function getColumns({
       },
     },
     {
-      accessorKey: 'price',
+      accessorKey: 'view',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Giá bán" />
-      ),
-      cell: ({ row }) => {
-        const isFree = row.original.is_free
-        const price = Number(row.getValue('price')) || 0
-
-        return (
-          <div className="font-medium">
-            {isFree || price === 0 ? 'Miễn phí' : formatCurrency(price)}
-          </div>
-        )
-      },
-      sortingFn: 'alphanumeric',
-      filterFn: 'inNumberRange',
-      meta: {
-        label: 'Giá bán',
-      },
-    },
-    {
-      accessorKey: 'total_student',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Học viên" />
+        <DataTableColumnHeader column={column} title="Lượt xem" />
       ),
       cell: ({ row }) => (
-        <div className="font-medium">{row.getValue('total_student') || 0}</div>
+        <div className="font-medium">
+          {formatNumber(row.original.view ?? 0)}
+        </div>
       ),
       sortingFn: 'basic',
       filterFn: 'inNumberRange',
       meta: {
-        label: 'Học viên',
+        label: 'Lượt xem',
       },
     },
     {
@@ -162,11 +133,14 @@ export function getColumns({
         <DataTableColumnHeader column={column} title="Trạng thái" />
       ),
       cell: ({ row }) => {
-        const course = CourseStatusMap[row.original.status]
+        console.log(row.original.status)
+        const post = PostStatusMap[row.original.status]
         return (
-          <Badge className="shrink-0 whitespace-nowrap" variant={course.badge}>
-            {course.label}
-          </Badge>
+          post && (
+            <Badge className="shrink-0 whitespace-nowrap" variant={post.badge}>
+              {post.label}
+            </Badge>
+          )
         )
       },
       filterFn: (row, id, value) => {
@@ -194,20 +168,9 @@ export function getColumns({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="max-w-40">
               <DropdownMenuItem asChild>
-                <Link href={`/instructor/courses/${course.slug}`}>
-                  <Eye /> Xem
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={`/instructor/courses/update/${course.slug}`}>
+                <Link href={`/instructor/posts/update/${course.slug}`}>
                   <SquarePen /> Sửa
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                onSelect={() => setRowAction({ row, type: 'delete' })}
-              >
-                <Trash2 /> Xóa
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

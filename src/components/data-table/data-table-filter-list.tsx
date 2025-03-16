@@ -103,6 +103,11 @@ export function DataTableFilterList<TData>({
     debounced?: boolean
   }) {
     const updateFunction = debounced ? debouncedSetFilters : setFilters
+
+    if (Array.isArray(field.value) && field.value.length === 0) {
+      field.value = ''
+    }
+
     updateFunction((prevFilters) => {
       const updatedFilters = prevFilters.map((filter) => {
         if (filter.rowId === rowId) {

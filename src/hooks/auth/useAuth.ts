@@ -7,6 +7,9 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import Cookies from 'js-cookie'
 import StorageKey from '@/constants/storage-key'
 import { ResetPasswordPayload } from '@/validations/auth'
+import { useEffect, useState } from 'react'
+import echo from '@/lib/echo'
+import api from '@/configs/api'
 
 export const useGetUserWithToken = () => {
   return useQuery({
@@ -75,4 +78,58 @@ export const useResetPassword = () => {
   return useMutation({
     mutationFn: (data: ResetPasswordPayload) => authApi.resetPassword(data),
   })
+}
+
+export const useGetOnlineUsers = () => {
+  return useQuery({
+    queryKey: [QUERY_KEY.AUTH_ONLINE],
+    queryFn: () => authApi.getOnlineUsers(),
+  })
+}
+
+export const useAuthOnlineStatus = () => {
+  const [onlineUsers, setOnlineUsers] = useState<Record<number, boolean>>({})
+
+  const token = useAuthStore((state) => state.token)
+
+  useEffect(() => {
+    if (!token) return
+
+    echo
+      .channel('user-status')
+      .listen('UserStatusChanged', (e: { userId: number; status: string }) => {
+        setOnlineUsers((prev) => ({
+          ...prev,
+          [e.userId]: e.status === 'online',
+        }))
+      })
+
+    const fetchOnlineUsers = async () => {
+      try {
+        const response = await api.get('/auth/online-users')
+        setOnlineUsers(response.data)
+      } catch (error) {
+        console.error('Failed to fetch online users', error)
+      }
+    }
+
+    const sendHeartbeat = async () => {
+      try {
+        await api.get('get-user-with-token')
+      } catch (error) {
+        console.error('Failed to send heartbeat', error)
+      }
+    }
+
+    const heartbeatInterval = setInterval(sendHeartbeat, 4 * 60 * 1000)
+    const fetchInterval = setInterval(fetchOnlineUsers, 60 * 1000)
+
+    return () => {
+      clearInterval(heartbeatInterval)
+      clearInterval(fetchInterval)
+      echo.leaveChannel('user-status')
+    }
+  }, [token])
+
+  return { onlineUsers }
 }

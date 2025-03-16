@@ -28,4 +28,7 @@ export const authApi = {
   resetPassword: async (data: ResetPasswordPayload) => {
     return await api.post('auth/reset-password', data)
   },
+  getOnlineUsers: async () => {
+    return await api.get(`auth/online-users`)
+  },
 }

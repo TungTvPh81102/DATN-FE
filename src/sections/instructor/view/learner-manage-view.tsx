@@ -31,10 +31,10 @@ const LearnerManageView = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="border-0 shadow-sm">
           <CardContent className="flex items-center p-6">
-            <div className="mr-4 flex size-12 items-center justify-center rounded-lg bg-[#E27447]/10">
+            <div className="mr-4 flex size-12 shrink-0 items-center justify-center rounded-lg bg-[#E27447]/10">
               <Users className="size-6 text-[#E27447]" />
             </div>
             <div>
@@ -48,7 +48,7 @@ const LearnerManageView = () => {
 
         <Card className="border-0 shadow-sm">
           <CardContent className="flex items-center p-6">
-            <div className="mr-4 flex size-12 items-center justify-center rounded-lg bg-[#E27447]/10">
+            <div className="mr-4 flex size-12 shrink-0 items-center justify-center rounded-lg bg-[#E27447]/10">
               <BookOpen className="size-6 text-[#E27447]" />
             </div>
             <div>
@@ -62,7 +62,7 @@ const LearnerManageView = () => {
 
         <Card className="border-0 shadow-sm">
           <CardContent className="flex items-center p-6">
-            <div className="mr-4 flex size-12 items-center justify-center rounded-lg bg-[#E27447]/10">
+            <div className="mr-4 flex size-12 shrink-0 items-center justify-center rounded-lg bg-[#E27447]/10">
               <div className="text-lg font-bold text-[#E27447]">Ø</div>
             </div>
             <div>

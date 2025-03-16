@@ -48,7 +48,7 @@ const LearnersTable = ({ data = [], isLoading = false }: Props) => {
     <DataTableSkeleton
       columnCount={6}
       searchableColumnCount={1}
-      cellWidths={['2.5rem', '20rem', '15rem', '15rem', '15rem', '2.5rem']}
+      cellWidths={['2.5rem', '16rem', '8rem', '8rem', '8rem', '2.5rem']}
       shrinkZero
     />
   )

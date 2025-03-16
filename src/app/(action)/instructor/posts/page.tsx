@@ -1,4 +1,4 @@
-import PostManageView from '@/sections/instructor/view/post-manage-view'
+import { PostsManagement } from '@/sections/instructor/posts-management'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 }
 
 const PostManagePage = () => {
-  return <PostManageView />
+  return <PostsManagement />
 }
 
 export default PostManagePage

@@ -267,7 +267,7 @@ const CourseList = ({
                         </div>
 
                         <Link
-                          href="#"
+                          href={`/profile/${course.user.code}`}
                           className="author flex items-center gap-2"
                         >
                           <Avatar className="size-5">

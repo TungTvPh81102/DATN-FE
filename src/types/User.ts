@@ -18,6 +18,7 @@ export interface IUser {
   deletedAt?: Date | null
   createdAt?: Date | null
   updatedAt?: Date | null
+  is_temporary?: 0 | 1
 }
 
 export interface ISocialAccount {

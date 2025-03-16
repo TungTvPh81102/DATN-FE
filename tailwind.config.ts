@@ -104,8 +104,24 @@ const config: Config = {
           '70%': { transform: 'rotate(-2deg)' },
           '80%': { transform: 'rotate(1deg)' },
         },
+        'highlight-animation': {
+          '0%': {
+            boxShadow: '0 0 0 2px rgba(255, 143, 0, 0.8)',
+            borderColor: 'rgba(255, 143, 0, 0.8)',
+          },
+          '70%': {
+            boxShadow: '0 0 0 2px rgba(255, 143, 0, 0.4)',
+            borderColor: 'rgba(255, 143, 0, 0.4)',
+          },
+          '100%': {
+            boxShadow: 'none',
+            borderColor: 'transparent',
+          },
+        },
       },
       animation: {
+        highlight: 'highlight-animation 2s ease',
+        'highlight-message': 'highlight-animation 2s ease',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'slide-loop': 'slide-loop 20s linear infinite',

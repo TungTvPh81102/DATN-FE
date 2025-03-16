@@ -18,6 +18,11 @@ interface MessageItemProps {
   onReply: (message: IMessage) => void
 }
 
+const getLastName = (fullName: string): string => {
+  const nameParts = fullName.trim().split(' ')
+  return nameParts.length > 0 ? nameParts[nameParts.length - 1] : fullName
+}
+
 const MessageContent = ({ message }: { message: IMessage }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -45,7 +50,7 @@ const MessageContent = ({ message }: { message: IMessage }) => {
               height={200}
               src={`${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.file_path}`}
               alt="Image message"
-              className="max-w-[300px] rounded-lg object-cover transition-transform duration-200 hover:scale-[1.02]"
+              className="max-w-[300px] rounded-lg object-cover transition-transform duration-200"
               loading="lazy"
             />
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
@@ -158,22 +163,69 @@ const getTextMessageWidth = (text: string) => {
   return 'max-w-[65%]'
 }
 
-const ReplyToPreview = ({ parent }: { parent: IMessage }) => {
+const handleReplyClick = (parentId: number) => {
+  const originalMessageElement = document.getElementById(`message-${parentId}`)
+
+  if (originalMessageElement) {
+    originalMessageElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    })
+
+    const messageBubble = originalMessageElement.querySelector('.rounded-2xl')
+
+    if (messageBubble) {
+      messageBubble.classList.add('animate-highlight')
+
+      setTimeout(() => {
+        messageBubble.classList.remove('animate-highlight')
+      }, 2000)
+    }
+  }
+}
+
+const ReplyToPreview = ({
+  parent,
+  message,
+}: {
+  parent: IMessage
+  message: IMessage
+}) => {
   const { user } = useAuthStore()
 
   if (!parent) return null
+  const isSelfReply = parent.senderId === message.senderId
 
-  const isSelfReply = parent.sender.id === user?.id
+  const isCurrentUserReplying = message.senderId === user?.id
+
+  let replyText = ''
+
+  if (isCurrentUserReplying) {
+    if (isSelfReply) {
+      replyText = 'Bạn đã trả lời chính mình'
+    } else {
+      replyText = `Bạn đã trả lời ${getLastName(parent.sender.name)}`
+    }
+  } else {
+    if (parent.senderId === user?.id) {
+      replyText = `${getLastName(message.sender.name)} đã trả lời bạn`
+    } else if (isSelfReply) {
+      replyText = `${getLastName(message.sender.name)} đã trả lời chính mình`
+    } else {
+      replyText = `${getLastName(message.sender.name)} đã trả lời ${getLastName(parent.sender.name)}`
+    }
+  }
 
   return (
     <div className="mb-1 max-w-xs rounded-lg px-3 py-1.5 text-xs text-gray-600">
       <div className="flex items-center gap-2">
         <div className="h-4 w-0.5 rounded bg-gray-300"></div>
-        <div className="flex flex-1 items-center gap-1 overflow-hidden">
-          <span className="font-medium">
-            {isSelfReply
-              ? 'Bạn đã trả lời chính mình'
-              : `${parent.sender.name}`}
+        <div className="flex flex-1 cursor-pointer items-center gap-1 overflow-hidden">
+          <span
+            onClick={() => handleReplyClick(parent.id)}
+            className="font-medium"
+          >
+            {replyText}
           </span>
           <span className="truncate">
             {parent.type === 'text' && parent.content}
@@ -201,6 +253,7 @@ const EnhancedMessageItem = ({
 
   return (
     <div
+      id={`message-${message.id}`}
       className={`mr-4 flex items-start gap-3 ${isCurrentUser ? 'justify-end' : ''}`}
       onMouseEnter={() => setShowReplyButton(true)}
       onMouseLeave={() => setShowReplyButton(false)}
@@ -214,13 +267,18 @@ const EnhancedMessageItem = ({
       <div
         className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'} ${textWidth}`}
       >
-        {isGroupChat && !isCurrentUser && (
-          <div className="mb-1 text-sm font-medium text-gray-600">
-            {message.sender.name}
-          </div>
+        {hasReplyTo && (
+          <ReplyToPreview
+            message={message}
+            parent={message?.parent as IMessage}
+          />
         )}
 
-        {hasReplyTo && <ReplyToPreview parent={message?.parent as IMessage} />}
+        {isGroupChat && !isCurrentUser && (
+          <div className="mb-1 text-sm font-medium text-gray-600">
+            {getLastName(message.sender.name)}
+          </div>
+        )}
 
         <div
           className={`relative rounded-2xl ${

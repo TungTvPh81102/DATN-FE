@@ -122,3 +122,8 @@
 .channel-stats-bg {
   background-image: url(https://keenthemes.com/metronic/tailwind/react/demo1/media/images/2600x1600/bg-3.png);
 }
+
+.highlight-message {
+  animation: highlight-animation 2s ease;
+  transition: all 0.3s ease;
+}

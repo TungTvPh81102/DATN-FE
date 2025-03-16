@@ -11,6 +11,8 @@ export const useGetDirectChats = () => {
   return useQuery({
     queryKey: [QUERY_KEY.GROUP_DIRECT],
     queryFn: () => chatApi.getDirectChats(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }
 
@@ -18,6 +20,8 @@ export const useGetGroupChats = () => {
   return useQuery({
     queryKey: [QUERY_KEY.GROUP_CHAT],
     queryFn: () => chatApi.getGroupChats(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }
 
@@ -25,6 +29,8 @@ export const useGetGroupStudent = () => {
   return useQuery({
     queryKey: [QUERY_KEY.GROUP_CHAT],
     queryFn: () => chatApi.getGroupStudent(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }
 
@@ -41,6 +47,8 @@ export const useGetRemainingMembers = (channelId: number) => {
     queryKey: [QUERY_KEY.REMAINING_MEMBER, channelId],
     queryFn: () => chatApi.getRemainingMembers(channelId!),
     enabled: !!channelId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }
 
@@ -49,6 +57,8 @@ export const useGetMessage = (conversation_id: number) => {
     queryKey: [QUERY_KEY.GROUP_CHAT, conversation_id],
     queryFn: () => chatApi.getMessages(conversation_id!),
     enabled: !!conversation_id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }
 
@@ -80,5 +90,12 @@ export const useStartDirectChat = () => {
 export const useSendMessage = () => {
   return useMutation({
     mutationFn: (data: MessagePayload) => chatApi.sendMessage(data),
+  })
+}
+
+export const useKickMemberGroupChat = () => {
+  return useMutation({
+    mutationFn: (data: { conversation_id: number; member_id: number }) =>
+      chatApi.kickMemberGroupChat(data),
   })
 }

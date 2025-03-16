@@ -124,9 +124,9 @@ const CourseListItem = ({
               </div>
               <div className="author">
                 By:{' '}
-                <a href="#" className="author">
+                <Link href={`/profile/${course?.user.code}`} className="author">
                   {course?.user?.name}
-                </a>
+                </Link>
               </div>
               <div className="bottom">
                 <div className="h6 price fw-5">

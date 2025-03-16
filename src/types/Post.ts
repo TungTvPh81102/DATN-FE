@@ -1,14 +1,28 @@
+import { BadgeProps } from '@/components/ui/badge'
+import { ICategory } from './Category'
+import { IUser } from './User'
+
 export enum PostStatus {
   Draft = 'draft',
   Pending = 'pending',
-  Publish = 'publish',
+  Published = 'published',
   Private = 'private',
 }
 
+export const PostStatusMap: Record<
+  PostStatus,
+  { label: string; badge: BadgeProps['variant'] }
+> = {
+  [PostStatus.Draft]: { label: 'Bản nháp', badge: 'secondary' },
+  [PostStatus.Pending]: { label: 'Chờ duyệt', badge: 'info' },
+  [PostStatus.Published]: { label: 'Công khai', badge: 'success' },
+  [PostStatus.Private]: { label: 'Riêng tư', badge: 'warning' },
+}
+
 export interface IPost {
-  id?: number
-  userId?: number
-  categoryId?: number
+  id: number
+  user_id?: number
+  category_id?: number
   title: string
   slug?: string
   description?: string
@@ -17,10 +31,12 @@ export interface IPost {
   status: PostStatus
   view?: number
   isHot?: 0 | 1
-  publishedAt?: Date | null
-  deletedAt?: Date | null
-  createdAt?: Date | null
-  updatedAt?: Date | null
+  published_at?: Date | null
+  deleted_at?: Date | null
+  created_at?: Date | null
+  updated_at?: Date | null
+  user: IUser
+  category: ICategory
 }
 
 export interface ILikePost {

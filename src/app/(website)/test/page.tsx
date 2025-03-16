@@ -1,45 +1,50 @@
-'use client'
-import { useGoogleLogin } from '@react-oauth/google'
-import { useEffect } from 'react'
-import { useGoogleCallBack, useGoogleRedirect } from '@/hooks/auth/useAuth'
+// 'use client'
 
-const GoogleLoginButton = () => {
-  const { data: redirectUrl }: { data: any } = useGoogleRedirect()
+// import { useGoogleLogin } from '@react-oauth/google'
+// import { useEffect } from 'react'
+// import { useGoogleCallBack, useGoogleRedirect } from '@/hooks/auth/useAuth'
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      const query = new URLSearchParams({
-        code: tokenResponse.access_token,
-      }).toString()
+// const GoogleLoginButton = () => {
+//   const { data: redirectUrl }: { data: any } = useGoogleRedirect()
 
-      await googleCallback.mutate(query)
-    },
-    onError: () => {
-      console.error('Google login failed')
-    },
-  })
+//   const googleLogin = useGoogleLogin({
+//     onSuccess: async (tokenResponse) => {
+//       const query = new URLSearchParams({
+//         code: tokenResponse.access_token,
+//       }).toString()
 
-  const googleCallback = useGoogleCallBack()
+//       await googleCallback.mutate(query)
+//     },
+//     onError: () => {
+//       console.error('Google login failed')
+//     },
+//   })
 
-  useEffect(() => {
-    if (window.location.search.includes('code')) {
-      googleCallback.mutate(window.location.search.substring(1))
-    }
-  }, [])
+//   const googleCallback = useGoogleCallBack()
 
-  return (
-    <button
-      onClick={() => {
-        if (redirectUrl) {
-          window.location.href = redirectUrl
-        } else {
-          googleLogin()
-        }
-      }}
-    >
-      Đăng nhập với Google
-    </button>
-  )
+//   useEffect(() => {
+//     if (window.location.search.includes('code')) {
+//       googleCallback.mutate(window.location.search.substring(1))
+//     }
+//   }, [])
+
+//   return (
+//     <button
+//       onClick={() => {
+//         if (redirectUrl) {
+//           window.location.href = redirectUrl
+//         } else {
+//           googleLogin()
+//         }
+//       }}
+//     >
+//       Đăng nhập với Google
+//     </button>
+//   )
+// }
+
+// export default GoogleLoginButton
+
+export default function page() {
+  return <div>page</div>
 }
-
-export default GoogleLoginButton

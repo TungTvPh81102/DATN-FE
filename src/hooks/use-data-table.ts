@@ -22,7 +22,9 @@ import {
 import { useCallback, useMemo, useState } from 'react'
 
 interface UseDataTableProps<TData>
-  extends Omit<TableOptions<TData>, 'state' | 'getCoreRowModel'> {
+  extends Omit<TableOptions<TData>, 'state' | 'getCoreRowModel' | 'data'> {
+  data?: TData[]
+
   /**
    * Debounce time (ms) for filter updates to enhance performance during rapid input.
    * @default 300
@@ -36,6 +38,7 @@ interface UseDataTableProps<TData>
 }
 
 export function useDataTable<TData>({
+  data = [],
   debounceMs = 300,
   initialState,
   ...props
@@ -121,6 +124,7 @@ export function useDataTable<TData>({
 
   const table = useReactTable({
     ...props,
+    data,
     initialState,
     state: {
       pagination,

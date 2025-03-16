@@ -7,7 +7,7 @@ import {
   ImageIcon,
   MessageCircle,
   MoreVertical,
-  Search,
+  UserMinus,
   UserRoundPlus,
 } from 'lucide-react'
 import { IChannel, IMessage } from '@/types/Chat'
@@ -27,11 +27,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useStartDirectChat } from '@/hooks/chat/useChat'
+import {
+  useKickMemberGroupChat,
+  useStartDirectChat,
+} from '@/hooks/chat/useChat'
 import { useQueryClient } from '@tanstack/react-query'
 import QUERY_KEY from '@/constants/query-key'
 import InviteMember from '@/sections/chat/_components/invite-member'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { toast } from 'react-toastify'
+import Swal from 'sweetalert2'
 
 interface ChannelInfoPanelProps {
   selectedChannel: IChannel
@@ -51,6 +56,11 @@ export const SidebarChatInfo = ({
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null
   )
+
+  const { mutate: startDirectChat } = useStartDirectChat()
+  const { mutate: kickGroupMember, isPending: isKickingMember } =
+    useKickMemberGroupChat()
+
   const isGroup = selectedChannel?.type === 'group'
 
   const mediaMessages =
@@ -66,7 +76,37 @@ export const SidebarChatInfo = ({
       sender: message.sender,
     }))
 
-  const { mutate: startDirectChat } = useStartDirectChat()
+  const handleRemoveMember = (memberId: number) => {
+    if (!selectedChannel?.conversation_id) return
+
+    Swal.fire({
+      title: 'Xác nhận xóa',
+      text: 'Bạn có chắc chắn muốn xóa thành viên này khỏi nhóm không?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy bỏ',
+    }).then((result: any) => {
+      if (result.isConfirmed) {
+        kickGroupMember(
+          {
+            conversation_id: selectedChannel.conversation_id,
+            member_id: memberId,
+          },
+          {
+            onSuccess: async (res: any) => {
+              toast.success(res.message)
+            },
+            onError: (error: any) => {
+              toast.error(error?.message)
+            },
+          }
+        )
+      }
+    })
+  }
 
   return (
     <>
@@ -118,9 +158,6 @@ export const SidebarChatInfo = ({
               )}
               <div className="flex size-12 items-center justify-center rounded-full bg-gray-300 p-4">
                 <Bell size={24} />
-              </div>
-              <div className="flex size-12 items-center justify-center rounded-full bg-gray-300 p-4">
-                <Search size={24} />
               </div>
             </div>
           </div>
@@ -199,6 +236,17 @@ export const SidebarChatInfo = ({
                               >
                                 <MessageCircle className="size-4" />
                                 <span>Nhắn tin</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  if (!member.id) return
+                                  handleRemoveMember(member.id)
+                                }}
+                                className="cursor-pointer gap-2 text-red-500 focus:text-red-500"
+                                disabled={isKickingMember}
+                              >
+                                <UserMinus className="size-4" />
+                                <span>Xóa khỏi nhóm</span>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

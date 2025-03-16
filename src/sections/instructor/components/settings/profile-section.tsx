@@ -47,9 +47,9 @@ export function ProfileSection({ userData }: Props) {
     resolver: zodResolver(updateProfile),
     defaultValues: {
       name: userData?.user.name || '',
-      phone: userData?.user.profile.phone || '',
-      address: userData?.user.profile.address || '',
-      about_me: userData?.user.profile.about_me || '',
+      phone: userData?.user.profile?.phone || '',
+      address: userData?.user.profile?.address || '',
+      about_me: userData?.user.profile?.about_me || '',
     },
     disabled: isPending,
   })

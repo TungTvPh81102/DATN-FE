@@ -1,11 +1,13 @@
 import { CreatePostPayload, UpdatePostPayload } from '@/validations/post'
 import api from '@/configs/api'
+import { IPost } from '@/types'
 
 const prefix = '/instructor/posts'
 
 export const instructorPostApi = {
   getPosts: async () => {
-    return await api.get(prefix)
+    const res = await api.get(prefix)
+    return res.data as IPost[]
   },
   getPostBySlug: async (slug: string) => {
     return await api.get(`${prefix}/${slug}`)

@@ -1,7 +1,6 @@
 'use client'
 
 import ModalLoading from '@/components/common/ModalLoading'
-import CourseStatusBadge from '@/components/shared/course-status-badge'
 import {
   AccordionContent,
   AccordionItem,
@@ -33,7 +32,7 @@ import { Accordion } from '@radix-ui/react-accordion'
 import { CheckCircle, XCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import 'react-quill/dist/quill.snow.css'
@@ -60,9 +59,10 @@ import {
 } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { CourseStatus } from '@/types'
+import { CourseStatus, CourseStatusMap } from '@/types'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import Container from '@/components/shared/container'
+import { Badge } from '@/components/ui/badge'
 
 type GroupId = 'planning' | 'content'
 
@@ -95,13 +95,10 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
   const { user } = useAuthStore()
   const router = useRouter()
 
-  // const [activeGroup, setActiveGroup] = useState<GroupId>('planning')
-  const [activeGroup, setActiveGroup] = useState<GroupId>('content')
+  const [activeGroup, setActiveGroup] = useState<GroupId>('planning')
   const [activeTabs, setActiveTabs] = useState<ActiveTabs>({
-    // planning: 'course_objectives',
-    // content: null,
-    planning: null,
-    content: 'course_curriculum',
+    planning: 'course_objectives',
+    content: null,
   })
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -181,6 +178,10 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
     requestModifyContent(payload)
   }
 
+  const courseStatusBadge = useMemo(() => {
+    return CourseStatusMap[courseOverviewData?.data.status as CourseStatus]
+  }, [courseOverviewData?.data.status])
+
   if (
     isCourseOverviewLoading ||
     isValidateLoading ||
@@ -196,7 +197,12 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
         <h3 className="text-xl font-bold">
           Cập nhật nội dung khoá học: {courseOverviewData?.data.name}
         </h3>
-        <CourseStatusBadge status={courseOverviewData?.data.status} />
+        <Badge
+          className="shrink-0 whitespace-nowrap"
+          variant={courseStatusBadge.badge}
+        >
+          {courseStatusBadge.label}
+        </Badge>
       </div>
       <div className="grid grid-cols-12 gap-8">
         <div className="col-span-4 xl:col-span-3">

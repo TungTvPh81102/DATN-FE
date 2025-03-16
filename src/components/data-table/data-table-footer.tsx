@@ -16,6 +16,7 @@ interface DataTableFooterProps<TData> {
 
 export function DataTableFooter<TData>({
   table,
+  // pageSizeOptions = [10, 20, 30, 40, 50],
   pageSizeOptions = [1, 10, 20, 30, 40, 50],
 }: DataTableFooterProps<TData>) {
   return (

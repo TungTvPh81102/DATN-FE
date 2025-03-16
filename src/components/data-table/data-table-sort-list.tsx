@@ -83,7 +83,7 @@ export function DataTableSortList<TData>({
         )
         .map((column) => ({
           id: column.id,
-          label: toSentenceCase(column.id),
+          label: column.columnDef.meta?.label ?? toSentenceCase(column.id),
           selected: false,
         })),
     [sorting, table]
@@ -180,6 +180,10 @@ export function DataTableSortList<TData>({
               const fieldTriggerId = `${sortId}-field-trigger`
               const directionListboxId = `${sortId}-direction-listbox`
 
+              const column = table.getColumn(sort.id)
+              const columnLabel =
+                column?.columnDef.meta?.label ?? toSentenceCase(sort.id)
+
               return (
                 <SortableItem key={sort.id} value={sort.id} asChild>
                   <div className="flex items-center gap-2">
@@ -193,15 +197,13 @@ export function DataTableSortList<TData>({
                           className="h-8 w-44 justify-between gap-2 rounded focus:outline-none focus:ring-1 focus:ring-ring"
                           aria-controls={fieldListboxId}
                         >
-                          <span className="truncate">
-                            {toSentenceCase(sort.id)}
-                          </span>
+                          <span className="truncate">{columnLabel}</span>
                           <div className="ml-auto flex items-center gap-1">
                             {initialSorting.length === 1 &&
                             initialSorting[0]?.id === sort.id ? (
                               <Badge
                                 variant="secondary"
-                                className="h-[1.125rem] rounded px-1 font-mono text-[0.65rem] font-normal"
+                                className="h-[1.125rem] rounded px-1 text-[0.65rem] font-normal"
                               >
                                 Mặc định
                               </Badge>

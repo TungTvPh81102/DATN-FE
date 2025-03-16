@@ -49,12 +49,19 @@ export const chatApi = {
     if (data.conversation_id) {
       formData.append('conversation_id', data.conversation_id.toString())
     }
+
     if (data.content) {
       formData.append('content', data.content)
     }
+
     if (data.type) {
       formData.append('type', data.type)
     }
+
+    if (data.parent_id) {
+      formData.append('parent_id', data.parent_id.toString())
+    }
+
     if (data.file && data.file.length > 0) {
       formData.append('file', data.file[0].blob)
       formData.append('type', data.file[0].type)
@@ -64,6 +71,14 @@ export const chatApi = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+    })
+  },
+  kickMemberGroupChat: async (data: {
+    conversation_id: number
+    member_id: number
+  }) => {
+    return await api.delete(`${prefixGroupChat}/kick-member-group-chat`, {
+      data: data,
     })
   },
 }

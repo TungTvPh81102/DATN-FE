@@ -10,6 +10,7 @@ import { IAuthData } from '@/types'
 import StorageKey from '@/constants/storage-key'
 import { authApi } from '@/services/auth/authApi'
 import QueryKey from '@/constants/query-key'
+import api from '@/configs/api'
 
 export const useSignIn = () => {
   const queryClient = useQueryClient()
@@ -31,6 +32,10 @@ export const useSignIn = () => {
         setToken(token)
         setUser(user)
         setRole(role)
+
+        setTimeout(() => {
+          api.get('/auth/get-user-with-token')
+        }, 500)
 
         if (role === 'instructor') {
           router.push('/instructor')

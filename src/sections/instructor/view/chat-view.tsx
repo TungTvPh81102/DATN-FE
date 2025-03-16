@@ -8,7 +8,6 @@ import {
   Film,
   Info,
   Loader2,
-  Mic,
   MoreVertical,
   Paperclip,
   Plus,
@@ -45,13 +44,14 @@ import {
 import echo from '@/lib/echo'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { MessagePayload } from '@/validations/chat'
-import { timeAgo } from '@/lib/common'
+import { setLocalStorage, timeAgo } from '@/lib/common'
 import {
   EnhancedMessageItem,
   ReplyPreview,
 } from '@/components/shared/message-content'
 import { IChannel, IMessage } from '@/types/Chat'
 import { SidebarChatInfo } from '@/components/shared/sidebar-chat-info'
+import EmptyChatState from '@/components/shared/empty-chat-state'
 
 interface FilePreview {
   name: string
@@ -67,12 +67,7 @@ const ChatView = () => {
   const [replyTo, setReplyTo] = useState<IMessage | null>(null)
   const [chats, setChats] = useState<Record<number, IMessage[]>>({})
   const [addGroupChat, setAddGroupChat] = useState(false)
-  const [selectedChannel, setSelectedChannel] = useState<IChannel | null>(
-    () => {
-      const saved = localStorage.getItem('selectedChannel')
-      return saved ? JSON.parse(saved) : null
-    }
-  )
+  const [selectedChannel, setSelectedChannel] = useState<IChannel | null>()
 
   const [currentUser, setCurrentUser] = useState<number | null>(null)
 
@@ -128,8 +123,6 @@ const ChatView = () => {
           : null,
       }))
 
-      console.log(formattedMessages)
-
       setCurrentUser(user?.id ?? null)
 
       setChats((prev) => ({
@@ -140,8 +133,8 @@ const ChatView = () => {
   }, [getMessageData, selectedChannel, user?.id])
 
   const handleChannelSelect = (channel: any) => {
-    setSelectedChannel(channel)
-    localStorage.setItem('selectedChannel', JSON.stringify(channel))
+    setSelectedChannel(channel.conversation_id ? channel : null)
+    setLocalStorage('selectedChannel', channel.conversation_id)
   }
 
   useEffect(() => {
@@ -232,6 +225,8 @@ const ChatView = () => {
       const channel = echo.private(`conversation.${conversationId}`)
 
       const handleNewMessage = (event: any) => {
+        console.log(event)
+
         setChats((prevChats) => ({
           ...prevChats,
           [conversationId]: [
@@ -302,6 +297,8 @@ const ChatView = () => {
       file: filesData,
     }
 
+    console.log(newMessage)
+
     senderMessage(newMessage, {
       onSuccess: () => {
         setMessage('')
@@ -353,7 +350,7 @@ const ChatView = () => {
 
         <div className="flex w-80 flex-col border-r">
           <div className="border-b p-4">
-            <div className="my-4 flex items-center justify-between">
+            <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-semibold">Chats</h2>
             </div>
             <div className="relative">
@@ -473,7 +470,6 @@ const ChatView = () => {
             )}
           </ScrollArea>
         </div>
-
         <div className="flex flex-1 flex-col">
           {selectedChannel ? (
             <div className="flex h-16 items-center justify-between border-b px-4">
@@ -569,32 +565,44 @@ const ChatView = () => {
           )}
 
           <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
-              {isLoadingGetMessageData ||
-              isLoadingDirectChatData ||
-              isLoadingGroupChat ? (
-                <div className="flex h-full items-center justify-center">
-                  <Loader2 className="size-8 animate-spin text-orange-500" />
-                </div>
-              ) : (
-                selectedChannel?.conversation_id !== undefined &&
-                chats[selectedChannel.conversation_id]?.map((msg: IMessage) => {
-                  const isCurrentUser = msg.senderId === currentUser
-                  const isGroupChat = selectedChannel?.type === 'group'
+            {!selectedChannel ? (
+              <div className="flex h-full items-center justify-center">
+                <p className="text-muted-foreground">
+                  Vui lòng chọn người bạn muốn liên hệ.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {isLoadingGetMessageData ||
+                isLoadingDirectChatData ||
+                isLoadingGroupChat ? (
+                  <div className="flex h-full items-center justify-center">
+                    <Loader2 className="size-8 animate-spin text-orange-500" />
+                  </div>
+                ) : selectedChannel?.conversation_id !== undefined &&
+                  chats[selectedChannel.conversation_id]?.length > 0 ? (
+                  chats[selectedChannel.conversation_id]?.map(
+                    (msg: IMessage) => {
+                      const isCurrentUser = msg.senderId === currentUser
+                      const isGroupChat = selectedChannel?.type === 'group'
 
-                  return (
-                    <EnhancedMessageItem
-                      key={msg.id}
-                      message={msg}
-                      isCurrentUser={isCurrentUser}
-                      isGroupChat={isGroupChat}
-                      onReply={handleReply}
-                    />
+                      return (
+                        <EnhancedMessageItem
+                          key={msg.id}
+                          message={msg}
+                          isCurrentUser={isCurrentUser}
+                          isGroupChat={isGroupChat}
+                          onReply={handleReply}
+                        />
+                      )
+                    }
                   )
-                })
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+                ) : (
+                  <EmptyChatState conversationName={selectedChannel?.name} />
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
           </ScrollArea>
 
           {filePreviews.length > 0 && (
@@ -686,102 +694,101 @@ const ChatView = () => {
             </div>
           )}
 
-          <div className="border-t bg-white p-4">
-            {replyTo && (
-              <ReplyPreview
-                message={replyTo}
-                isReplyingToSelf={replyTo.senderId === currentUser}
-                onClear={clearReply}
-              />
-            )}
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-1.5">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="size-9 rounded-full hover:bg-secondary"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Paperclip className="size-5 text-muted-foreground" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="size-9 rounded-full hover:bg-secondary"
-                  onClick={() => imageInputRef.current?.click()}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="size-5 text-muted-foreground"
-                  >
-                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <path d="M20.4 14.5 16 10 4 20" />
-                  </svg>
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="size-9 rounded-full hover:bg-secondary"
-                  onClick={() => videoInputRef.current?.click()}
-                >
-                  <Film className="size-5 text-muted-foreground" />
-                </Button>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="size-9 rounded-full hover:bg-secondary"
-                    >
-                      <Smile className="size-5 text-muted-foreground" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80 p-0" side="top" align="start">
-                    <EmojiPicker
-                      onEmojiClick={onEmojiClick}
-                      width="100%"
-                      height={400}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="size-[40px] rounded-full hover:bg-secondary"
-                >
-                  <Mic className="size-4 text-muted-foreground" />
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    placeholder="Type your message..."
-                    className="border-0 bg-secondary py-6 pr-24 text-base focus-visible:ring-1 focus-visible:ring-primary"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                  />
+          {selectedChannel && (
+            <div className="border-t bg-white p-4">
+              {replyTo && (
+                <ReplyPreview
+                  message={replyTo}
+                  isReplyingToSelf={replyTo.senderId === currentUser}
+                  onClear={clearReply}
+                />
+              )}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-1.5">
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="absolute right-2 top-1/2 size-9 -translate-y-1/2 rounded-full bg-orange-500 text-white hover:bg-orange-600"
-                    onClick={() => sendMessage()}
-                    disabled={isPendingSendMessage}
+                    className="size-9 rounded-full hover:bg-secondary"
+                    onClick={() => fileInputRef.current?.click()}
                   >
-                    <Send className="size-2" />
+                    <Paperclip className="size-5 text-muted-foreground" />
                   </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-9 rounded-full hover:bg-secondary"
+                    onClick={() => imageInputRef.current?.click()}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="size-5 text-muted-foreground"
+                    >
+                      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <path d="M20.4 14.5 16 10 4 20" />
+                    </svg>
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="size-9 rounded-full hover:bg-secondary"
+                    onClick={() => videoInputRef.current?.click()}
+                  >
+                    <Film className="size-5 text-muted-foreground" />
+                  </Button>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-9 rounded-full hover:bg-secondary"
+                      >
+                        <Smile className="size-5 text-muted-foreground" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-80 p-0"
+                      side="top"
+                      align="start"
+                    >
+                      <EmojiPicker
+                        onEmojiClick={onEmojiClick}
+                        width="100%"
+                        height={400}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Input
+                      placeholder="Type your message..."
+                      className="border-0 bg-secondary py-6 pr-24 text-base focus-visible:ring-1 focus-visible:ring-primary"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="absolute right-2 top-1/2 size-9 -translate-y-1/2 rounded-full bg-orange-500 text-white hover:bg-orange-600"
+                      onClick={() => sendMessage()}
+                      disabled={isPendingSendMessage}
+                    >
+                      <Send className="size-2" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {selectedChannel && (

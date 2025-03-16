@@ -1,5 +1,6 @@
 enum QueryKey {
   AUTH = 'auth',
+  AUTH_ONLINE = 'auth-online',
   PROFILE = 'profile',
   CHANGE_PASSWORD = 'change-password',
   ORDER = 'order',
