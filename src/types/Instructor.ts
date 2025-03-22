@@ -98,3 +98,8 @@ export interface IMembershipPlansResponse {
   message: string
   data: IMembership[]
 }
+
+export interface ITopInstructorResponse {
+  message: string
+  data: IInstructorProfile[]
+}

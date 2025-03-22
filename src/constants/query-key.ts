@@ -11,6 +11,7 @@ enum QueryKey {
   COURSE_RATINGS = 'course-ratings',
   COURSES_CATEGORIES = 'course-category',
   INSTRUCTOR_ALL = 'instructor-all',
+  INSTRUCTOR_TOP = 'instructor-top',
   INSTRUCTOR_COURSE = 'instructor-course',
   INSTRUCTOR_COURSE_APPROVED = 'instructor-course-approved',
   INSTRUCTOR_COURSE_TRASH = 'instructor-course-trash',

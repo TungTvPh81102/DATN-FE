@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import { useGetTopInstructors } from '@/hooks/instructor/get-all/useGetAllInstructor'
 
 const instructorsData = [
   {
@@ -94,6 +95,11 @@ const InstructorTop = ({
   title: string
   description: string
 }) => {
+  const { data, isLoading } = useGetTopInstructors()
+
+  console.log('isLoading', isLoading)
+  console.log('data', data)
+
   return (
     <section className="section-instructor tf-spacing-2 pt-0">
       <div className="tf-container">
