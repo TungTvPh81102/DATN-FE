@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -8,18 +8,23 @@ import CertificatePage from '@/app/(website)/my-courses/certificate/page'
 import CouponPage from '@/app/(website)/my-courses/coupons/page'
 import AllCoursesPage from '@/app/(website)/my-courses/page'
 import WishlistPage from '@/app/(website)/my-courses/wishlist/page'
+import MembershipPage from '@/app/(website)/my-courses/membership/page'
+
+type TabType = 'all' | 'wishlist' | 'certificate' | 'coupon' | 'membership'
 
 export default function MyCoursesLayout() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
   const initialTab = searchParams.get('tab') || 'all'
-  const [activeTab, setActiveTab] = useState<
-    'all' | 'wishlist' | 'certificate' | 'coupon'
-  >(initialTab as 'all' | 'wishlist' | 'certificate' | 'coupon')
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab as TabType)
+
+  useEffect(() => {
+    router.push(`/my-courses?tab=${activeTab}`, { scroll: false })
+  }, [activeTab, router])
 
   const handleTabChange = (
-    tab: 'all' | 'wishlist' | 'certificate' | 'coupon'
+    tab: 'all' | 'wishlist' | 'certificate' | 'coupon' | 'membership'
   ) => {
     setActiveTab(tab)
     router.push(`/my-courses?tab=${tab}`)
@@ -35,6 +40,8 @@ export default function MyCoursesLayout() {
         return <CertificatePage />
       case 'coupon':
         return <CouponPage />
+      case 'membership':
+        return <MembershipPage />
       default:
         return <AllCoursesPage />
     }
@@ -50,6 +57,9 @@ export default function MyCoursesLayout() {
       >
         <div className="tf-container">
           <h2 className="fw-7">Học tập của tôi</h2>
+          <p className="mt-2 text-gray-600">
+            Quản lý tất cả các khóa học và hoạt động học tập của bạn
+          </p>
         </div>
         <div className="tf-container mt-4">
           <div className="flex gap-6">
@@ -58,6 +68,7 @@ export default function MyCoursesLayout() {
               { id: 'wishlist', label: 'Danh sách khoá học yêu thích' },
               { id: 'certificate', label: 'Chứng chỉ đã nhận' },
               { id: 'coupon', label: 'Mã giảm giá của tôi' },
+              { id: 'membership', label: 'Hội viên' },
             ].map((tab) => (
               <button
                 key={tab.id}

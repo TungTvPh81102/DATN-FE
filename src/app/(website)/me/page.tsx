@@ -8,11 +8,7 @@ export const metadata: Metadata = {
 }
 
 const page = () => {
-  return (
-    <div>
-      <MeView />
-    </div>
-  )
+  return <MeView />
 }
 
 export default page

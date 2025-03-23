@@ -24,7 +24,7 @@ import { formatCurrency } from '@/lib/common'
 import { Separator } from '@/components/ui/separator'
 import Container from '@/components/shared/container'
 
-export default function TransactionManageView() {
+export default function TransactionManageCourseView() {
   const [searchTerm, setSearchTerm] = useState('')
   const [openDialog, setOpenDialog] = useState(false)
   const [selectedTransation, setSelectedTransation] = useState<any>(null)
@@ -195,7 +195,7 @@ export default function TransactionManageView() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-medium">Lịch sử mua hàng</h1>
+            <h1 className="text-2xl font-medium">Lịch sử mua khoá học</h1>
             <p className="mt-1 text-muted-foreground">
               Quản lý các giao dịch khóa học
             </p>

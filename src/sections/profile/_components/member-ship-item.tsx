@@ -1,6 +1,7 @@
 import { IMembership } from '@/types'
-import { Award, Check, Clock, CreditCard, Zap } from 'lucide-react'
+import { Check, Zap } from 'lucide-react'
 import { formatStringToCurrency } from '@/lib/common'
+import { getPlanType } from '@/components/ui/plan-type-badge'
 
 type Props = {
   membership: IMembership
@@ -8,26 +9,6 @@ type Props = {
 
 export const MemberShipItem = ({ membership }: Props) => {
   const isFree = Number(membership?.price) === 0
-
-  const getPlanType = (months: number) => {
-    if (months <= 3)
-      return {
-        name: 'Cơ bản',
-        icon: <Clock size={22} />,
-        color: 'from-blue-500 to-cyan-500',
-      }
-    if (months <= 6)
-      return {
-        name: 'Tiêu chuẩn',
-        icon: <CreditCard size={22} />,
-        color: 'from-green-500 to-teal-500',
-      }
-    return {
-      name: 'Premium',
-      icon: <Award size={22} />,
-      color: 'from-orange-500 to-red-500',
-    }
-  }
 
   const planType = getPlanType(membership?.duration_months)
 

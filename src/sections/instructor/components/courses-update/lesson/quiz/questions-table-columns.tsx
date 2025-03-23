@@ -56,7 +56,7 @@ export function getColumns({
         const image = row.original.image
         return image ? (
           <Image
-            src={image}
+            src={`${process.env.NEXT_PUBLIC_STORAGE}/${image}`}
             alt="Question"
             width={48}
             height={48}

@@ -5,6 +5,7 @@ import { StoreQuestionPayload } from '@/validations/lesson'
 import QueryKey from '@/constants/query-key'
 import { instructorQuizApi } from '@/services/instructor/quiz/quiz-api'
 import { useToastMutation } from '@/hooks/use-toast-mutation'
+import { instructorCourseApi } from '@/services/instructor/course/course-api'
 
 export const useGetQuiz = (id: string) => {
   return useQuery({
@@ -94,5 +95,26 @@ export const useUpdateQuestionsOrder = () => {
   return useToastMutation({
     mutationFn: instructorQuizApi.updateQuestionsOrder,
     queryKey: [QueryKey.INSTRUCTOR_QUIZ],
+  })
+}
+
+export const useExportQuiz = () => {
+  return useMutation({
+    mutationFn: async (quizId: string) => {
+      return await instructorCourseApi.exportQuiz(quizId)
+    },
+    onSuccess: (data: any) => {
+      const url = window.URL.createObjectURL(new Blob([data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'quiz_export.xlsx')
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    },
+    onError: (error: any) => {
+      toast.error(error.message)
+    },
   })
 }
