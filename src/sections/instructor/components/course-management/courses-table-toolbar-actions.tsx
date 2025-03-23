@@ -10,10 +10,12 @@ import CreateCourseDialog from './create-course-dialog'
 
 interface CoursesTableToolbarActionsProps {
   table: Table<ICourse>
+  isPracticalCourse?: boolean
 }
 
 export function CoursesTableToolbarActions({
   table,
+  isPracticalCourse,
 }: CoursesTableToolbarActionsProps) {
   return (
     <div className="flex items-center gap-2">
@@ -25,21 +27,24 @@ export function CoursesTableToolbarActions({
           onSuccess={() => table.toggleAllRowsSelected(false)}
         />
       ) : null}
-      <CreateCourseDialog />
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() =>
-          exportTableToXLSX(table, {
-            filename: 'courses',
-            excludeColumns: ['select', 'actions'],
-          })
-        }
-        className="gap-2"
-      >
-        <Download className="size-4" aria-hidden="true" />
-        Xuất file
-      </Button>
+      <CreateCourseDialog isPracticalCourse={isPracticalCourse} />
+
+      {!isPracticalCourse && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            exportTableToXLSX(table, {
+              filename: 'courses',
+              excludeColumns: ['select', 'actions'],
+            })
+          }
+          className="gap-2"
+        >
+          <Download className="size-4" aria-hidden="true" />
+          Xuất file
+        </Button>
+      )}
     </div>
   )
 }

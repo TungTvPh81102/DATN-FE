@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '@/components/data-table/data-table'
+import { DataTable } from '@/components/data-table'
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton'
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar'
 import {
@@ -61,15 +61,7 @@ export const DashboardCoursesTable = () => {
           <DataTableSkeleton
             columnCount={7}
             searchableColumnCount={1}
-            cellWidths={[
-              '2.5rem',
-              '18rem',
-              '6rem',
-              '8rem',
-              '6rem',
-              '10rem',
-              '2.5rem',
-            ]}
+            cellWidths={['18rem', '6rem', '8rem', '6rem', '10rem', '2.5rem']}
             shrinkZero
           />
         )}

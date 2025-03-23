@@ -1,46 +1,26 @@
 'use client'
 
 import { DataTable } from '@/components/data-table'
-import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-advanced-toolbar'
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton'
+import { DataTableToolbar } from '@/components/data-table/data-table-toolbar'
 import { useGetCourses } from '@/hooks/instructor/course/useCourse'
 import { useDataTable } from '@/hooks/use-data-table'
+import { CoursesTableToolbarActions } from '@/sections/instructor/components/course-management/courses-table-toolbar-actions'
+import { DeleteCoursesDialog } from '@/sections/instructor/components/course-management/delete-courses-dialog'
 import { CourseStatusMap, ICourse } from '@/types'
-import {
-  DataTableAdvancedFilterField,
-  DataTableRowAction,
-} from '@/types/data-table'
+import { DataTableFilterField, DataTableRowAction } from '@/types/data-table'
 import { useMemo, useState } from 'react'
-import { getColumns } from './courses-table-columns'
-import { CoursesTableFloatingBar } from './courses-table-floating-bar'
-import { CoursesTableToolbarActions } from './courses-table-toolbar-actions'
-import { DeleteCoursesDialog } from './delete-courses-dialog'
+import { getColumns } from './practical-courses-table-columns'
 
-const advancedFilterFields: DataTableAdvancedFilterField<ICourse>[] = [
+const filterFields: DataTableFilterField<ICourse>[] = [
   {
     id: 'name',
-    label: 'Tên',
-    type: 'text',
-  },
-  {
-    id: 'created_at',
-    label: 'Ngày tạo',
-    type: 'date',
-  },
-  {
-    id: 'price',
-    label: 'Giá',
-    type: 'number',
-  },
-  {
-    id: 'total_student',
-    label: 'Số học viên',
-    type: 'number',
+    label: 'Khóa học',
+    placeholder: 'Tên khóa học...',
   },
   {
     id: 'status',
     label: 'Trạng thái',
-    type: 'multi-select',
     options: Object.entries(CourseStatusMap).map(([key, value]) => ({
       label: value.label,
       value: key,
@@ -48,8 +28,10 @@ const advancedFilterFields: DataTableAdvancedFilterField<ICourse>[] = [
   },
 ]
 
-const CoursesTable = () => {
-  const { data, isLoading } = useGetCourses()
+export const PracticalCoursesTable = () => {
+  const { data, isLoading } = useGetCourses({
+    type: 'practical-course',
+  })
 
   const [rowAction, setRowAction] =
     useState<DataTableRowAction<ICourse> | null>(null)
@@ -68,16 +50,10 @@ const CoursesTable = () => {
 
   return !isLoading ? (
     <>
-      <DataTable
-        table={table}
-        floatingBar={<CoursesTableFloatingBar table={table} />}
-      >
-        <DataTableAdvancedToolbar
-          table={table}
-          filterFields={advancedFilterFields}
-        >
-          <CoursesTableToolbarActions table={table} />
-        </DataTableAdvancedToolbar>
+      <DataTable table={table}>
+        <DataTableToolbar table={table} filterFields={filterFields}>
+          <CoursesTableToolbarActions table={table} isPracticalCourse />
+        </DataTableToolbar>
       </DataTable>
 
       <DeleteCoursesDialog
@@ -97,5 +73,3 @@ const CoursesTable = () => {
     />
   )
 }
-
-export default CoursesTable

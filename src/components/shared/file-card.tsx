@@ -76,7 +76,7 @@ function FilePreview({ file }: FilePreviewProps) {
             width={48}
             height={48}
             loading="lazy"
-            className="aspect-square shrink-0 cursor-pointer rounded-md object-cover"
+            className="aspect-square size-12 shrink-0 cursor-pointer rounded-md object-cover"
           />
         </DialogTrigger>
         <DialogContent

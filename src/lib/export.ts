@@ -27,16 +27,24 @@ export function exportTableToXLSX<TData>(
      * @default false
      */
     onlySelected?: boolean
+
+    formatHeader?: boolean
   } = {}
 ): void {
-  const { filename = 'table', excludeColumns = [], onlySelected = false } = opts
+  const {
+    filename = 'table',
+    excludeColumns = [],
+    onlySelected = false,
+    formatHeader = true,
+  } = opts
 
   const headers = table
     .getAllLeafColumns()
     .map((column) => ({
       id: column.id,
-      label:
-        column.columnDef.meta?.label ?? toSentenceCase(column.id as string),
+      label: formatHeader
+        ? (column.columnDef.meta?.label ?? toSentenceCase(column.id))
+        : column.id,
     }))
     .filter(({ id }) => !excludeColumns.includes(id as keyof TData))
 

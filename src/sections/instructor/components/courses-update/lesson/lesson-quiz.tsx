@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
-import ListQuestion from './quiz/list-question'
+import { QuestionsTable } from './quiz/questions-table'
 
 type Props = {
   chapterId?: string
@@ -146,7 +146,7 @@ const LessonQuiz = ({ chapterId, onHide, isEdit, quizId }: Props) => {
       </Form>
 
       {quizId && (
-        <ListQuestion quizId={quizId} questions={questionData?.questions} />
+        <QuestionsTable quizId={quizId} questions={questionData?.questions} />
       )}
     </>
   )

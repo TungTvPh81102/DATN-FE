@@ -76,7 +76,7 @@ const AddQuestionDialog = ({
   const defaultValues: StoreQuestionPayload = {
     question: '',
     description: '',
-    answer_type: AnswerType.OneChoice,
+    answer_type: AnswerType.SingleChoice,
     options: Array.from({ length: 4 }, () => ({
       answer: '',
       is_correct: 0,
@@ -159,7 +159,7 @@ const AddQuestionDialog = ({
   }
 
   useEffect(() => {
-    if (answerType === AnswerType.OneChoice) {
+    if (answerType === AnswerType.SingleChoice) {
       const options = form.getValues('options').map((opt) => ({
         ...opt,
         is_correct: 0,
@@ -244,7 +244,7 @@ const AddQuestionDialog = ({
                               <FormItem className="flex items-center space-x-3 space-y-0">
                                 <FormControl>
                                   <RadioGroupItem
-                                    value={AnswerType.OneChoice}
+                                    value={AnswerType.SingleChoice}
                                   />
                                 </FormControl>
                                 <FormLabel className="font-normal">
@@ -331,7 +331,7 @@ const AddQuestionDialog = ({
                                   )}
                                 />
 
-                                {answerType === AnswerType.OneChoice ? (
+                                {answerType === AnswerType.SingleChoice ? (
                                   <FormField
                                     control={form.control}
                                     name={`options.${index}.is_correct`}

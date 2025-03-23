@@ -192,7 +192,7 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
                 )}
 
                 <div className="mt-4">
-                  {question.answer_type === AnswerType.OneChoice ? (
+                  {question.answer_type === AnswerType.SingleChoice ? (
                     <FormField
                       control={form.control}
                       name={`answers.${questionIndex}.answer_id`}
