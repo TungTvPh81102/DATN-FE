@@ -149,6 +149,11 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
 
   if (isLessonLoading || isLessonDetailLoading) return <ModalLoading />
 
+  if (!lessons) {
+    router.replace(`/not-found`)
+    return
+  }
+
   return (
     <>
       <LearningTour isRunning={runTour} onClose={() => setRunTour(false)} />

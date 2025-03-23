@@ -133,7 +133,10 @@ const AddQuestionDialog = ({
   const onSubmit = (payload: StoreQuestionPayload) => {
     if (isQuestionCreatePending) return
 
-    const onSuccess = () => onOpenChange(false)
+    const onSuccess = () => {
+      onOpenChange(false)
+      form.reset()
+    }
 
     if (questionId) {
       updateQuestion(

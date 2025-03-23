@@ -16,6 +16,7 @@ import { toast } from 'react-toastify'
 import ImportQuestion from './import-question'
 import { useState } from 'react'
 import AddQuestionDialog from './add-question-dialog'
+import { useExportQuiz } from '@/hooks/instructor/quiz/useQuiz'
 
 interface Props {
   table: Table<Question>
@@ -26,21 +27,26 @@ export function QuestionsTableToolbarActions({ quizId }: Props) {
   const [isOpenAddQuestion, setIsOpenAddQuestion] = useState(false)
   const [isOpenImportQuestion, setIsOpenImportQuestion] = useState(false)
 
+  const { mutate: exportQuiz, isPending } = useExportQuiz()
+
   const handleDownloadQuizForm = async () => {
     try {
-      const res = await instructorCourseApi.downloadQuizForm()
+      const res =
+        (await instructorCourseApi.downloadQuizForm()) as unknown as BlobPart
 
-      const url = window.URL.createObjectURL(new Blob([res.data]))
+      const url = window.URL.createObjectURL(new Blob([res]))
       const link = document.createElement('a')
       link.href = url
       link.setAttribute('download', 'quiz_import_template.xlsx')
       document.body.appendChild(link)
       link.click()
-      link.remove()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     } catch (error: any) {
       toast(error.message)
     }
   }
+
   return (
     <>
       <div className="flex items-center gap-2">
@@ -73,7 +79,12 @@ export function QuestionsTableToolbarActions({ quizId }: Props) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button variant="outline" size="sm">
+        <Button
+          disabled={isPending}
+          onClick={() => exportQuiz(quizId)}
+          variant="outline"
+          size="sm"
+        >
           <Download aria-hidden="true" />
           Xuất file
         </Button>

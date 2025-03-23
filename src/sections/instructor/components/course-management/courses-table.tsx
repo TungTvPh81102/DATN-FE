@@ -49,7 +49,9 @@ const advancedFilterFields: DataTableAdvancedFilterField<ICourse>[] = [
 ]
 
 const CoursesTable = () => {
-  const { data, isLoading } = useGetCourses()
+  const { data, isLoading } = useGetCourses({
+    type: 'course',
+  })
 
   const [rowAction, setRowAction] =
     useState<DataTableRowAction<ICourse> | null>(null)

@@ -59,6 +59,14 @@ export const instructorCourseApi = {
       responseType: 'blob',
     })
   },
+  exportQuiz: async (quizId: string) => {
+    return await api.get(
+      `/instructor/manage/lessons/quiz/export-quiz/${quizId}`,
+      {
+        responseType: 'blob',
+      }
+    )
+  },
   validateCourse: (slug: string) => {
     return api.get(`${prefix}/${slug}/validate-course`)
   },

@@ -7,6 +7,8 @@ export const useGetMyCourses = () => {
   return useQuery({
     queryFn: () => userApi.getMyCourses(),
     queryKey: [QueryKey.USER_GET_MY_COURSES],
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }
 

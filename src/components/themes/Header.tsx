@@ -96,7 +96,7 @@ const Header = () => {
     {
       content: (
         <div className="flex items-center space-x-2">
-          <Avatar className="size-16">
+          <Avatar className="size-14">
             <AvatarImage
               src={user?.avatar || '/assets/images/avatar/user-1.png'}
               alt="@shadcn"
@@ -105,8 +105,10 @@ const Header = () => {
           </Avatar>
 
           <div className="space-y-1">
-            <div className="text-lg">{user?.name}</div>
-            <div className="text-sm text-gray-400">{user?.email}</div>
+            <div className="max-w-[150px] truncate text-lg">{user?.name}</div>
+            <div className="max-w-[150px] truncate text-sm text-gray-400">
+              {user?.email}
+            </div>
           </div>
         </div>
       ),
@@ -132,6 +134,10 @@ const Header = () => {
         ),
       href: role === Role.INSTRUCTOR ? undefined : '/become-an-instructor',
       separator: true,
+    },
+    {
+      content: 'Vận may',
+      href: '/lucky-wheel',
     },
     {
       content: 'Thông báo',

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useWishListStore } from '@/stores/useWishListStore'
 import { useQueryClient } from '@tanstack/react-query'
-import { AlertTriangle, Loader2, X } from 'lucide-react'
+import { AlertTriangle, X } from 'lucide-react'
 import Swal from 'sweetalert2'
 
 import QueryKey from '@/constants/query-key'
@@ -62,17 +62,6 @@ const WishListView = () => {
         })
       }
     })
-  }
-
-  if (wishListLoading) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="size-10 animate-spin" />
-          <p className="text-sm">Đang tải...</p>
-        </div>
-      </div>
-    )
   }
 
   return (
