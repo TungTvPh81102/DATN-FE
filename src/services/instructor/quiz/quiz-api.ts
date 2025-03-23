@@ -23,7 +23,13 @@ export const instructorQuizApi = {
       },
     })
   },
-  importQuestion: (quizId: string, payload: FormData) => {
+  importQuestion: ({
+    quizId,
+    payload,
+  }: {
+    quizId: string
+    payload: { file: File; type: 'overwrite' | 'add' }
+  }) => {
     return api.post(`${prefix}/${quizId}/import-quiz-question`, payload, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -44,7 +50,16 @@ export const instructorQuizApi = {
       }
     )
   },
-  deleteQuestion: async (questionId: string) => {
+  deleteQuestion: async (questionId: number) => {
     return await api.delete(`${prefix}/${questionId}/delete-quiz-question`)
+  },
+  updateQuestionsOrder: async ({
+    quizId,
+    payload,
+  }: {
+    quizId: string
+    payload: { id: number; order: number }[]
+  }) => {
+    return await api.put(`${prefix}/${quizId}/update-order`, payload)
   },
 }

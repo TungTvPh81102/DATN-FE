@@ -236,11 +236,15 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
                       </span>
                       {validateData?.data.completion_status[tab.id]?.status ===
                       true ? (
-                        <CheckCircle className={cn('size-5 text-green-500')} />
+                        <CheckCircle
+                          className={cn('size-5 shrink-0 text-green-500')}
+                        />
                       ) : (
                         validateData?.data.completion_status[tab.id]?.status ===
                           false && (
-                          <XCircle className={cn('size-5 text-red-500')} />
+                          <XCircle
+                            className={cn('size-5 shrink-0 text-red-500')}
+                          />
                         )
                       )}
                     </div>

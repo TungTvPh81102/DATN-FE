@@ -13,8 +13,10 @@ import { useCreateLessonCoding } from '@/hooks/instructor/lesson/useLesson'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -84,77 +86,69 @@ const AddCodingDialog = ({ chapterId, open, onOpenChange }: Props) => {
   }
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-3xl">
         <DialogHeader>
           <DialogTitle>Bài tập Coding</DialogTitle>
+          <DialogDescription>
+            Bạn có thể tạo bài tập lập trình tại đây.
+          </DialogDescription>
         </DialogHeader>
-        <DialogDescription>
-          Bạn có thể tạo bài tập lập trình tại đây.
-        </DialogDescription>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="my-2">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tiêu đề bài giảng</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nhập tiêu đề bài giảng" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div>
-              <FormField
-                control={form.control}
-                name="language"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Chọn ngôn ngữ lập trình</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Chọn ngôn ngữ lập trình" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(LANGUAGE_CONFIG).map(
-                            ([key, value]) => (
-                              <SelectItem key={key} value={key}>
-                                {value.displayName}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="mt-4 flex items-center justify-end">
-              <Button
-                onClick={() => onOpenChange(false)}
-                className="mr-3"
-                variant="secondary"
-              >
-                Huỷ
-              </Button>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tiêu đề bài giảng</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nhập tiêu đề bài giảng" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="language"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Chọn ngôn ngữ lập trình</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Chọn ngôn ngữ lập trình" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(LANGUAGE_CONFIG).map(([key, value]) => (
+                          <SelectItem key={key} value={key}>
+                            {value.displayName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="secondary">Huỷ</Button>
+              </DialogClose>
               <Button type="submit" disabled={isLessonCodingCreatePending}>
                 {isLessonCodingCreatePending && (
                   <Loader2 className="animate-spin" />
                 )}
                 Thêm bài học
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

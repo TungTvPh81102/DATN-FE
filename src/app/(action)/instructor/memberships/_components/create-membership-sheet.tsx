@@ -26,10 +26,10 @@ export const CreateMembershipSheet = () => {
     defaultValues: {
       name: '',
       description: '',
-      duration_months: 1,
+      duration_months: 3,
       price: 0,
       course_ids: [],
-      benefits: [{ value: '' }, { value: '' }, { value: '' }, { value: '' }],
+      benefits: Array(4).fill({ value: '' }),
     },
     disabled: isPending,
   })

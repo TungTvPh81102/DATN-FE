@@ -11,6 +11,7 @@ export const createCourseSchema = z.object({
     .trim()
     .min(3, 'Tiêu đề phải có ít nhất 3 ký tự')
     .max(255, 'Tiêu đề không được vượt quá 255 ký tự'),
+  isPracticalCourse: z.boolean(),
 })
 
 export const updateCourseOverViewSchema = z
@@ -164,6 +165,7 @@ export const updateCourseObjectiveSchema = z.object({
         answer: z.string().min(1, 'Vui lòng nhập câu trả lời'),
       })
     )
+    .max(10, 'Chỉ được phép thêm tối đa 10 câu hỏi')
     .optional(),
 })
 

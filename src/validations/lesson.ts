@@ -211,7 +211,7 @@ export const storeQuestionSchema = z
   .object({
     question: z.string().nonempty('Câu hỏi không được để trống'),
     description: z.string().optional(),
-    answer_type: z.enum([AnswerType.OneChoice, AnswerType.MultipleChoice]),
+    answer_type: z.enum([AnswerType.SingleChoice, AnswerType.MultipleChoice]),
     options: z
       .array(
         z.object({
@@ -227,14 +227,20 @@ export const storeQuestionSchema = z
         (options) => options.some((option) => option.is_correct),
         'Phải có ít nhất một đáp án đúng'
       ),
-    image: z.union([z.instanceof(File), z.string()]).optional(),
+    image: z
+      .union([z.instanceof(File), z.string()])
+      .optional()
+      .nullable(),
   })
   .superRefine((question, ctx) => {
     const correctAnswers = question.options.filter(
       (opt) => opt.is_correct
     ).length
 
-    if (question.answer_type === AnswerType.OneChoice && correctAnswers !== 1) {
+    if (
+      question.answer_type === AnswerType.SingleChoice &&
+      correctAnswers !== 1
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Vui lòng chọn một đáp án đúng',

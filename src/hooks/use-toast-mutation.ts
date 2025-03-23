@@ -10,11 +10,13 @@ import { toast } from 'react-toastify'
 export const useToastMutation = ({
   mutationFn,
   queryKey,
+  queryKeys,
   onSuccess,
   onError,
 }: {
   mutationFn: MutationFunction<any, any>
   queryKey?: string[]
+  queryKeys?: string[][]
   onSuccess?: () => void
   onError?: (error: any) => void
 }) => {
@@ -32,9 +34,15 @@ export const useToastMutation = ({
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey,
-      })
+      if (queryKey) {
+        queryClient.invalidateQueries({ queryKey })
+      }
+
+      if (queryKeys) {
+        queryKeys.forEach((queryKey) => {
+          queryClient.invalidateQueries({ queryKey })
+        })
+      }
       onSuccess?.()
     },
     onError,

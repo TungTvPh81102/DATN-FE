@@ -45,8 +45,12 @@ export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
           icon: Book,
           items: [
             {
-              title: 'Khoá học của bạn',
+              title: 'Khoá học',
               url: '/instructor/courses',
+            },
+            {
+              title: 'Khóa học thực hành',
+              url: '/instructor/practical-courses',
             },
             {
               title: 'Quản lý học viên',

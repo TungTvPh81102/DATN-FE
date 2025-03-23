@@ -4,6 +4,7 @@ import { toast } from 'react-toastify'
 import { StoreQuestionPayload } from '@/validations/lesson'
 import QueryKey from '@/constants/query-key'
 import { instructorQuizApi } from '@/services/instructor/quiz/quiz-api'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 
 export const useGetQuiz = (id: string) => {
   return useQuery({
@@ -76,35 +77,22 @@ export const useUpdateQuestion = () => {
 }
 
 export const useDeleteQuestion = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (questionId: string) =>
-      instructorQuizApi.deleteQuestion(questionId),
-    onSuccess: async (res: any) => {
-      await queryClient.invalidateQueries({
-        queryKey: [QueryKey.INSTRUCTOR_QUIZ],
-      })
-      await queryClient.invalidateQueries({
-        queryKey: [QueryKey.INSTRUCTOR_QUESTION],
-      })
-      toast.success(res.message)
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
+  return useToastMutation({
+    mutationFn: instructorQuizApi.deleteQuestion,
+    queryKey: [QueryKey.INSTRUCTOR_QUIZ],
   })
 }
 
 export const useImportQuestion = () => {
-  return useMutation({
-    mutationFn: ({ quizId, data }: { quizId: string; data: FormData }) =>
-      instructorQuizApi.importQuestion(quizId, data),
-    onSuccess: (res: any) => {
-      toast.success(res.message)
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
+  return useToastMutation({
+    mutationFn: instructorQuizApi.importQuestion,
+    queryKey: [QueryKey.INSTRUCTOR_QUIZ],
+  })
+}
+
+export const useUpdateQuestionsOrder = () => {
+  return useToastMutation({
+    mutationFn: instructorQuizApi.updateQuestionsOrder,
+    queryKey: [QueryKey.INSTRUCTOR_QUIZ],
   })
 }

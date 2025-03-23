@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '@/components/data-table/data-table'
+import { DataTable } from '@/components/data-table'
 import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-advanced-toolbar'
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton'
 import { useGetPosts } from '@/hooks/instructor/post/usePost'

@@ -8,10 +8,16 @@ import { CoursePreview, ICourse } from '@/types'
 
 const prefix = '/instructor/manage/courses'
 
+export interface GetCoursesParams {
+  type?: 'course' | 'practical-course'
+}
+
 export const instructorCourseApi = {
   // GET COURSES
-  getCourses: async (): Promise<ICourse[]> => {
-    const res = await api.get(prefix)
+  getCourses: async (params?: GetCoursesParams): Promise<ICourse[]> => {
+    const res = await api.get(prefix, {
+      params,
+    })
     return res.data
   },
   getCourseOverview: async (slug: string) => {

@@ -146,14 +146,14 @@ const CourseChapterTab = ({ chapters: chapterList, slug }: Props) => {
         )}
       </div>
       <div className="mt-4">
-        <Accordion type="multiple" className="space-y-6">
-          <Sortable
-            value={chapters.map((chapter) => ({
-              id: chapter.id as UniqueIdentifier,
-              value: chapter,
-            }))}
-            onValueChange={onValueChange}
-          >
+        <Sortable
+          value={chapters.map((chapter) => ({
+            id: chapter.id as UniqueIdentifier,
+            value: chapter,
+          }))}
+          onValueChange={onValueChange}
+        >
+          <Accordion type="multiple" className="space-y-6">
             {chapters?.map((chapter, chapterIndex) => (
               <SortableItem
                 key={chapter.id}
@@ -253,8 +253,8 @@ const CourseChapterTab = ({ chapters: chapterList, slug }: Props) => {
                 </AccordionItem>
               </SortableItem>
             ))}
-          </Sortable>
-        </Accordion>
+          </Accordion>
+        </Sortable>
 
         {addNewChapter ? (
           <CreateChapter onHide={() => setAddNewChapter(false)} />
