@@ -7,7 +7,6 @@ import Link from 'next/link'
 
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,30 +18,6 @@ import { CourseRevenueStatistics } from '@/types/Statistics'
 
 export function getColumns(): ColumnDef<CourseRevenueStatistics>[] {
   return [
-    {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-          className="text-primary"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      size: 40,
-    },
     {
       accessorKey: 'name',
       header: ({ column }) => (
@@ -71,6 +46,7 @@ export function getColumns(): ColumnDef<CourseRevenueStatistics>[] {
       enableHiding: false,
       meta: {
         label: 'Khóa học',
+        className: 'pl-4',
       },
     },
     {
@@ -134,7 +110,7 @@ export function getColumns(): ColumnDef<CourseRevenueStatistics>[] {
         <DataTableColumnHeader column={column} title="Đánh giá trung bình" />
       ),
       cell: ({ row }) => {
-        return (
+        return row.original.avg_rating ? (
           <div className="flex items-center gap-1">
             {row.original.avg_rating}{' '}
             <Star
@@ -143,6 +119,8 @@ export function getColumns(): ColumnDef<CourseRevenueStatistics>[] {
               fill="currentColor"
             />
           </div>
+        ) : (
+          'Chưa có đánh giá'
         )
       },
       meta: {
@@ -187,6 +165,7 @@ export function getColumns(): ColumnDef<CourseRevenueStatistics>[] {
           </DropdownMenu>
         )
       },
+      size: 40,
     },
   ]
 }

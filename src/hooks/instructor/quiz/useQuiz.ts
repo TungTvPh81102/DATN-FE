@@ -4,11 +4,13 @@ import { toast } from 'react-toastify'
 import { StoreQuestionPayload } from '@/validations/lesson'
 import QueryKey from '@/constants/query-key'
 import { instructorQuizApi } from '@/services/instructor/quiz/quiz-api'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
+import { instructorCourseApi } from '@/services/instructor/course/course-api'
 
-export const useGetQuiz = (id: string) => {
+export const useGetQuiz = (id?: number) => {
   return useQuery({
     queryKey: [QueryKey.INSTRUCTOR_QUIZ, id],
-    queryFn: () => instructorQuizApi.getQuiz(id),
+    queryFn: () => instructorQuizApi.getQuiz(id!),
     enabled: !!id,
   })
 }
@@ -29,7 +31,7 @@ export const useCreateQuestion = () => {
       quizId,
       payload,
     }: {
-      quizId: string
+      quizId: number
       payload: StoreQuestionPayload
     }) => instructorQuizApi.createQuestion(quizId, payload),
     onSuccess: async (res: any) => {
@@ -76,34 +78,40 @@ export const useUpdateQuestion = () => {
 }
 
 export const useDeleteQuestion = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (questionId: string) =>
-      instructorQuizApi.deleteQuestion(questionId),
-    onSuccess: async (res: any) => {
-      await queryClient.invalidateQueries({
-        queryKey: [QueryKey.INSTRUCTOR_QUIZ],
-      })
-      await queryClient.invalidateQueries({
-        queryKey: [QueryKey.INSTRUCTOR_QUESTION],
-      })
-      toast.success(res.message)
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
+  return useToastMutation({
+    mutationFn: instructorQuizApi.deleteQuestion,
+    queryKey: [QueryKey.INSTRUCTOR_QUIZ],
   })
 }
 
 export const useImportQuestion = () => {
+  return useToastMutation({
+    mutationFn: instructorQuizApi.importQuestion,
+    queryKey: [QueryKey.INSTRUCTOR_QUIZ],
+  })
+}
+
+export const useUpdateQuestionsOrder = () => {
+  return useToastMutation({
+    mutationFn: instructorQuizApi.updateQuestionsOrder,
+    queryKey: [QueryKey.INSTRUCTOR_QUIZ],
+  })
+}
+
+export const useExportQuiz = () => {
   return useMutation({
-    mutationFn: ({ quizId, data }: { quizId: string; data: FormData }) =>
-      instructorQuizApi.importQuestion(quizId, data),
-    onSuccess: (res: any) => {
-      toast.success(res.message)
+    mutationFn: instructorCourseApi.exportQuiz,
+    onSuccess: (data: any) => {
+      const url = window.URL.createObjectURL(new Blob([data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'quiz_export.xlsx')
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message)
     },
   })

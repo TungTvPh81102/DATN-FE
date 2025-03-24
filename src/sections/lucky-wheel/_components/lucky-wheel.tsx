@@ -10,13 +10,15 @@ import {
 } from '@/components/ui/dialog'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
-import { ClipboardList, Copy, Check, X, Loader2 } from 'lucide-react'
+import { ClipboardList, Copy, Check, X, Loader2, ArrowUp } from 'lucide-react'
 import {
   useGetRewards,
   useGetSpinHistory,
   useGetSpinTurn,
   useSpinRun,
 } from '@/hooks/lucky-wheel/useLuckyWheel'
+import '../../../styles/lucky-wheel.css'
+import Link from 'next/link'
 
 const getPrizeStyle = (type: string) => {
   switch (type) {
@@ -55,6 +57,8 @@ export default function LuckyWheel() {
   const [showResult, setShowResult] = useState(false)
   const [copied, setCopied] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [showScrollTop, setShowScrollTop] = useState(false)
+  const historyRef = useRef<HTMLDivElement>(null)
   const wheelRef = useRef<SVGSVGElement | null>(null)
   const { data: rewardsData } = useGetRewards()
   const { data: spinTurn } = useGetSpinTurn()
@@ -126,14 +130,6 @@ export default function LuckyWheel() {
           setResult({ ...selectedPrize, coupon_code: rewardData?.coupon_code })
           setShowResult(true)
           setIsSpinning(false)
-
-          // setSpinHistory((prev) => [
-          //   ...prev,
-          //   {
-          //     prize: selectedPrize,
-          //     timestamp: new Date(),
-          //   },
-          // ])
 
           if (selectedPrize.type === 'gift') {
             triggerJackpotConfetti()
@@ -274,6 +270,29 @@ export default function LuckyWheel() {
     return segments
   }
 
+  //histories
+  const handleScroll = () => {
+    if (historyRef.current) {
+      setShowScrollTop(historyRef.current.scrollTop > 100)
+    }
+  }
+  const scrollToTop = () => {
+    if (historyRef.current) {
+      historyRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      })
+    }
+  }
+  useEffect(() => {
+    const historySpinElement = historyRef.current
+    if (historySpinElement) {
+      historySpinElement.addEventListener('scroll', handleScroll)
+      return () =>
+        historySpinElement.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
+
   if (!rewardsData || !spinTurn) {
     return (
       <div>
@@ -361,13 +380,13 @@ export default function LuckyWheel() {
         <Button
           onClick={spinWheel}
           disabled={isSpinning || spinsLeft <= 0}
-          className={`bg-gradient-to-r ${spinsLeft <= 0 ? 'from-gray-400 to-gray-300' : 'from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500'} rounded-full px-8 py-4 text-xl font-bold text-white shadow-[0_0_15px_rgba(249,115,22,0.5)] transition-all ${isSpinning || spinsLeft <= 0 ? 'opacity-70' : ''}`}
+          className={`bg-gradient-to-r ${spinsLeft <= 0 ? 'from-gray-400 to-gray-300' : 'from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500'} rounded-full px-8 py-6 text-xl font-bold text-white shadow-[0_0_15px_rgba(249,115,22,0.5)] transition-all ${isSpinning || spinsLeft <= 0 ? 'opacity-70' : ''}`}
           style={{
             textShadow: '0 1px 2px rgba(0,0,0,0.1)',
           }}
         >
           {isSpinning
-            ? 'Đang qua nhé ^^'
+            ? 'Đang quay ^^'
             : spinsLeft <= 0
               ? 'Bạn không có lượt quay'
               : `Quay (${spinsLeft} lượt quay)`}
@@ -471,7 +490,7 @@ export default function LuckyWheel() {
             initial={{ opacity: 0, x: 300 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 300 }}
-            className="fixed right-0 top-0 z-40 h-full w-80 overflow-auto bg-white shadow-lg"
+            className="fixed right-0 top-0 z-40 flex h-full w-80 flex-col overflow-hidden bg-white shadow-lg"
           >
             <div className="flex items-center justify-between border-b border-orange-200 p-4">
               <h3 className="text-xl font-bold text-orange-600">
@@ -485,7 +504,11 @@ export default function LuckyWheel() {
               </button>
             </div>
 
-            <div className="p-4">
+            <div
+              ref={historyRef}
+              className="relative flex-1 overflow-y-auto p-4"
+              onScroll={handleScroll}
+            >
               {!spinHistoryData ? (
                 <p className="py-8 text-center text-gray-500">
                   Chưa có lượt quay nào. Hãy thử vận may của bạn!
@@ -517,9 +540,12 @@ export default function LuckyWheel() {
                               {item.spun_at}
                             </p>
                             {item.reward_type === 'coupon' && (
-                              <p className="mt-1 font-mono text-sm text-orange-600">
-                                Mã giảm giá: {item.reward_name}
-                              </p>
+                              <Link href={`/my-courses?tab=coupon`}>
+                                <p className="mt-1 font-mono text-sm text-orange-600">
+                                  {/*Mã giảm giá: {item.reward_name}*/}
+                                  Xem mã giảm giá của bạn
+                                </p>
+                              </Link>
                             )}
                           </div>
                         </div>
@@ -528,6 +554,19 @@ export default function LuckyWheel() {
                 </ul>
               )}
             </div>
+            <AnimatePresence>
+              {showScrollTop && (
+                <motion.button
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  onClick={scrollToTop}
+                  className="absolute bottom-4 right-4 flex size-10 items-center justify-center rounded-full bg-orange-500 text-white shadow-md transition-colors hover:bg-orange-600"
+                >
+                  <ArrowUp size={20} />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

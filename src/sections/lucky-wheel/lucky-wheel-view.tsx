@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
-import LuckyWheel from '@/sections/lucky-wheel/_components/lucky-wheel-view'
+import LuckyWheel from '@/sections/lucky-wheel/_components/lucky-wheel'
+import '../../styles/lucky-wheel.css'
 
 const BackgroundMusic = dynamic(
   () => import('@/sections/lucky-wheel/_components/background-music'),

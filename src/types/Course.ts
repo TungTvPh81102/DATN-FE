@@ -67,6 +67,7 @@ export interface ICourse {
   is_free?: 0 | 1
   total_video_duration?: number
   is_enrolled?: boolean
+  is_practical_course?: boolean
 }
 
 export interface CoursePreview {

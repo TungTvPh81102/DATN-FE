@@ -40,7 +40,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useGetApprovedCourses } from '@/hooks/instructor/course/useCourse'
 import { useDataTable } from '@/hooks/use-data-table'
 import { cn } from '@/lib/utils'
-import { GripVertical, Plus, Trash } from 'lucide-react'
+import { GripVertical, PlusCircle, Trash } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import CurrencyInput from 'react-currency-input-field'
 import ApprovedCoursesTable from './approved-courses-table'
@@ -189,7 +189,7 @@ export function MembershipForm<T extends FieldValues>({
                     </FormControl>
                     <SelectContent>
                       <SelectGroup>
-                        {Array.from(['1', '3', '6', '12']).map((item) => (
+                        {Array.from(['3', '6', '12']).map((item) => (
                           <SelectItem key={item} value={item}>
                             {item} Tháng
                           </SelectItem>
@@ -207,7 +207,7 @@ export function MembershipForm<T extends FieldValues>({
         <div className="space-y-2">
           <div className="flex items-center gap-1">
             <Label className={cn(errors.benefits && 'text-destructive')}>
-              Quyền lợi (tối thiểu 4)
+              Quyền lợi
             </Label>
             <Button
               variant={'ghost'}
@@ -221,7 +221,7 @@ export function MembershipForm<T extends FieldValues>({
               }
               className="size-6"
             >
-              <Plus className="!size-3.5" />
+              <PlusCircle className="!size-3.5" />
             </Button>
           </div>
 
@@ -251,7 +251,7 @@ export function MembershipForm<T extends FieldValues>({
                         </FormItem>
                       )}
                     />
-                    <SortableDragHandle disabled={fields.length <= 4}>
+                    <SortableDragHandle disabled={fields.length <= 1}>
                       <GripVertical />
                     </SortableDragHandle>
                     <Button

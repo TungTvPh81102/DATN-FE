@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from '@/components/data-table/data-table'
+import { DataTable } from '@/components/data-table'
 import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-advanced-toolbar'
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton'
 import { useGetCourses } from '@/hooks/instructor/course/useCourse'
@@ -49,7 +49,9 @@ const advancedFilterFields: DataTableAdvancedFilterField<ICourse>[] = [
 ]
 
 const CoursesTable = () => {
-  const { data, isLoading } = useGetCourses()
+  const { data, isLoading } = useGetCourses({
+    type: 'course',
+  })
 
   const [rowAction, setRowAction] =
     useState<DataTableRowAction<ICourse> | null>(null)
@@ -63,7 +65,7 @@ const CoursesTable = () => {
       sorting: [{ id: 'created_at', desc: true }],
       columnPinning: { right: ['actions'] },
     },
-    getRowId: (originalRow) => originalRow.id?.toString() ?? '',
+    getRowId: (originalRow, i) => (originalRow.id ?? i).toString(),
   })
 
   return !isLoading ? (

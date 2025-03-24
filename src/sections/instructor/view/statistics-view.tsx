@@ -1,10 +1,16 @@
+'use client'
+
 import Container from '@/components/shared/container'
 import OverviewStatistics from '../components/statistics/overview-statistics'
 import RevenueChart from '../components/statistics/revenue-chart'
 import StudentPurchaseChart from '../components/statistics/student-purchase-chart'
 import { DashboardCoursesTable } from '../components/statistics/table/dashboard-courses-table'
+import { useSidebar } from '@/components/ui/sidebar'
+import { cn } from '@/lib/utils'
 
 const StatisticsView = () => {
+  const { open } = useSidebar()
+
   return (
     <Container>
       <div className="flex flex-col justify-center gap-2">
@@ -16,7 +22,12 @@ const StatisticsView = () => {
         </div>
       </div>
 
-      <div className="grid items-stretch gap-5 lg:grid-cols-2 lg:gap-8 xl:grid-cols-3">
+      <div
+        className={cn(
+          'grid items-stretch gap-5 lg:gap-8 xl:grid-cols-3',
+          !open && 'lg:grid-cols-2'
+        )}
+      >
         <div className="xl:col-span-1">
           <OverviewStatistics />
         </div>

@@ -1,20 +1,22 @@
-import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 
+import QueryKey from '@/constants/query-key'
 import {
-  CreateCoursePayload,
+  GetCoursesParams,
+  instructorCourseApi,
+} from '@/services/instructor/course/course-api'
+import {
   RequestModifyContentPayload,
   UpdateCourseObjectivePayload,
   UpdateCourseOverViewPayload,
 } from '@/validations/course'
-import QueryKey from '@/constants/query-key'
-import { instructorCourseApi } from '@/services/instructor/course/course-api'
 
-export const useGetCourses = () => {
+export const useGetCourses = (params?: GetCoursesParams) => {
   return useQuery({
-    queryKey: [QueryKey.INSTRUCTOR_COURSE],
-    queryFn: () => instructorCourseApi.getCourses(),
+    queryKey: [QueryKey.INSTRUCTOR_COURSE, params],
+    queryFn: () => instructorCourseApi.getCourses(params),
   })
 }
 
@@ -42,15 +44,8 @@ export const useGetCourseListOfUser = (slug?: string) => {
 }
 
 export const useCreateCourse = () => {
-  const router = useRouter()
-
   return useMutation({
-    mutationFn: (data: CreateCoursePayload) =>
-      instructorCourseApi.createCourse(data),
-    onSuccess: async (res: any) => {
-      const courseSlug = res?.data.slug
-      if (courseSlug) router.push(`/instructor/courses/update/${courseSlug}`)
-    },
+    mutationFn: instructorCourseApi.createCourse,
     onError: (error) => toast.error(error.message),
   })
 }

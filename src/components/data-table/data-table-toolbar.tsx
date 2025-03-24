@@ -37,6 +37,8 @@ interface DataTableToolbarProps<TData>
    * ]
    */
   filterFields?: DataTableFilterField<TData>[]
+
+  showViewOptions?: boolean
 }
 
 export function DataTableToolbar<TData>({
@@ -44,6 +46,7 @@ export function DataTableToolbar<TData>({
   filterFields = [],
   children,
   className,
+  showViewOptions = true,
   ...props
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
@@ -110,7 +113,7 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex items-center gap-2">
         {children}
-        <DataTableViewOptions table={table} />
+        {showViewOptions && <DataTableViewOptions table={table} />}
       </div>
     </div>
   )

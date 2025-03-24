@@ -31,9 +31,11 @@ export const useSpinRun = () => {
       await queryClient.invalidateQueries({
         queryKey: [QueryKey.WHEEL_TURN],
       })
-      await queryClient.invalidateQueries({
-        queryKey: [QueryKey.WHEEL_SPIN_HISTORY],
-      })
+      setTimeout(async () => {
+        await queryClient.invalidateQueries({
+          queryKey: [QueryKey.WHEEL_SPIN_HISTORY],
+        })
+      }, 5000)
     },
     onError: (error: any) => {
       toast.error(error?.message || 'loi quay')

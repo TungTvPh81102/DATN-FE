@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/table'
 import { getCommonPinningStyles } from '@/lib/data-table'
 import { cn } from '@/lib/utils'
+import { Sortable, SortableItem } from '../ui/sortable'
+import { UniqueIdentifier } from '@dnd-kit/core'
 
 interface DataTableProps<TData> extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -27,10 +29,18 @@ interface DataTableProps<TData> extends React.HTMLAttributes<HTMLDivElement> {
    * @example floatingBar={<TasksTableFloatingBar table={table} />}
    */
   floatingBar?: React.ReactNode | null
+
+  /**
+   * Callback to set the data when the order is changed.
+   * @default () => {}
+   * @type (data: TData[]) => void
+   */
+  setData?: (data: TData[]) => void
 }
 
 export function DataTable<TData>({
   table,
+  setData = () => {},
   floatingBar = null,
   children,
   className,
@@ -74,41 +84,65 @@ export function DataTable<TData>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      style={{
-                        ...getCommonPinningStyles({ column: cell.column }),
-                      }}
-                      className={cn(
-                        cell.column.columnDef.meta?.className,
-                        cell.column.columnDef.meta?.cellClassName
-                      )}
+            <Sortable
+              value={table
+                .getRowModel()
+                .rows.map((row) => row.original as { id: UniqueIdentifier })}
+              onValueChange={
+                setData as (data: { id: UniqueIdentifier }[]) => void
+              }
+              overlay={
+                <Table>
+                  <TableBody>
+                    <TableRow>
+                      <div className="h-12 w-full bg-accent/10" />
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              }
+            >
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <SortableItem
+                    key={row.id}
+                    value={(row.original as { id: string }).id}
+                    asChild
+                  >
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
                     >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          style={{
+                            ...getCommonPinningStyles({ column: cell.column }),
+                          }}
+                          className={cn(
+                            cell.column.columnDef.meta?.className,
+                            cell.column.columnDef.meta?.cellClassName
+                          )}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </SortableItem>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={table.getAllColumns().length}
+                    className="h-24 text-center"
+                  >
+                    Không có dữ liệu
+                  </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={table.getAllColumns().length}
-                  className="h-24 text-center"
-                >
-                  Không có dữ liệu
-                </TableCell>
-              </TableRow>
-            )}
+              )}
+            </Sortable>
           </TableBody>
         </Table>
       </div>

@@ -8,10 +8,16 @@ import { CoursePreview, ICourse } from '@/types'
 
 const prefix = '/instructor/manage/courses'
 
+export interface GetCoursesParams {
+  type: 'course' | 'practical-course'
+}
+
 export const instructorCourseApi = {
   // GET COURSES
-  getCourses: async (): Promise<ICourse[]> => {
-    const res = await api.get(prefix)
+  getCourses: async (params?: GetCoursesParams): Promise<ICourse[]> => {
+    const res = await api.get(prefix, {
+      params,
+    })
     return res.data
   },
   getCourseOverview: async (slug: string) => {
@@ -52,6 +58,14 @@ export const instructorCourseApi = {
     return await api.get(`/instructor/manage/lessons/quiz/download-quiz-form`, {
       responseType: 'blob',
     })
+  },
+  exportQuiz: async (quizId: number) => {
+    return await api.get(
+      `/instructor/manage/lessons/quiz/export-quiz/${quizId}`,
+      {
+        responseType: 'blob',
+      }
+    )
   },
   validateCourse: (slug: string) => {
     return api.get(`${prefix}/${slug}/validate-course`)

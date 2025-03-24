@@ -29,7 +29,7 @@ const CourseSlide = ({ courses }: Props) => {
       }}
     >
       {courses.map((course) => (
-        <SwiperSlide key={course?.id}>
+        <SwiperSlide key={course?.code}>
           <div className="course-item hover-img title-small wow fadeInUp">
             <div
               className="features image-wrap"

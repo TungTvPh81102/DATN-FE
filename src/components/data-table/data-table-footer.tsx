@@ -16,14 +16,19 @@ interface DataTableFooterProps<TData> {
 
 export function DataTableFooter<TData>({
   table,
-  // pageSizeOptions = [10, 20, 30, 40, 50],
-  pageSizeOptions = [1, 10, 20, 30, 40, 50],
+  pageSizeOptions = [10, 20, 30, 40, 50],
 }: DataTableFooterProps<TData>) {
   return (
     <div className="flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto p-1 sm:flex-row sm:gap-8">
       <div className="flex-1 whitespace-nowrap text-sm text-muted-foreground">
-        Đã chọn {table.getFilteredSelectedRowModel().rows.length}/
-        {table.getFilteredRowModel().rows.length} hàng
+        {table.getFilteredSelectedRowModel().rows.length ? (
+          <>
+            Đã chọn {table.getFilteredSelectedRowModel().rows.length}/
+            {table.getFilteredRowModel().rows.length} hàng
+          </>
+        ) : (
+          <>Hiển thị {table.getFilteredRowModel().rows.length} hàng</>
+        )}
       </div>
       <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
         <div className="flex items-center space-x-2">
