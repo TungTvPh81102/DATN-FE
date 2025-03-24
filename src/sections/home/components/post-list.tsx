@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import { useGetTopPosts } from '@/hooks/post/useGetTopPosts'
 
 interface PostListProps {
   className?: string
@@ -76,6 +77,11 @@ export const fakePosts = [
 ]
 
 const PostList = ({ title, description }: PostListProps) => {
+  const { data, isLoading } = useGetTopPosts()
+
+  console.log('data', data)
+  console.log('isLoading', isLoading)
+
   return (
     <section className="section-blog pt-0">
       <div className="tf-container">

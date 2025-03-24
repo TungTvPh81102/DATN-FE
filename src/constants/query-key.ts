@@ -35,6 +35,7 @@ enum QueryKey {
   COURSE = 'course',
   QA_SYSTEM = 'qa-systems',
   POSTS = 'posts',
+  TOP_POSTS = 'top-posts',
   BLOGS = 'blogs',
   BLOG_DETAILS = 'blog-details',
   WISH_LIST = 'wish-list',
