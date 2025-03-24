@@ -175,7 +175,7 @@ export const PracticeExerciseTab = ({ chapter, slug }: Props) => {
                       isEdit={lessonEdit === lesson.id}
                       chapterId={chapter ? String(chapter.id) : ''}
                       onHide={() => setLessonEdit(null)}
-                      quizId={lesson.lessonable_id as string | undefined}
+                      quizId={lesson.lessonable_id}
                     />
                   </AccordionContent>
                 </AccordionItem>

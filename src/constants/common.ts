@@ -46,3 +46,6 @@ export const questions: IQuestionTeacher[] = [
 
 export const PLACEHOLDER_AVATAR =
   'https://res.cloudinary.com/dvrexlsgx/image/upload/v1732148083/Avatar-trang-den_apceuv_pgbce6.png'
+
+export const PLACEHOLDER_IMAGE =
+  'https://res.cloudinary.com/dvrexlsgx/image/upload/v1741966561/placeholder-16-9-26571_1080x675_zeynku.jpg'

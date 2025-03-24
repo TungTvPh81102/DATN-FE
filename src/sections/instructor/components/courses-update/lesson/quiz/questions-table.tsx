@@ -7,7 +7,7 @@ import AddQuestionDialog from '@/sections/instructor/components/courses-update/l
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import { AnswerTypeMap, Question } from '@/types'
 import { DataTableFilterField, DataTableRowAction } from '@/types/data-table'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { DeleteQuestionsDialog } from './delete-questions-dialog'
 import { getColumns } from './questions-table-columns'
 import { QuestionsTableToolbarActions } from './questions-table-toolbar-actions'
@@ -35,7 +35,7 @@ const filterFields: DataTableFilterField<Question>[] = [
 
 interface Props {
   questions?: Question[]
-  quizId: string
+  quizId: number
 }
 
 export const QuestionsTable = ({
@@ -45,6 +45,7 @@ export const QuestionsTable = ({
   const { isDraftOrRejected } = useCourseStatusStore()
 
   const [questions, setQuestions] = useState(initialQuestions)
+
   const [rowAction, setRowAction] =
     useState<DataTableRowAction<Question> | null>(null)
   const [dragMode, setDragMode] = useState(false)
@@ -71,6 +72,10 @@ export const QuestionsTable = ({
     updateQuestionsOrder({ quizId, payload })
   }
 
+  useEffect(() => {
+    setQuestions(initialQuestions)
+  }, [initialQuestions])
+
   return (
     <>
       <div className="flex items-center justify-between gap-2">
@@ -93,7 +98,11 @@ export const QuestionsTable = ({
       </div>
 
       <DataTable table={table} setData={setQuestions}>
-        <DataTableToolbar table={table} filterFields={filterFields}>
+        <DataTableToolbar
+          table={table}
+          filterFields={filterFields}
+          showViewOptions={false}
+        >
           <QuestionsTableToolbarActions table={table} quizId={quizId} />
         </DataTableToolbar>
       </DataTable>
@@ -120,7 +129,7 @@ export const QuestionsTable = ({
         onOpenChange={() => {
           setRowAction(null)
         }}
-        questionId={rowAction?.row.original.id?.toString()}
+        question={rowAction?.row.original}
       />
 
       <DeleteQuestionsDialog

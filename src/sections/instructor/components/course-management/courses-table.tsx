@@ -65,7 +65,7 @@ const CoursesTable = () => {
       sorting: [{ id: 'created_at', desc: true }],
       columnPinning: { right: ['actions'] },
     },
-    getRowId: (originalRow) => originalRow.id?.toString() ?? '',
+    getRowId: (originalRow, i) => (originalRow.id ?? i).toString(),
   })
 
   return !isLoading ? (

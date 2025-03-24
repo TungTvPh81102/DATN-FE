@@ -239,10 +239,11 @@ export const PracticalCourseUpdate = ({ slug }: { slug: string }) => {
                       type="single"
                       collapsible
                       className="space-y-4 py-4"
+                      defaultValue="0"
                     >
                       {Object?.entries(
                         validateData?.data.completion_status || {}
-                      ).map(([key, value]) => {
+                      ).map(([key, value], i) => {
                         const typedValue = value as {
                           status: boolean
                           errors: string[]
@@ -250,7 +251,7 @@ export const PracticalCourseUpdate = ({ slug }: { slug: string }) => {
 
                         if (!typedValue.status) {
                           return (
-                            <AccordionItem key={key} value={key}>
+                            <AccordionItem key={key} value={i + ''}>
                               <AccordionTrigger className="rounded-lg">
                                 {(() => {
                                   switch (key) {
@@ -258,7 +259,7 @@ export const PracticalCourseUpdate = ({ slug }: { slug: string }) => {
                                       return 'Mục tiêu khoá học'
                                     case 'course_overview':
                                       return 'Tổng quan khoá học'
-                                    case 'practice_tests':
+                                    case 'practice_exercise':
                                       return 'Bài kiểm tra thực hành'
                                     default:
                                       return ''

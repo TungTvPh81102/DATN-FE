@@ -39,13 +39,12 @@ export const PracticalCoursesTable = () => {
   const columns = useMemo(() => getColumns({ setRowAction }), [])
 
   const { table } = useDataTable({
-    data: data ?? [],
+    data,
     columns,
     initialState: {
       sorting: [{ id: 'created_at', desc: true }],
       columnPinning: { right: ['actions'] },
     },
-    getRowId: (originalRow) => originalRow.id?.toString() ?? '',
   })
 
   return !isLoading ? (

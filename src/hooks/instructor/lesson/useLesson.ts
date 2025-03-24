@@ -10,6 +10,7 @@ import {
 } from '@/validations/lesson'
 import QueryKey from '@/constants/query-key'
 import { instructorLessonApi } from '@/services/instructor/lesson/lesson-api'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 
 export const useGetLessonCoding = (lessonSlug: string, codingId: string) => {
   return useQuery({
@@ -223,34 +224,13 @@ export const useCreateLessonQuiz = () => {
 }
 
 export const useUpdateQuizContent = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({
-      quizId,
-      payload,
-    }: {
-      quizId: string
-      payload: LessonQuizPayload
-    }) => instructorLessonApi.updateQuizContent(quizId, payload),
-
-    onSuccess: async (res) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: [QueryKey.INSTRUCTOR_COURSE],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [QueryKey.VALIDATE_COURSE],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [QueryKey.INSTRUCTOR_QUIZ, res.data.id],
-        }),
-      ])
-      toast.success(res.message)
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
+  return useToastMutation({
+    mutationFn: instructorLessonApi.updateQuizContent,
+    queryKeys: [
+      [QueryKey.INSTRUCTOR_COURSE],
+      [QueryKey.VALIDATE_COURSE],
+      [QueryKey.INSTRUCTOR_QUIZ],
+    ],
   })
 }
 

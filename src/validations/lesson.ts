@@ -210,8 +210,8 @@ export const lessonCodingSchema = z.object({
 export const storeQuestionSchema = z
   .object({
     question: z.string().nonempty('Câu hỏi không được để trống'),
-    description: z.string().optional(),
-    answer_type: z.enum([AnswerType.SingleChoice, AnswerType.MultipleChoice]),
+    description: z.string().nullish(),
+    answer_type: z.enum(Object.values(AnswerType) as [`${AnswerType}`]),
     options: z
       .array(
         z.object({
@@ -227,10 +227,7 @@ export const storeQuestionSchema = z
         (options) => options.some((option) => option.is_correct),
         'Phải có ít nhất một đáp án đúng'
       ),
-    image: z
-      .union([z.instanceof(File), z.string()])
-      .optional()
-      .nullable(),
+    image: z.union([z.instanceof(File), z.string()]).nullish(),
   })
   .superRefine((question, ctx) => {
     const correctAnswers = question.options.filter(
