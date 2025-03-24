@@ -4,89 +4,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { useGetTopInstructors } from '@/hooks/instructor/get-all/useGetAllInstructor'
-
-const instructorsData = [
-  {
-    name: 'Theresa Webb',
-    image: '/assets/images/instructors/instructors-01.jpg',
-    students: 345,
-    courses: 34,
-    description: 'Professional Web Developer',
-    rating: 4.9,
-  },
-  {
-    name: 'Ronald Richards',
-    image: '/assets/images/instructors/instructors-02.jpg',
-    students: 345,
-    courses: 34,
-    description: 'Professional Web Developer',
-    rating: 4.9,
-  },
-  {
-    name: 'Savannah Nguyen',
-    image: '/assets/images/instructors/instructors-03.jpg',
-    students: 345,
-    courses: 34,
-    description: 'Professional Web Developer',
-    rating: 4.9,
-  },
-  {
-    name: 'Kristin Watson',
-    image: '/assets/images/instructors/instructors-04.jpg',
-    students: 345,
-    courses: 34,
-    description: 'Professional Web Developer',
-    rating: 4.9,
-  },
-  {
-    name: 'Cameron Williamson',
-    image: '/assets/images/instructors/instructors-03.jpg',
-    students: 345,
-    courses: 34,
-    description: 'Professional Web Developer',
-    rating: 4.9,
-  },
-  {
-    name: 'Theresa Webb',
-    image: '/assets/images/instructors/instructors-01.jpg',
-    students: 345,
-    courses: 34,
-    description: 'Professional Web Developer',
-    rating: 4.9,
-  },
-  {
-    name: 'Ronald Richards',
-    image: '/assets/images/instructors/instructors-02.jpg',
-    students: 345,
-    courses: 34,
-    description: 'Professional Web Developer',
-    rating: 4.9,
-  },
-  {
-    name: 'Savannah Nguyen',
-    image: '/assets/images/instructors/instructors-03.jpg',
-    students: 345,
-    courses: 34,
-    description: 'Professional Web Developer',
-    rating: 4.9,
-  },
-  {
-    name: 'Kristin Watson',
-    image: '/assets/images/instructors/instructors-04.jpg',
-    students: 345,
-    courses: 34,
-    description: 'Professional Web Developer',
-    rating: 4.9,
-  },
-  {
-    name: 'Cameron Williamson',
-    image: '/assets/images/instructors/instructors-03.jpg',
-    students: 345,
-    courses: 34,
-    description: 'Professional Web Developer',
-    rating: 4.9,
-  },
-]
+import { InstructorItemSkeleton } from '@/sections/home/components/top-instructor-skeleton'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { useRouter } from 'next/navigation'
 
 const InstructorTop = ({
   title,
@@ -95,10 +15,15 @@ const InstructorTop = ({
   title: string
   description: string
 }) => {
+  const { user } = useAuthStore()
   const { data, isLoading } = useGetTopInstructors()
 
-  console.log('isLoading', isLoading)
-  console.log('data', data)
+  const router = useRouter()
+
+  const handleNavigate = (code: string) => {
+    const targetPath = user?.code === code ? '/me' : `/profile/${code}`
+    router.push(targetPath)
+  }
 
   return (
     <section className="section-instructor tf-spacing-2 pt-0">
@@ -125,70 +50,116 @@ const InstructorTop = ({
               </div>
             </div>
 
-            <Swiper
-              spaceBetween={25}
-              slidesPerView={5}
-              loop={true}
-              className="swiper-container slider-courses-5 wow fadeInUp"
-              data-wow-delay="0.3s"
-              breakpoints={{
-                0: {
-                  slidesPerView: 2,
-                  spaceBetween: 12,
-                },
-                768: {
-                  slidesPerView: 3,
-                  spaceBetween: 24,
-                },
-                1024: {
-                  slidesPerView: 5,
-                  spaceBetween: 30,
-                },
-              }}
-            >
-              {instructorsData.map((instructor, index) => (
-                <SwiperSlide key={index} className="swiper-slide">
-                  <div className="instructors-item hover-img style-column">
-                    <div className="image-wrap">
-                      <Image
-                        width={260}
-                        height={260}
-                        data-src={instructor.image}
-                        src={instructor.image}
-                        alt={instructor.name}
-                      />
-                    </div>
+            {isLoading ? (
+              <Swiper
+                spaceBetween={25}
+                slidesPerView={5}
+                loop={true}
+                className="swiper-container slider-courses-5 wow fadeInUp"
+                data-wow-delay="0.3s"
+                breakpoints={{
+                  0: {
+                    slidesPerView: 2,
+                    spaceBetween: 12,
+                  },
+                  768: {
+                    slidesPerView: 3,
+                    spaceBetween: 24,
+                  },
+                  1024: {
+                    slidesPerView: 5,
+                    spaceBetween: 30,
+                  },
+                }}
+              >
+                {[...Array(5)].map((_, index) => (
+                  <SwiperSlide key={index} className="swiper-slide">
+                    <InstructorItemSkeleton />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            ) : data?.data?.length === 0 ? (
+              <p className="text-center text-gray-500">Danh sách trống</p>
+            ) : (
+              <Swiper
+                spaceBetween={25}
+                slidesPerView={5}
+                loop={true}
+                className="swiper-container slider-courses-5 wow fadeInUp"
+                data-wow-delay="0.3s"
+                breakpoints={{
+                  0: {
+                    slidesPerView: 2,
+                    spaceBetween: 12,
+                  },
+                  768: {
+                    slidesPerView: 3,
+                    spaceBetween: 24,
+                  },
+                  1024: {
+                    slidesPerView: 5,
+                    spaceBetween: 30,
+                  },
+                }}
+              >
+                {data?.data?.map((instructor, index) => (
+                  <SwiperSlide key={index} className="swiper-slide">
+                    <div className="instructors-item hover-img style-column">
+                      <div className="image-wrap">
+                        <Link
+                          href={`/profile/${instructor?.code}`}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleNavigate(instructor?.code)
+                          }}
+                        >
+                          <Image
+                            width={260}
+                            height={260}
+                            data-src={instructor?.avatar ?? ''}
+                            src={instructor?.avatar ?? ''}
+                            alt={instructor.name}
+                          />
+                        </Link>
+                      </div>
 
-                    <div className="entry-content">
-                      <ul className="entry-meta">
-                        <li>
-                          <i className="flaticon-user" />
-                          {instructor.students} Students
-                        </li>
+                      <div className="entry-content">
+                        <ul className="entry-meta">
+                          <li>
+                            <i className="flaticon-user" />
+                            {instructor?.total_followers} Followers
+                          </li>
 
-                        <li>
-                          <i className="flaticon-play" />
-                          {instructor.courses} Courses
-                        </li>
-                      </ul>
+                          <li>
+                            <i className="flaticon-play" />
+                            {instructor?.total_courses} Courses
+                          </li>
+                        </ul>
 
-                      <h6 className="entry-title">
-                        <Link href="#">{instructor.name}</Link>
-                      </h6>
+                        <h6 className="entry-title">
+                          <Link
+                            href={`/profile/${instructor?.code}`}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              handleNavigate(instructor?.code)
+                            }}
+                          >
+                            {instructor?.name}
+                          </Link>
+                        </h6>
 
-                      <p className="short-description">
-                        {instructor.description}
-                      </p>
-
-                      <div className="ratings">
-                        <div className="number">{instructor.rating}</div>
-                        <i className="icon-star-1" />
+                        <div className="ratings">
+                          <div className="number">
+                            {instructor?.avg_rating ?? '0.0'}
+                          </div>
+                          <i className="icon-star-1" />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
           </div>
         </div>
       </div>
