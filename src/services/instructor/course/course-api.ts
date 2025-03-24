@@ -9,7 +9,7 @@ import { CoursePreview, ICourse } from '@/types'
 const prefix = '/instructor/manage/courses'
 
 export interface GetCoursesParams {
-  type?: 'course' | 'practical-course'
+  type: 'course' | 'practical-course'
 }
 
 export const instructorCourseApi = {
@@ -59,7 +59,7 @@ export const instructorCourseApi = {
       responseType: 'blob',
     })
   },
-  exportQuiz: async (quizId: string) => {
+  exportQuiz: async (quizId: number) => {
     return await api.get(
       `/instructor/manage/lessons/quiz/export-quiz/${quizId}`,
       {

@@ -30,15 +30,14 @@ type Props = {
   chapterId?: string
   onHide: () => void
   isEdit?: boolean
-  quizId?: string
+  quizId?: number
 }
 
 const LessonQuiz = ({ chapterId, onHide, isEdit, quizId }: Props) => {
   const { isDraftOrRejected } = useCourseStatusStore()
 
-  const { data: questionData, isLoading: isQuestionLoading } = useGetQuiz(
-    quizId as string
-  )
+  const { data: questionData, isLoading: isQuestionLoading } =
+    useGetQuiz(quizId)
 
   const { mutate: createLessonQuiz, isPending: isLessonQuizCreatePending } =
     useCreateLessonQuiz()
@@ -51,7 +50,6 @@ const LessonQuiz = ({ chapterId, onHide, isEdit, quizId }: Props) => {
       title: '',
       content: '',
     },
-    values: questionData,
     disabled: !isDraftOrRejected || isLessonQuizCreatePending || isUpdating,
   })
 
@@ -72,7 +70,7 @@ const LessonQuiz = ({ chapterId, onHide, isEdit, quizId }: Props) => {
 
     if (isEdit)
       updateQuizContent({
-        quizId: quizId as string,
+        quizId,
         payload: data,
       })
     else

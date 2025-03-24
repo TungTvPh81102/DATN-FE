@@ -118,11 +118,13 @@ export const instructorLessonApi = {
       payload
     )
   },
-
-  updateQuizContent: (
-    quizId: string,
+  updateQuizContent: ({
+    quizId,
+    payload,
+  }: {
+    quizId: number
     payload: LessonQuizPayload
-  ): Promise<any> => {
+  }): Promise<any> => {
     return api.put(`${prefix}/quiz/${quizId}/update-quiz-content`, payload)
   },
 }

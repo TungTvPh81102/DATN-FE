@@ -8,7 +8,7 @@ export const instructorQuizApi = {
   downloadQuizForm: async () => {
     return await api.get(`${prefix}/download-quiz-form`)
   },
-  getQuiz: async (quizId: string): Promise<GetQuizResponse> => {
+  getQuiz: async (quizId: number): Promise<GetQuizResponse> => {
     const res = await api.get(`${prefix}/${quizId}/show-quiz`)
     return res.data
   },
@@ -16,7 +16,7 @@ export const instructorQuizApi = {
     const res = await api.get(`${prefix}/${questionId}/show-quiz-question`)
     return res.data
   },
-  createQuestion: (quizId: string, payload: StoreQuestionPayload) => {
+  createQuestion: (quizId: number, payload: StoreQuestionPayload) => {
     return api.post(`${prefix}/${quizId}/store-quiz-question-single`, payload, {
       headers: {
         'Content-Type': 'multipart/form-data',

@@ -20,7 +20,7 @@ import { useExportQuiz } from '@/hooks/instructor/quiz/useQuiz'
 
 interface Props {
   table: Table<Question>
-  quizId: string
+  quizId: number
 }
 
 export function QuestionsTableToolbarActions({ quizId }: Props) {

@@ -26,8 +26,6 @@ const Banner = () => {
     }
   }, [BannerData])
 
-  console.log(BannerData)
-
   useEffect(() => {
     if (!autoplay || !sortedBanners.length) return
 
@@ -264,7 +262,7 @@ const Banner = () => {
                   {currentBanner.title || ' '}
                 </h2>
 
-                <p
+                <div
                   className="animate-text-reveal animation-delay-100 text-base leading-relaxed text-gray-200 md:text-lg"
                   style={{
                     ...getTransform(1, 0.3),
@@ -281,7 +279,7 @@ const Banner = () => {
                         : ' ',
                     }}
                   />
-                </p>
+                </div>
 
                 <div
                   className="animate-fade-up animation-delay-200 flex flex-wrap items-center gap-4"

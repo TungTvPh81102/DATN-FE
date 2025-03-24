@@ -15,7 +15,7 @@ import {
 
 export const useGetCourses = (params?: GetCoursesParams) => {
   return useQuery({
-    queryKey: [QueryKey.INSTRUCTOR_COURSE],
+    queryKey: [QueryKey.INSTRUCTOR_COURSE, params],
     queryFn: () => instructorCourseApi.getCourses(params),
   })
 }

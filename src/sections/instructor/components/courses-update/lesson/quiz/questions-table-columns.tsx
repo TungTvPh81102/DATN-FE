@@ -9,7 +9,6 @@ import {
   Trash2,
 } from 'lucide-react'
 
-import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -39,61 +38,54 @@ export function getColumns({
   const columns: ColumnDef<Question>[] = [
     {
       accessorKey: 'question',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Câu hỏi" />
-      ),
-      enableHiding: false,
-      meta: {
-        label: 'Câu hỏi',
-      },
-    },
-    {
-      accessorKey: 'image',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Hình ảnh" />
-      ),
+      header: 'Câu hỏi',
       cell: ({ row }) => {
-        const image = row.original.image
-        return image ? (
-          <Image
-            src={`${process.env.NEXT_PUBLIC_STORAGE}/${image}`}
-            alt="Question"
-            width={48}
-            height={48}
-            className="size-12 rounded-lg object-cover"
-          />
-        ) : (
-          '-'
+        const question = row.original
+        return (
+          <div className="flex min-w-80 items-center gap-4">
+            {question.image ? (
+              <Image
+                src={`${process.env.NEXT_PUBLIC_STORAGE}/${question.image}`}
+                alt={question.question}
+                width={48}
+                height={48}
+                className="size-12 rounded-lg object-cover"
+              />
+            ) : (
+              <div className="size-12" />
+            )}
+
+            <h3 className="line-clamp-2 flex-1 font-semibold">
+              {question.question}
+            </h3>
+          </div>
         )
       },
-      enableSorting: false,
       meta: {
-        label: 'Hình ảnh',
+        className: 'pl-4',
       },
     },
     {
       accessorKey: 'answer_type',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Loại câu hỏi" />
-      ),
+      header: 'Loại câu hỏi',
       cell: ({ row }) => {
         const answer = AnswerTypeMap[row.original.answer_type]
-        return answer ? (
-          <Badge className="shrink-0 whitespace-nowrap" variant={answer.badge}>
-            {answer.label}
-          </Badge>
-        ) : (
-          '-'
+        return (
+          answer && (
+            <Badge
+              className="shrink-0 whitespace-nowrap"
+              variant={answer.badge}
+            >
+              {answer.label}
+            </Badge>
+          )
         )
       },
-      meta: {
-        label: 'Loại câu hỏi',
-      },
+      size: 100,
     },
   ]
 
   if (!dragMode) {
-    columns.pop()
     columns.push({
       id: 'actions',
       cell: function Cell({ row }) {
@@ -139,12 +131,9 @@ export function getColumns({
           </div>
         )
       },
-      enableSorting: false,
-      enableHiding: false,
       size: 40,
     })
   } else {
-    columns.pop()
     columns.push({
       id: 'drag',
       cell: () => (
@@ -154,8 +143,6 @@ export function getColumns({
           </SortableDragHandle>
         </div>
       ),
-      enableSorting: false,
-      enableHiding: false,
       size: 40,
     })
   }

@@ -27,6 +27,7 @@ export function CoursesTableToolbarActions({
           onSuccess={() => table.toggleAllRowsSelected(false)}
         />
       ) : null}
+
       <CreateCourseDialog isPracticalCourse={isPracticalCourse} />
 
       {!isPracticalCourse && (

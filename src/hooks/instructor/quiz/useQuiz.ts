@@ -7,10 +7,10 @@ import { instructorQuizApi } from '@/services/instructor/quiz/quiz-api'
 import { useToastMutation } from '@/hooks/use-toast-mutation'
 import { instructorCourseApi } from '@/services/instructor/course/course-api'
 
-export const useGetQuiz = (id: string) => {
+export const useGetQuiz = (id?: number) => {
   return useQuery({
     queryKey: [QueryKey.INSTRUCTOR_QUIZ, id],
-    queryFn: () => instructorQuizApi.getQuiz(id),
+    queryFn: () => instructorQuizApi.getQuiz(id!),
     enabled: !!id,
   })
 }
@@ -31,7 +31,7 @@ export const useCreateQuestion = () => {
       quizId,
       payload,
     }: {
-      quizId: string
+      quizId: number
       payload: StoreQuestionPayload
     }) => instructorQuizApi.createQuestion(quizId, payload),
     onSuccess: async (res: any) => {
@@ -100,9 +100,7 @@ export const useUpdateQuestionsOrder = () => {
 
 export const useExportQuiz = () => {
   return useMutation({
-    mutationFn: async (quizId: string) => {
-      return await instructorCourseApi.exportQuiz(quizId)
-    },
+    mutationFn: instructorCourseApi.exportQuiz,
     onSuccess: (data: any) => {
       const url = window.URL.createObjectURL(new Blob([data]))
       const link = document.createElement('a')

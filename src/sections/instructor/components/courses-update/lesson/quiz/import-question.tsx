@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils'
 import { PopoverClose } from '@radix-ui/react-popover'
 
 interface ImportQuestionProps {
-  quizId: string
+  quizId: number
   isOpenImportQuestion: boolean
   setIsOpenImportQuestion: (open: boolean) => void
 }
