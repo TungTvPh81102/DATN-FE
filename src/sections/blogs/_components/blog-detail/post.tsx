@@ -67,7 +67,7 @@ const BlogDetailPost = ({
           <p>{initialBlogDetail?.user?.name}</p>
         </a>
       </div>
-      <h2 className="fw-7 wow fadeInUp">{initialBlogDetail.title}</h2>
+      <h2 className="fw-7 wow fadeInUp">{initialBlogDetail?.title}</h2>
       <div className="title text-22 fw-5 wow fadeInUp">Giới thiệu</div>
       <p className="fs-15">
         <div
@@ -122,7 +122,7 @@ const BlogDetailPost = ({
           reprehenderit voluptates est reprehenderit illo est enim perferendis
           est neque sunt.
         </div>
-        <div className="name">{initialBlogDetail.user.name}</div>
+        <div className="name">{initialBlogDetail?.user?.name}</div>
       </div>
     </div>
   )
