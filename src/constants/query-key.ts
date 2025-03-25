@@ -79,6 +79,7 @@ enum QueryKey {
   WHEEL_REWARDS = 'wheel-rewards',
   WHEEL_TURN = 'wheel-spin-turn',
   WHEEL_SPIN_HISTORY = 'wheel-spin-history',
+  PRACTICE_EXERCISES = 'practice-exercises',
 }
 
 export default QueryKey

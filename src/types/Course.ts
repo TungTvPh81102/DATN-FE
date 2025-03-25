@@ -220,3 +220,17 @@ export interface ICourseRatingsResponse {
     average_rating: number
   }
 }
+
+export interface IPracticeExerciseRating {
+  count: number
+  average: number
+}
+
+export interface IPracticeExercise extends ICourse {
+  ratings: IPracticeExerciseRating
+}
+
+export interface IPracticeExerciseResponse {
+  message: string
+  data: IPracticeExercise[]
+}

@@ -35,7 +35,7 @@ const PostList = ({ title, description }: PostListProps) => {
                 </div>
 
                 <Link
-                  href="blog-grid.html"
+                  href="/blogs"
                   className="tf-btn-arrow wow fadeInUp"
                   data-wow-delay="0.3s"
                 >
