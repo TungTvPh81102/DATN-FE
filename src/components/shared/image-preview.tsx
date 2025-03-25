@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Video } from 'lucide-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import Image from 'next/image'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -35,6 +35,7 @@ export const ImagePreview = ({
   onClose: () => void
   images: Array<{
     url: string
+    type?: 'image' | 'video'
     sender: { name: string; avatar: string }
   }>
   initialIndex?: number
@@ -60,30 +61,41 @@ export const ImagePreview = ({
           {/* Carousel container */}
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex touch-pan-y">
-              {images.map((image, index) => (
+              {images.map((media, index) => (
                 <div
                   key={index}
                   className="relative min-w-full flex-[0_0_100%]"
                 >
                   <div className="relative aspect-[16/9] w-full">
-                    <Image
-                      src={image.url}
-                      alt="Preview"
-                      fill
-                      className="object-contain"
-                      priority
-                    />
+                    {media.type === 'video' ? (
+                      <video
+                        src={media.url}
+                        controls
+                        className="size-full object-contain"
+                      />
+                    ) : (
+                      <Image
+                        src={media.url}
+                        alt="Preview"
+                        fill
+                        className="object-contain"
+                        priority
+                      />
+                    )}
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4">
                       <div className="flex items-center gap-2">
                         <Avatar className="size-8">
-                          <AvatarImage src={image.sender.avatar} />
+                          <AvatarImage src={media.sender.avatar} />
                           <AvatarFallback>
-                            {image.sender.name[0]}
+                            {media.sender.name[0]}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm text-white">
-                          {image.sender.name}
-                        </span>
+                        <div className="flex items-center gap-2 text-sm text-white">
+                          <span>{media.sender.name}</span>
+                          {media.type === 'video' && (
+                            <Video className="size-4" />
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

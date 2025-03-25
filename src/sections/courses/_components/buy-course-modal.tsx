@@ -10,7 +10,10 @@ import {
   formatNumber,
   formatPercentage,
 } from '@/lib/common'
-import { useApplyCoupon } from '@/hooks/transation/useTransation'
+import {
+  useApplyCoupon,
+  useDeleteApplyCoupon,
+} from '@/hooks/transation/useTransation'
 import { useGetCouponUser } from '@/hooks/user/useUser'
 
 import { Badge } from '@/components/ui/badge'
@@ -27,6 +30,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { useCreatePayment } from '@/hooks/payment/usePayment'
 import { paymentMethods } from '@/constants/payment-method'
+import CouponTimeline from '@/sections/courses/_components/coupon-time-line'
 
 interface BuyCourseModalProps {
   course: {
@@ -60,6 +64,7 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
   const [isCouponApplied, setIsCouponApplied] = useState(false)
   const [hasDiscountCode, setHasDiscountCode] = useState(false)
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false)
+  const [couponExpiryTime, setCouponExpiryTime] = useState<number | null>(null)
 
   const originalPrice =
     course?.price_sale > 0 ? course?.price_sale : course?.price
@@ -69,6 +74,7 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
     useCreatePayment()
   const { mutate: applyCoupon, isPending: isPendingApplyCoupon } =
     useApplyCoupon()
+  const { mutate: deleteApplyCoupon } = useDeleteApplyCoupon()
 
   const resetPrice = () => {
     setFinalPrice(originalPrice)
@@ -92,7 +98,7 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
       },
       {
         onSuccess: (res: any) => {
-          const { discount_amount, final_amount } = res.data
+          const { discount_amount, final_amount, ttl } = res.data
           setDiscountAmount(discount_amount)
           setFinalPrice(final_amount)
           const appliedCoupon = couponData?.data?.find(
@@ -102,12 +108,14 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
           setDiscountCode('')
           toast.success(res.message)
           setIsCouponApplied(true)
+          setCouponExpiryTime(ttl)
         },
         onError: (error: any) => {
           const errorMessage =
             error.message || 'Không thể áp dụng mã giảm giá. Vui lòng thử lại!'
           toast.error(errorMessage)
           setIsCouponApplied(false)
+          setDiscountCode('')
         },
       }
     )
@@ -145,7 +153,9 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
     resetPrice()
     setDiscountAmount(0)
     setDiscountCode('')
-    toast.info('Đã xóa mã giảm giá')
+    if (selectedCoupon) {
+      deleteApplyCoupon({ code: selectedCoupon.coupon.code })
+    }
   }
 
   const handlePayment = (e: any) => {
@@ -285,6 +295,12 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
                         <X className="size-4" />
                       </Button>
                     </div>
+                    <CouponTimeline
+                      isActive={isCouponApplied && !isPendingCreatePayment}
+                      duration={couponExpiryTime ?? 60000}
+                      onComplete={handleRemoveCoupon}
+                      couponCode={selectedCoupon?.coupon?.code ?? ''}
+                    />
                     <div className="mt-2 rounded-md bg-white p-2">
                       <div className="flex items-center justify-between">
                         <div>
@@ -389,7 +405,7 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
                           <Image
                             src={method.icon}
                             alt={method.name}
-                            width={80}
+                            width={50}
                             height={50}
                             className="mx-auto mb-2"
                           />

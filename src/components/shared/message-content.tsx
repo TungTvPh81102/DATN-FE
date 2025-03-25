@@ -23,25 +23,24 @@ const getLastName = (fullName: string): string => {
   return nameParts.length > 0 ? nameParts[nameParts.length - 1] : fullName
 }
 
-const MessageContent = ({ message }: { message: IMessage }) => {
+interface FileMetaData {
+  media_id?: number
+  file_name: string
+  file_path: string
+  file_size: number
+  file_type: string
+}
+
+const FileMediaPreview = ({
+  files,
+  type,
+}: {
+  files: FileMetaData[]
+  type: string
+}) => {
+  const [activeIndex, setActiveIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
-
-  const getFileInfo = () => {
-    if (!message.meta_data) return null
-
-    if (Array.isArray(message.meta_data)) {
-      return message.meta_data.find(
-        (item) => item.file_path || item.media_id || item.file_name
-      )
-    }
-
-    return message.meta_data
-  }
-
-  const metaData = getFileInfo()
-
-  if (!metaData && !message.content) return null
 
   const handleVideoClick = () => {
     if (videoRef.current) {
@@ -54,26 +53,32 @@ const MessageContent = ({ message }: { message: IMessage }) => {
     }
   }
 
-  switch (message.type) {
-    case 'image':
-      return (
-        <div className="group relative">
-          <div className="relative overflow-hidden rounded-lg">
+  const handleNextFile = () => {
+    setActiveIndex((prev) => (prev + 1) % files.length)
+  }
+
+  const handlePrevFile = () => {
+    setActiveIndex((prev) => (prev - 1 + files.length) % files.length)
+  }
+
+  const renderFilePreview = (file: FileMetaData) => {
+    const storageUrl = `${process.env.NEXT_PUBLIC_STORAGE}/${file.file_path}`
+
+    switch (type) {
+      case 'image':
+        return (
+          <div className="group relative overflow-hidden rounded-lg">
             <Image
-              width={300}
-              height={200}
-              src={`${process.env.NEXT_PUBLIC_STORAGE}/${metaData?.file_path}`}
-              alt={
-                metaData?.file_name ||
-                metaData?.media_id?.toString() ||
-                'Image message'
-              }
-              className="max-w-[300px] rounded-lg object-cover transition-transform duration-200"
+              width={350}
+              height={250}
+              src={storageUrl}
+              alt={file.file_name}
+              className="w-full object-cover transition-transform duration-200 group-hover:scale-105"
               loading="lazy"
             />
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
               <a
-                href={`${process.env.NEXT_PUBLIC_STORAGE}/${metaData?.file_path}`}
+                href={storageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-white"
@@ -83,90 +88,149 @@ const MessageContent = ({ message }: { message: IMessage }) => {
               </a>
             </div>
           </div>
-        </div>
-      )
+        )
 
-    case 'video':
-      return (
-        <div className="group relative max-w-[350px] overflow-hidden rounded-lg bg-black/5 shadow-sm">
-          <div
-            className="relative aspect-video cursor-pointer"
-            onClick={handleVideoClick}
-          >
-            <video
-              ref={videoRef}
-              className="size-full object-cover"
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onEnded={() => setIsPlaying(false)}
+      case 'video':
+        return (
+          <div className="group relative max-w-[350px] overflow-hidden rounded-lg bg-black/5 shadow-sm">
+            <div
+              className="relative aspect-video cursor-pointer"
+              onClick={handleVideoClick}
             >
-              <source
-                src={`${process.env.NEXT_PUBLIC_STORAGE}/${metaData?.file_path}`}
-                type={metaData?.file_type || 'video/mp4'}
-              />
-            </video>
-            {!isPlaying && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                <PlayCircle className="size-12 text-white/90 transition-transform duration-200 group-hover:scale-110" />
-              </div>
-            )}
-          </div>
-          <div className="flex items-center justify-between p-2">
-            <span className="text-sm text-gray-600">Video</span>
-            <div className="flex items-center gap-2">
-              {isPlaying && (
-                <button
-                  onClick={handleVideoClick}
+              <video
+                ref={videoRef}
+                className="size-full object-cover"
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => setIsPlaying(false)}
+              >
+                <source src={storageUrl} type={file.file_type || 'video/mp4'} />
+              </video>
+              {!isPlaying && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <PlayCircle className="size-12 text-white/90 transition-transform duration-200 group-hover:scale-110" />
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between p-2">
+              <span className="text-sm text-gray-600">Video</span>
+              <div className="flex items-center gap-2">
+                {isPlaying && (
+                  <button
+                    onClick={handleVideoClick}
+                    className="rounded-full bg-white/90 p-1.5 text-gray-600 hover:bg-white hover:text-gray-900"
+                  >
+                    <Pause className="size-4" />
+                  </button>
+                )}
+                <a
+                  href={storageUrl}
+                  download
                   className="rounded-full bg-white/90 p-1.5 text-gray-600 hover:bg-white hover:text-gray-900"
                 >
-                  <Pause className="size-4" />
-                </button>
-              )}
+                  <Download className="size-4" />
+                </a>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 'file':
+        return (
+          <div className="group max-w-[300px] overflow-hidden rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md">
+            <div className="flex items-center gap-3 p-3">
+              <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                <FileText className="size-5 text-primary" />
+              </div>
+              <div className="flex-1 truncate">
+                <p className="truncate text-sm font-medium">{file.file_name}</p>
+                <p className="text-xs text-gray-500">
+                  {(file.file_size / 1024 / 1024).toFixed(2)} MB
+                </p>
+              </div>
               <a
-                href={`${process.env.NEXT_PUBLIC_STORAGE}/${metaData?.file_path}`}
+                href={storageUrl}
                 download
-                className="rounded-full bg-white/90 p-1.5 text-gray-600 hover:bg-white hover:text-gray-900"
+                className="flex size-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900"
               >
                 <Download className="size-4" />
               </a>
             </div>
           </div>
-        </div>
-      )
+        )
 
-    case 'file':
-      return (
-        <div className="group max-w-[300px] overflow-hidden rounded-lg border bg-white shadow-sm transition-all duration-200 hover:shadow-md">
-          <div className="flex items-center gap-3 p-3">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
-              <FileText className="size-5 text-primary" />
-            </div>
-            <div className="flex-1 truncate">
-              <p className="truncate text-sm font-medium">
-                {metaData?.file_name || 'File đính kèm'}
-              </p>
-              <p className="text-xs text-gray-500">
-                {metaData?.file_size
-                  ? `${(metaData.file_size / 1024 / 1024).toFixed(2)} MB`
-                  : 'Unknown size'}
-              </p>
-            </div>
-            <a
-              href={`${process.env.NEXT_PUBLIC_STORAGE}/${metaData?.file_path}`}
-              download
-              className="flex size-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-            >
-              <Download className="size-4" />
-            </a>
-          </div>
-        </div>
-      )
-
-    default:
-      return message.text ? (
-        <div className="whitespace-pre-wrap text-sm">{message.text}</div>
-      ) : null
+      default:
+        return null
+    }
   }
+
+  return (
+    <div className="relative">
+      {files.length > 1 && (
+        <div className="absolute z-10 flex w-full justify-between px-2 py-1">
+          {activeIndex > 0 && (
+            <button
+              onClick={handlePrevFile}
+              className="rounded-full bg-black/50 p-1 text-white"
+            >
+              {'<'}
+            </button>
+          )}
+          {activeIndex < files.length - 1 && (
+            <button
+              onClick={handleNextFile}
+              className="ml-auto rounded-full bg-black/50 p-1 text-white"
+            >
+              {'>'}
+            </button>
+          )}
+        </div>
+      )}
+
+      {renderFilePreview(files[activeIndex])}
+
+      {files.length > 1 && (
+        <div className="mt-1 flex justify-center space-x-1">
+          {files.map((_, index) => (
+            <div
+              key={index}
+              className={`size-1.5 rounded-full ${
+                index === activeIndex ? 'bg-primary' : 'bg-gray-300'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const MessageContent = ({ message }: { message: IMessage }) => {
+  const files: FileMetaData[] = Array.isArray(message.meta_data)
+    ? message.meta_data.map((file) => ({
+        ...file,
+        file_name: file.file_name || '',
+        file_size: file.file_size || 0,
+        file_type: file.file_type || '',
+      }))
+    : message.meta_data
+      ? [message.meta_data]
+      : []
+
+  if (files.length === 0) {
+    return message.text ? (
+      <div className="whitespace-pre-wrap text-sm">{message.text}</div>
+    ) : null
+  }
+
+  return (
+    <div>
+      <FileMediaPreview files={files} type={message.type} />
+      {message.text && (
+        <div className="mt-2 whitespace-pre-wrap text-sm">{message.text}</div>
+      )}
+    </div>
+  )
 }
 
 const getTextMessageWidth = (text: string) => {

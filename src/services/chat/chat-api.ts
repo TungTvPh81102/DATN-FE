@@ -67,8 +67,18 @@ export const chatApi = {
     }
 
     if (data.file && data.file.length > 0) {
-      formData.append('file', data.file[0].blob)
-      formData.append('type', data.file[0].type)
+      const fileType = data.file[0].type
+      const allSameType = data.file.every((file: any) => file.type === fileType)
+
+      if (!allSameType) {
+        throw new Error('Chỉ được phép gửi các file cùng loại')
+      }
+
+      data.file.forEach((file: any, index: number) => {
+        formData.append(`files[${index}]`, file.blob)
+      })
+
+      formData.append('type', fileType)
     }
 
     return await api.post(`${prefix}/send-message`, formData, {
