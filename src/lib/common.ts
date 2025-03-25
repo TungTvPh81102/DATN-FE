@@ -148,3 +148,12 @@ export const generateRandomCode = (length: number): string => {
   }
   return result
 }
+
+export const formatCreatedDatePost = (isoString: string) => {
+  const date = new Date(isoString)
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  })
+}

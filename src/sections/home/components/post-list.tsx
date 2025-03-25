@@ -2,79 +2,16 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { useGetTopPosts } from '@/hooks/post/useGetTopPosts'
+import { PostItemSkeleton } from '@/sections/home/components/top-posts-skeleton'
+import { formatCreatedDatePost } from '@/lib/common'
 
 interface PostListProps {
   className?: string
   title: string
   description?: string
 }
-
-export const fakePosts = [
-  {
-    imageUrl: '/assets/images/blog/blog-01.jpg',
-    category: 'Development',
-    title: 'The Technical Certifications That Matter Most for the Future',
-    link: 'blog-single.html',
-    date: '06 April 2024',
-    commentsCount: 14,
-    author: 'Esther Howard',
-    authorLink: '#',
-  },
-  {
-    imageUrl: '/assets/images/blog/blog-02.jpg',
-    category: 'Development',
-    title: 'How to Become a Web Designer: A Comprehensive Guide',
-    link: 'blog-single.html',
-    date: '06 April 2024',
-    commentsCount: 14,
-    author: 'Floyd Miles',
-    authorLink: '#',
-  },
-  {
-    imageUrl: '/assets/images/blog/blog-02.jpg',
-    category: 'Development',
-    title: 'How to Become a Web Designer: A Comprehensive Guide',
-    link: 'blog-single.html',
-    date: '06 April 2024',
-    commentsCount: 14,
-    author: 'Floyd Miles',
-    authorLink: '#',
-  },
-  {
-    imageUrl: '/assets/images/blog/blog-01.jpg',
-    category: 'Development',
-    title: 'The Technical Certifications That Matter Most for the Future',
-    link: 'blog-single.html',
-    date: '06 April 2024',
-    commentsCount: 14,
-    author: 'Esther Howard',
-    authorLink: '#',
-  },
-  {
-    imageUrl: '/assets/images/blog/blog-02.jpg',
-    category: 'Development',
-    title: 'How to Become a Web Designer: A Comprehensive Guide',
-    link: 'blog-single.html',
-    date: '06 April 2024',
-    commentsCount: 14,
-    author: 'Floyd Miles',
-    authorLink: '#',
-  },
-  {
-    imageUrl: '/assets/images/blog/blog-02.jpg',
-    category: 'Development',
-    title: 'How to Become a Web Designer: A Comprehensive Guide',
-    link: 'blog-single.html',
-    date: '06 April 2024',
-    commentsCount: 14,
-    author: 'Floyd Miles',
-    authorLink: '#',
-  },
-  // Add more posts here
-]
 
 const PostList = ({ title, description }: PostListProps) => {
   const { data, isLoading } = useGetTopPosts()
@@ -107,71 +44,106 @@ const PostList = ({ title, description }: PostListProps) => {
               </div>
             </div>
 
-            <Swiper
-              spaceBetween={28}
-              slidesPerView={4}
-              loop={true}
-              className="swiper-container tf-sw-mobile wow fadeInUp"
-              data-wow-delay="0.4s"
-              modules={[Pagination]}
-              pagination={{ clickable: true }}
-              autoplay={{ delay: 5000 }}
-              breakpoints={{
-                0: {
-                  slidesPerView: 1,
-                  spaceBetween: 12,
-                },
-                768: {
-                  slidesPerView: 2,
-                  spaceBetween: 24,
-                },
-                1024: {
-                  slidesPerView: 3,
-                  spaceBetween: 30,
-                },
-              }}
-            >
-              {fakePosts.map((post, index) => (
-                <SwiperSlide className="swiper-slide" key={index}>
-                  <div className="blog-article-item hover-img">
-                    <div className="article-thumb image-wrap">
-                      <Image
-                        width={329}
-                        height={260}
-                        className="lazyload"
-                        data-src={post.imageUrl}
-                        src={post.imageUrl}
-                        alt={post.title}
-                      />
-                    </div>
-                    <div className="article-content">
-                      <div className="article-label">
-                        <a href={post.category} className="">
-                          {post.category}
-                        </a>
+            {isLoading ? (
+              <Swiper
+                spaceBetween={28}
+                slidesPerView={3}
+                loop={true}
+                className="swiper-container tf-sw-mobile wow fadeInUp"
+                data-wow-delay="0.4s"
+                breakpoints={{
+                  0: {
+                    slidesPerView: 1,
+                    spaceBetween: 12,
+                  },
+                  768: {
+                    slidesPerView: 2,
+                    spaceBetween: 24,
+                  },
+                  1024: {
+                    slidesPerView: 3,
+                    spaceBetween: 30,
+                  },
+                }}
+              >
+                {[...Array(3)].map((_, index) => (
+                  <SwiperSlide key={index} className="swiper-slide">
+                    <PostItemSkeleton />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            ) : data?.data?.length === 0 ? (
+              <p className="text-center text-gray-500">Danh sách trống</p>
+            ) : (
+              <Swiper
+                spaceBetween={25}
+                slidesPerView={3}
+                loop={true}
+                className="swiper-container slider-courses-5 wow fadeInUp"
+                data-wow-delay="0.3s"
+                breakpoints={{
+                  0: {
+                    slidesPerView: 2,
+                    spaceBetween: 12,
+                  },
+                  768: {
+                    slidesPerView: 3,
+                    spaceBetween: 24,
+                  },
+                  1024: {
+                    slidesPerView: 5,
+                    spaceBetween: 30,
+                  },
+                }}
+              >
+                {data?.data?.map((post) => (
+                  <SwiperSlide className="swiper-slide" key={post?.id}>
+                    <div className="blog-article-item hover-img">
+                      <div className="article-thumb image-wrap">
+                        <Image
+                          width={329}
+                          height={260}
+                          className="lazyload"
+                          data-src={post?.thumbnail ?? ''}
+                          src={post?.thumbnail ?? ''}
+                          alt={post?.title}
+                        />
                       </div>
-                      <h5 className="fw-5">
-                        <a href={post.link}>{post.title}</a>
-                      </h5>
-                      <div className="meta">
-                        <div className="meta-item">
-                          <i className="flaticon-calendar" />
-                          <p>{post.date}</p>
+                      <div className="article-content">
+                        <div className="article-label">
+                          <a href={post?.category} className="">
+                            {post?.category}
+                          </a>
                         </div>
-                        <div className="meta-item">
-                          <i className="flaticon-message" />
-                          <p>{post.commentsCount}</p>
+                        <h5 className="fw-5">
+                          <a href="#" className="block truncate">
+                            {post?.title}
+                          </a>
+                        </h5>
+                        <div className="meta">
+                          <div className="meta-item">
+                            <i className="flaticon-calendar" />
+                            <p>
+                              {formatCreatedDatePost(
+                                post?.created_at.toString()
+                              )}
+                            </p>
+                          </div>
+                          <div className="meta-item">
+                            <i className="flaticon-message" />
+                            <p>{post?.total_comments}</p>
+                          </div>
+                          <a href={post?.author} className="meta-item">
+                            <i className="flaticon-user-1" />
+                            <p>{post.author}</p>
+                          </a>
                         </div>
-                        <a href={post.authorLink} className="meta-item">
-                          <i className="flaticon-user-1" />
-                          <p>{post.author}</p>
-                        </a>
                       </div>
                     </div>
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
           </div>
         </div>
       </div>
