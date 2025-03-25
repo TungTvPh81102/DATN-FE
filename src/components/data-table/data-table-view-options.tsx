@@ -29,6 +29,15 @@ export function DataTableViewOptions<TData>({
 }: DataTableViewOptionsProps<TData>) {
   const triggerRef = React.useRef<HTMLButtonElement>(null)
 
+  const showViewOptions = React.useMemo(() => {
+    return table.getAllColumns().some((column) => column.getCanHide())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (!showViewOptions) {
+    return null
+  }
+
   return (
     <Popover modal>
       <PopoverTrigger asChild>

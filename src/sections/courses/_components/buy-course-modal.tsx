@@ -193,7 +193,12 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-4xl">
+        <DialogContent
+          className="sm:max-w-4xl"
+          onOpenAutoFocus={(e) => {
+            e.preventDefault()
+          }}
+        >
           <div className="grid grid-cols-2 gap-8">
             <div>
               <DialogHeader>

@@ -16,7 +16,13 @@ export const instructorQuizApi = {
     const res = await api.get(`${prefix}/${questionId}/show-quiz-question`)
     return res.data
   },
-  createQuestion: (quizId: number, payload: StoreQuestionPayload) => {
+  createQuestion: ({
+    quizId,
+    payload,
+  }: {
+    quizId: number
+    payload: StoreQuestionPayload
+  }) => {
     return api.post(`${prefix}/${quizId}/store-quiz-question-single`, payload, {
       headers: {
         'Content-Type': 'multipart/form-data',
