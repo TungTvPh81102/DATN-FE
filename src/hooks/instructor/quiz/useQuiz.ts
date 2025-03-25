@@ -24,28 +24,9 @@ export const useGetQuestion = (id?: string) => {
 }
 
 export const useCreateQuestion = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({
-      quizId,
-      payload,
-    }: {
-      quizId: number
-      payload: StoreQuestionPayload
-    }) => instructorQuizApi.createQuestion(quizId, payload),
-    onSuccess: async (res: any) => {
-      await queryClient.invalidateQueries({
-        queryKey: [QueryKey.INSTRUCTOR_QUIZ],
-      })
-      await queryClient.invalidateQueries({
-        queryKey: [QueryKey.INSTRUCTOR_QUESTION],
-      })
-      toast.success(res.message)
-    },
-    onError: (error: any) => {
-      toast.error(error.message)
-    },
+  return useToastMutation({
+    mutationFn: instructorQuizApi.createQuestion,
+    queryKeys: [[QueryKey.INSTRUCTOR_QUIZ], [QueryKey.VALIDATE_COURSE]],
   })
 }
 
@@ -80,14 +61,14 @@ export const useUpdateQuestion = () => {
 export const useDeleteQuestion = () => {
   return useToastMutation({
     mutationFn: instructorQuizApi.deleteQuestion,
-    queryKey: [QueryKey.INSTRUCTOR_QUIZ],
+    queryKeys: [[QueryKey.INSTRUCTOR_QUIZ], [QueryKey.VALIDATE_COURSE]],
   })
 }
 
 export const useImportQuestion = () => {
   return useToastMutation({
     mutationFn: instructorQuizApi.importQuestion,
-    queryKey: [QueryKey.INSTRUCTOR_QUIZ],
+    queryKeys: [[QueryKey.INSTRUCTOR_QUIZ], [QueryKey.VALIDATE_COURSE]],
   })
 }
 

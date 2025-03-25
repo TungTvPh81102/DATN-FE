@@ -59,6 +59,7 @@ const FormCombobox = ({
                     'justify-between',
                     !field.value && 'text-muted-foreground'
                   )}
+                  disabled={isLoading || field.disabled}
                 >
                   {field.value
                     ? (options || []).find(

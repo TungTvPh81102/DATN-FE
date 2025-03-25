@@ -43,7 +43,7 @@ export function NavMain() {
                   tooltip={{
                     children: item.title,
                     className:
-                      'bg-sidebar text-sidebar-foreground border shadow-md text-sm py-0 h-7 flex items-center ',
+                      'bg-sidebar text-sidebar-foreground border shadow-md text-sm',
                   }}
                   asChild
                 >

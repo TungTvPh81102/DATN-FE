@@ -280,7 +280,7 @@ const CourseObjective = ({ courseObjective }: { courseObjective: any }) => {
                 {requirementFields.map((field, index) => (
                   <SortableItem key={field.id} value={field.id} asChild>
                     <li className="pl-1">
-                      <div className="mt-3 grid grid-cols-[1fr,auto,auto] items-center gap-2">
+                      <div className="mt-3 grid grid-cols-[1fr,auto,auto] gap-2">
                         <FormField
                           control={form.control}
                           name={`requirements.${index}.value`}
@@ -372,7 +372,7 @@ const CourseObjective = ({ courseObjective }: { courseObjective: any }) => {
                 {qaFields.map((field, index) => (
                   <SortableItem key={field.id} value={field.id} asChild>
                     <li className="space-y-3 pl-1">
-                      <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2">
+                      <div className="grid grid-cols-[1fr,auto,auto] gap-2">
                         <FormField
                           control={form.control}
                           name={`qa.${index}.question`}

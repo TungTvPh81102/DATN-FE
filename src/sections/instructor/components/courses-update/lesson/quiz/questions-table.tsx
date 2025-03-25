@@ -98,11 +98,7 @@ export const QuestionsTable = ({
       </div>
 
       <DataTable table={table} setData={setQuestions}>
-        <DataTableToolbar
-          table={table}
-          filterFields={filterFields}
-          showViewOptions={false}
-        >
+        <DataTableToolbar table={table} filterFields={filterFields}>
           <QuestionsTableToolbarActions table={table} quizId={quizId} />
         </DataTableToolbar>
       </DataTable>

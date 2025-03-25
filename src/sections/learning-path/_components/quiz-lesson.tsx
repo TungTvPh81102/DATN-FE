@@ -27,6 +27,8 @@ import {
 } from '@/components/ui/form'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { toast } from 'react-toastify'
+import HtmlRenderer from '@/components/shared/html-renderer'
+import Image from 'next/image'
 
 type Props = {
   lesson: ILesson
@@ -175,20 +177,19 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
                 </div>
 
                 {question.image && (
-                  <div className="mt-4">
-                    <img
+                  <div className="relative mt-4 h-80">
+                    <Image
                       src={`${process.env.NEXT_PUBLIC_STORAGE}/${question.image}`}
                       alt={`Hình ảnh cho câu hỏi ${currentQuestion + 1}`}
-                      className="max-h-80 rounded-md object-contain"
+                      className="rounded-md object-contain"
+                      fill
                     />
                   </div>
                 )}
 
                 {/* Display question description if available */}
                 {question.description && (
-                  <div className="mt-2 text-sm text-muted-foreground">
-                    <p>{question.description}</p>
-                  </div>
+                  <HtmlRenderer html={question.description} className="mt-2" />
                 )}
 
                 <div className="mt-4">

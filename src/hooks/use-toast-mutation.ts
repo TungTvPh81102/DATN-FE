@@ -17,7 +17,7 @@ export const useToastMutation = ({
   mutationFn: MutationFunction<any, any>
   queryKey?: string[]
   queryKeys?: string[][]
-  onSuccess?: () => void
+  onSuccess?: (data: any) => void
   onError?: (error: any) => void
 }) => {
   const queryClient = useQueryClient()
@@ -33,7 +33,7 @@ export const useToastMutation = ({
         },
       })
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       if (queryKey) {
         queryClient.invalidateQueries({ queryKey })
       }
@@ -43,7 +43,7 @@ export const useToastMutation = ({
           queryClient.invalidateQueries({ queryKey })
         })
       }
-      onSuccess?.()
+      onSuccess?.(data)
     },
     onError,
   })
