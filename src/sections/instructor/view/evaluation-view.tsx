@@ -99,7 +99,7 @@ const EvaluationView = () => {
           <div className="flex items-center space-x-2">
             <Badge
               variant="outline"
-              className="border-blue-200 bg-blue-50 text-blue-700"
+              className="border-orange-200 bg-orange-50 text-orange-600"
             >
               Khoá học
             </Badge>

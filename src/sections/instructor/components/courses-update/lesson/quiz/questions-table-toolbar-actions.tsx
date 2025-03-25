@@ -21,9 +21,10 @@ import { useExportQuiz } from '@/hooks/instructor/quiz/useQuiz'
 interface Props {
   table: Table<Question>
   quizId: number
+  disableAdd?: boolean
 }
 
-export function QuestionsTableToolbarActions({ quizId }: Props) {
+export function QuestionsTableToolbarActions({ quizId, disableAdd }: Props) {
   const [isOpenAddQuestion, setIsOpenAddQuestion] = useState(false)
   const [isOpenImportQuestion, setIsOpenImportQuestion] = useState(false)
 
@@ -53,6 +54,7 @@ export function QuestionsTableToolbarActions({ quizId }: Props) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
+              disabled={disableAdd}
               aria-label="Open menu"
               size="sm"
               className="data-[state=open]:bg-primary/80"

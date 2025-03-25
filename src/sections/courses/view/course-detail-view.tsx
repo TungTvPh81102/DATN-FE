@@ -745,25 +745,28 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
                       type="button"
                       className="tf-btn add-to-cart cursor-pointer"
                     >
-                      {courseDetails?.user_id === user?.id ||
-                      courseDetails?.is_enrolled
-                        ? 'Đã sở hữu khoá học'
-                        : courseDetails?.is_free === 1
-                          ? 'Tham gia ngay'
-                          : 'Mua khoá học'}
+                      {courseDetails?.user_id === user?.id
+                        ? 'Đây là khoá học của bạn'
+                        : courseDetails?.is_enrolled
+                          ? 'Đã sở hữu khoá học'
+                          : courseDetails?.is_free === 1
+                            ? 'Tham gia ngay'
+                            : 'Mua khoá học'}
                       <i className="icon-shopcart fs-18"></i>
                     </button>
                     <div className="course-list">
                       <h5 className="fw-5">Khoá học gồm có:</h5>
                       <ul className="course-benefit-list">
-                        <li className="course-benefit-item">
-                          <i className="flaticon-play-1" />
-                          <p>
-                            {formatDuration(
-                              courseDetails?.total_video_duration ?? 0
-                            )}
-                          </p>
-                        </li>
+                        {(courseDetails?.total_video_duration ?? 0) > 0 && (
+                          <li className="course-benefit-item">
+                            <i className="flaticon-play-1" />
+                            <p>
+                              {formatDuration(
+                                courseDetails?.total_video_duration ?? 0
+                              )}
+                            </p>
+                          </li>
+                        )}
                         <li className="course-benefit-item">
                           <i className="flaticon-document" />
                           <p>{courseDetails?.lessons_count} bài học</p>

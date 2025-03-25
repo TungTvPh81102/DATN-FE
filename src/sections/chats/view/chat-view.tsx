@@ -71,7 +71,7 @@ const ChatView = () => {
   const [selectedChannel, setSelectedChannel] = useState<IChannel | null>(
     selectedChannelLocal
   )
-
+  const [activeUsers, setActiveUsers] = useState<any[]>([])
   const [currentUser, setCurrentUser] = useState<number | null>(null)
 
   const [showSearch, setShowSearch] = useState(false)
@@ -89,6 +89,8 @@ const ChatView = () => {
     useGetMessage(selectedChannel?.conversation_id ?? 0)
   const { mutate: senderMessage, isPending: isPendingSendMessage } =
     useSendMessage()
+
+  console.log(getMessageData)
 
   useEffect(() => {
     if (getMessageData && selectedChannel) {
@@ -216,9 +218,11 @@ const ChatView = () => {
   useEffect(() => {
     if (selectedChannel) {
       const conversationId = selectedChannel.conversation_id
-      const channel = echo.private(`conversation.${conversationId}`)
+      const channel = echo.join(`conversation.${conversationId}`)
 
       const handleNewMessage = (event: any) => {
+        console.log(event)
+
         setChats((prevChats) => ({
           ...prevChats,
           [conversationId]: [
@@ -251,7 +255,23 @@ const ChatView = () => {
         }))
       }
 
-      channel.listen('.MessageSent', handleNewMessage)
+      channel
+        .listen('.MessageSent', handleNewMessage)
+        .here((users: any[]) => {
+          console.log('Current users:', users)
+          setActiveUsers(users)
+        })
+        .joining((user: any) => {
+          console.log('User joining:', user)
+          setActiveUsers((prev) => {
+            const exists = prev.some((u) => u.id === user.id)
+            return exists ? prev : [...prev, user]
+          })
+        })
+        .leaving((user: any) => {
+          console.log('User leaving:', user)
+          setActiveUsers((prev) => prev.filter((u) => u.id !== user.id))
+        })
 
       return () => {
         channel.stopListening('.MessageSent')
@@ -309,6 +329,8 @@ const ChatView = () => {
     else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
     else return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
   }
+
+  console.log(activeUsers)
 
   return (
     <>

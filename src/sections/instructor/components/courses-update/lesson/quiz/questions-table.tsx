@@ -99,7 +99,11 @@ export const QuestionsTable = ({
 
       <DataTable table={table} setData={setQuestions}>
         <DataTableToolbar table={table} filterFields={filterFields}>
-          <QuestionsTableToolbarActions table={table} quizId={quizId} />
+          <QuestionsTableToolbarActions
+            table={table}
+            quizId={quizId}
+            disableAdd={questions?.length >= 50}
+          />
         </DataTableToolbar>
       </DataTable>
 

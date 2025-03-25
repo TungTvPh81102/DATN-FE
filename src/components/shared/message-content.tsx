@@ -27,7 +27,21 @@ const MessageContent = ({ message }: { message: IMessage }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
-  if (!message.meta_data && !message.content) return null
+  const getFileInfo = () => {
+    if (!message.meta_data) return null
+
+    if (Array.isArray(message.meta_data)) {
+      return message.meta_data.find(
+        (item) => item.file_path || item.media_id || item.file_name
+      )
+    }
+
+    return message.meta_data
+  }
+
+  const metaData = getFileInfo()
+
+  if (!metaData && !message.content) return null
 
   const handleVideoClick = () => {
     if (videoRef.current) {
@@ -48,14 +62,18 @@ const MessageContent = ({ message }: { message: IMessage }) => {
             <Image
               width={300}
               height={200}
-              src={`${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.file_path}`}
-              alt="Image message"
+              src={`${process.env.NEXT_PUBLIC_STORAGE}/${metaData?.file_path}`}
+              alt={
+                metaData?.file_name ||
+                metaData?.media_id?.toString() ||
+                'Image message'
+              }
               className="max-w-[300px] rounded-lg object-cover transition-transform duration-200"
               loading="lazy"
             />
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
               <a
-                href={`${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.file_path}`}
+                href={`${process.env.NEXT_PUBLIC_STORAGE}/${metaData?.file_path}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-white"
@@ -83,8 +101,8 @@ const MessageContent = ({ message }: { message: IMessage }) => {
               onEnded={() => setIsPlaying(false)}
             >
               <source
-                src={`${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.file_path}`}
-                type="video/mp4"
+                src={`${process.env.NEXT_PUBLIC_STORAGE}/${metaData?.file_path}`}
+                type={metaData?.file_type || 'video/mp4'}
               />
             </video>
             {!isPlaying && (
@@ -105,7 +123,7 @@ const MessageContent = ({ message }: { message: IMessage }) => {
                 </button>
               )}
               <a
-                href={`${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.file_path}`}
+                href={`${process.env.NEXT_PUBLIC_STORAGE}/${metaData?.file_path}`}
                 download
                 className="rounded-full bg-white/90 p-1.5 text-gray-600 hover:bg-white hover:text-gray-900"
               >
@@ -125,16 +143,16 @@ const MessageContent = ({ message }: { message: IMessage }) => {
             </div>
             <div className="flex-1 truncate">
               <p className="truncate text-sm font-medium">
-                {message.meta_data?.file_name || 'File đính kèm'}
+                {metaData?.file_name || 'File đính kèm'}
               </p>
               <p className="text-xs text-gray-500">
-                {message.meta_data?.file_size
-                  ? `${(message.meta_data.file_size / 1024 / 1024).toFixed(2)} MB`
+                {metaData?.file_size
+                  ? `${(metaData.file_size / 1024 / 1024).toFixed(2)} MB`
                   : 'Unknown size'}
               </p>
             </div>
             <a
-              href={`${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.file_path}`}
+              href={`${process.env.NEXT_PUBLIC_STORAGE}/${metaData?.file_path}`}
               download
               className="flex size-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900"
             >
@@ -150,8 +168,6 @@ const MessageContent = ({ message }: { message: IMessage }) => {
       ) : null
   }
 }
-
-export default MessageContent
 
 const getTextMessageWidth = (text: string) => {
   if (!text) return 'auto'

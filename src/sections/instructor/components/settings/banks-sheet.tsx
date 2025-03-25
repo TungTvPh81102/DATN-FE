@@ -54,7 +54,6 @@ const BanksSheet = ({ showTrigger = true, ...props }: Props) => {
               Quản lý tài khoản ngân hàng của bạn
             </SheetDescription>
           </SheetHeader>
-
           <div className="mt-4">
             {!isLoading ? (
               <BankCarousel
@@ -67,9 +66,11 @@ const BanksSheet = ({ showTrigger = true, ...props }: Props) => {
               <BankCarouselSkeleton />
             )}
           </div>
-
-          <div className="mt-4 text-center">
+          <div
+            className={`mt-4 text-center ${data && data.length >= 3 ? 'hidden' : ''}`}
+          >
             <Button
+              disabled={data && data.length >= 3}
               onClick={() => setOpenSheet(true)}
               variant="outline"
               className="border-primary text-primary hover:bg-primary/10 hover:text-primary"
