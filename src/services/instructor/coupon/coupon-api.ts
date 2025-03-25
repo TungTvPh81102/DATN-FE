@@ -18,7 +18,13 @@ export const instructorCouponApi = {
   updateCoupon: async (id: string, data: CouponPayload) => {
     return await api.put(`${prefix}/${id}`, data)
   },
-  toggleStatus: async (id: string, action: string) => {
+  toggleStatus: async ({
+    id,
+    action,
+  }: {
+    id: number
+    action: 'enable' | 'disable'
+  }) => {
     return await api.put(`${prefix}/${id}/${action}`)
   },
 }

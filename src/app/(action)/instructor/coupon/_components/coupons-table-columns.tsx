@@ -18,7 +18,21 @@ import { dateRangeFilterFn } from '@/lib/data-table'
 import { Coupon, DiscountType, DiscountTypeMap } from '@/types'
 import Link from 'next/link'
 
-export function getColumns(): ColumnDef<Coupon>[] {
+interface Props {
+  toggleStatus: ({
+    id,
+    action,
+  }: {
+    id: number
+    action: 'enable' | 'disable'
+  }) => void
+  isTogglingStatus: boolean
+}
+
+export function getColumns({
+  toggleStatus,
+  isTogglingStatus,
+}: Props): ColumnDef<Coupon>[] {
   return [
     {
       accessorKey: 'code',
@@ -119,35 +133,19 @@ export function getColumns(): ColumnDef<Coupon>[] {
       cell: ({ row }) => {
         const coupon = row.original
 
-        // const handleToggle = (checked: boolean) => {
-        //   const action = checked ? 'enable' : 'disable'
-
-        //   toggleStatus(
-        //     {
-        //       id: coupon.id,
-        //       action,
-        //     },
-        //     {
-        //       onSuccess: async (res: any) => {
-        //         toast.success(res.message)
-
-        //         await queryClient.invalidateQueries({
-        //           queryKey: [QueryKey.INSTRUCTOR_COUPON],
-        //         })
-        //       },
-        //       onError: (error: any) => {
-        //         toast.error(error.message)
-        //       },
-        //     }
-        //   )
-        // }
+        const handleToggle = (checked: boolean) => {
+          toggleStatus({
+            id: coupon.id,
+            action: checked ? 'enable' : 'disable',
+          })
+        }
 
         return (
           <div className="flex items-center space-x-2">
             <Switch
               checked={coupon.status == 1}
-              // onCheckedChange={handleToggle}
-              // disabled={isPendingToggleStatus}
+              onCheckedChange={handleToggle}
+              disabled={isTogglingStatus}
             />
             <span className="text-sm font-medium">
               {coupon.status == 1 ? (

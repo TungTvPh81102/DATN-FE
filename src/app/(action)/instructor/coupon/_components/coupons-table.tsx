@@ -3,7 +3,10 @@
 import { DataTable } from '@/components/data-table'
 import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-advanced-toolbar'
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton'
-import { useGetCoupons } from '@/hooks/instructor/coupon/useCoupon'
+import {
+  useGetCoupons,
+  useToggleStatus,
+} from '@/hooks/instructor/coupon/useCoupon'
 import { useDataTable } from '@/hooks/use-data-table'
 import { Coupon, DiscountTypeMap } from '@/types'
 import { DataTableAdvancedFilterField } from '@/types/data-table'
@@ -60,8 +63,16 @@ const advancedFilterFields: DataTableAdvancedFilterField<Coupon>[] = [
 
 export const CouponsTable = () => {
   const { data, isLoading } = useGetCoupons()
-
-  const columns = useMemo(() => getColumns(), [])
+  const { mutate: toggleStatus, isPending: isTogglingStatus } =
+    useToggleStatus()
+  const columns = useMemo(
+    () =>
+      getColumns({
+        toggleStatus,
+        isTogglingStatus,
+      }),
+    []
+  )
 
   const { table } = useDataTable({
     data: data ?? [],

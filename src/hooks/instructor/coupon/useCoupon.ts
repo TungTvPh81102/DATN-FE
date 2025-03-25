@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { CouponPayload } from '@/validations/coupon'
 import QueryKey from '@/constants/query-key'
 import { instructorCouponApi } from '@/services/instructor/coupon/coupon-api'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 
 export const useGetCoupons = () => {
   return useQuery({
@@ -33,8 +34,8 @@ export const useUpdateCoupon = () => {
 }
 
 export const useToggleStatus = () => {
-  return useMutation({
-    mutationFn: ({ id, action }: { id: string; action: string }) =>
-      instructorCouponApi.toggleStatus(id, action),
+  return useToastMutation({
+    mutationFn: instructorCouponApi.toggleStatus,
+    queryKey: [QueryKey.INSTRUCTOR_COUPON],
   })
 }
