@@ -11,6 +11,9 @@ import {
 } from '@/hooks/comment-blog/useCommentBlog'
 import { Button } from '@/components/ui/button'
 import { Send } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/stores/useAuthStore'
+import Swal from 'sweetalert2'
 
 interface CommentFormProps {
   postId?: string
@@ -42,6 +45,9 @@ const CommentForm = ({
     resolver: zodResolver(isReply ? replyBlogCommentSchema : blogCommentSchema),
   })
 
+  const { user } = useAuthStore()
+  const router = useRouter()
+
   const storeComment = useStoreCommentBlog()
   const storeReply = useStoreReplyCommentBlog()
 
@@ -52,6 +58,21 @@ const CommentForm = ({
   }, [isReply, replyToUser, setValue])
 
   const onSubmit = async (data: any) => {
+    if (!user) {
+      Swal.fire({
+        title: 'Thông báo',
+        text: 'Bạn phải đăng nhập mới được bình luận!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Đăng nhập',
+        cancelButtonText: 'Hủy',
+      }).then((result: any) => {
+        if (result.isConfirmed) {
+          router.push('/sign-in')
+        }
+      })
+      return
+    }
     try {
       if (isReply && commentId) {
         await storeReply.mutateAsync({
@@ -77,7 +98,7 @@ const CommentForm = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="relative">
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-blue-500">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow focus-within:ring-1 focus-within:ring-orange-500">
         <textarea
           {...register('content')}
           rows={3}

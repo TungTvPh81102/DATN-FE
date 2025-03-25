@@ -13,7 +13,7 @@ export const updateProfile = z.object({
     .min(10, 'Số điện thoại tối thiểu 10 số!')
     .max(15, 'Số diện thoại không được vượt quá 15 số')
     .optional(),
-  address: z.string().optional(),
+  address: z.string().min(1, 'Nhập địa chỉ của bạn'),
   about_me: z.string().optional(),
   avatar: z
     .any()

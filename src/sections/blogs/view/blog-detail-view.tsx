@@ -2,21 +2,21 @@
 
 import React from 'react'
 import { Loader2 } from 'lucide-react'
-
 import { useGetBlogBySlug } from '@/hooks/blog/useBlog'
-
 import BlogDetailPost from '../_components/blog-detail/post'
 import BlogDetailProfileItem from '../_components/blog-detail/profile-item'
 import BlogDetaiCommentsList from '../_components/blog-detail/comment-list'
 import BlogDetailSharePost from '../_components/blog-detail/share-post'
 import BlogDetailSimilarPosts from '../_components/blog-detail/similar-posts'
 import Image from 'next/image'
+import { notFound } from 'next/navigation'
 
 const BlogDetailView = ({ slug }: { slug: string }) => {
-  const { data: blogDetail, isLoading: isLoadingBlogDetail } =
-    useGetBlogBySlug(slug)
-  const postId = blogDetail?.data?.id
-  const categorySlug = blogDetail?.data?.category?.slug
+  const {
+    data: blogDetail,
+    isLoading: isLoadingBlogDetail,
+    error,
+  } = useGetBlogBySlug(slug)
 
   if (isLoadingBlogDetail) {
     return (
@@ -25,6 +25,13 @@ const BlogDetailView = ({ slug }: { slug: string }) => {
       </div>
     )
   }
+
+  if (error || !blogDetail?.data) {
+    return notFound()
+  }
+
+  const postId = blogDetail?.data?.id
+  const categorySlug = blogDetail?.data?.category?.slug
 
   return (
     <div>
