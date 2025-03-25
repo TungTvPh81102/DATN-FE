@@ -1,16 +1,13 @@
 import { CouponPayload } from '@/validations/coupon'
 import api from '@/configs/api'
+import { Coupon } from '@/types'
 
 const prefix = 'instructor/coupons'
 
 export const instructorCouponApi = {
-  getCoupons: async (params?: {
-    fromDate?: string | undefined
-    toDate?: string | undefined
-  }) => {
-    return await api.get(`${prefix}`, {
-      params,
-    })
+  getCoupons: async (): Promise<Coupon[]> => {
+    const res = await api.get(`${prefix}`)
+    return res.data
   },
   getCoupon: async (id: string) => {
     return await api.get(`${prefix}/${id}`)

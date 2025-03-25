@@ -67,7 +67,7 @@ const CouponUpdateView = ({ id }: { id: string }) => {
       start_date: undefined,
       expire_date: undefined,
       description: '',
-      max_usage: 0,
+      max_usage: 1,
     },
     values: couponDetails?.data,
   })

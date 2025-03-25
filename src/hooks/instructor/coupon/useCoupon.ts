@@ -4,13 +4,10 @@ import { CouponPayload } from '@/validations/coupon'
 import QueryKey from '@/constants/query-key'
 import { instructorCouponApi } from '@/services/instructor/coupon/coupon-api'
 
-export const useGetCoupons = (filters?: {
-  fromDate?: string | undefined
-  toDate?: string | undefined
-}) => {
+export const useGetCoupons = () => {
   return useQuery({
-    queryKey: [QueryKey.INSTRUCTOR_COUPON, filters],
-    queryFn: () => instructorCouponApi.getCoupons(filters),
+    queryKey: [QueryKey.INSTRUCTOR_COUPON],
+    queryFn: () => instructorCouponApi.getCoupons(),
   })
 }
 
