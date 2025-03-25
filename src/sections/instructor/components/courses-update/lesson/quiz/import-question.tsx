@@ -66,7 +66,7 @@ const ImportQuestion: React.FC<ImportQuestionProps> = ({
         },
       },
       {
-        onSuccess: async () => {
+        onSuccess: () => {
           setIsOpenImportQuestion(false)
           setFile(null)
         },

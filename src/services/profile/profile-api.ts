@@ -16,6 +16,9 @@ export const profileApi = {
   updateProfile: async (data: UpdateProfilePayload) => {
     const formData = new FormData()
     Object.entries(data).forEach(([key, value]) => {
+      if ((key === 'about_me') == null) {
+        formData.delete(key)
+      }
       if (key === 'avatar' && value instanceof File) {
         formData.append('avatar', value)
       } else if (typeof value === 'string' || typeof value === 'number') {

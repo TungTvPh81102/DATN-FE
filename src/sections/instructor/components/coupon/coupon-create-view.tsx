@@ -63,7 +63,7 @@ const CouponCreateView = () => {
       start_date: '',
       expire_date: '',
       description: '',
-      max_usage: 0,
+      max_usage: 1,
       status: '1',
     },
   })

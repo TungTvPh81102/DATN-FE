@@ -67,7 +67,7 @@ import 'react-quill/dist/quill.snow.css'
 const tabs = [
   { id: 'course_objectives', label: 'Mục tiêu' },
   { id: 'course_overview', label: 'Tổng quan' },
-  { id: 'practice_tests', label: 'Bài thực hành' },
+  { id: 'practice_exercise', label: 'Bài thực hành' },
 ]
 
 export const PracticalCourseUpdate = ({ slug }: { slug: string }) => {
@@ -172,7 +172,7 @@ export const PracticalCourseUpdate = ({ slug }: { slug: string }) => {
           </Badge>
         </div>
         <div className="grid gap-8 xl:grid-cols-12">
-          <div className="grid gap-x-3 gap-y-4 md:grid-cols-2 lg:grid-cols-5 xl:col-span-3 xl:grid-cols-1">
+          <div className="grid gap-x-3 gap-y-4 md:grid-cols-2 lg:grid-cols-5 xl:col-span-3 xl:flex xl:flex-col">
             <div className="flex flex-col gap-2 rounded-lg border-2 border-dashed p-4 lg:col-span-3 xl:col-span-1">
               {tabs.map((tab) => (
                 <div
@@ -243,13 +243,17 @@ export const PracticalCourseUpdate = ({ slug }: { slug: string }) => {
                     >
                       {Object?.entries(
                         validateData?.data.completion_status || {}
-                      ).map(([key, value], i) => {
-                        const typedValue = value as {
-                          status: boolean
-                          errors: string[]
-                        }
+                      )
+                        .filter(
+                          ([, value]) =>
+                            (value as { status: boolean }).status === false
+                        )
+                        .map(([key, value], i) => {
+                          const typedValue = value as {
+                            status: boolean
+                            errors: string[]
+                          }
 
-                        if (!typedValue.status) {
                           return (
                             <AccordionItem key={key} value={i + ''}>
                               <AccordionTrigger className="rounded-lg">
@@ -276,8 +280,7 @@ export const PracticalCourseUpdate = ({ slug }: { slug: string }) => {
                               ))}
                             </AccordionItem>
                           )
-                        }
-                      })}
+                        })}
                     </Accordion>
                   </SheetContent>
                 </Sheet>
@@ -308,7 +311,7 @@ export const PracticalCourseUpdate = ({ slug }: { slug: string }) => {
                 isPracticalCourse
               />
             )}
-            {activeTab === 'practice_tests' && (
+            {activeTab === 'practice_exercise' && (
               <PracticeExerciseTab
                 slug={slug}
                 chapter={courseOverviewData?.data.chapters[0]}

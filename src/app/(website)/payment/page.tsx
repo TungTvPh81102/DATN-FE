@@ -1,15 +1,12 @@
-'use client'
-
-import React from 'react'
-import { useSearchParams } from 'next/navigation'
-
 import PaymentView from '@/sections/payment/view/payment-view'
 
-const PaymentPage = () => {
-  const searchParams = useSearchParams()
-
-  const status = searchParams.get('status') || 'unknown'
-  const error = searchParams.get('error') || null
+const PaymentPage = ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined }
+}) => {
+  const status = searchParams.status || 'unknown'
+  const error = searchParams.error || null
 
   return <PaymentView status={status} error={error} />
 }

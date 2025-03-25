@@ -21,6 +21,7 @@ import { SortableDragHandle } from '@/components/ui/sortable'
 import { AnswerTypeMap, Question } from '@/types'
 import { DataTableRowAction } from '@/types/data-table'
 import Image from 'next/image'
+import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 
 interface GetColumnsProps {
   setRowAction: React.Dispatch<
@@ -38,7 +39,9 @@ export function getColumns({
   const columns: ColumnDef<Question>[] = [
     {
       accessorKey: 'question',
-      header: 'Câu hỏi',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Câu hỏi" />
+      ),
       cell: ({ row }) => {
         const question = row.original
         return (
@@ -47,8 +50,8 @@ export function getColumns({
               <Image
                 src={`${process.env.NEXT_PUBLIC_STORAGE}/${question.image}`}
                 alt={question.question}
-                width={48}
-                height={48}
+                width={128}
+                height={128}
                 className="size-12 rounded-lg object-cover"
               />
             ) : (
@@ -61,13 +64,16 @@ export function getColumns({
           </div>
         )
       },
+      enableHiding: false,
       meta: {
         className: 'pl-4',
       },
     },
     {
       accessorKey: 'answer_type',
-      header: 'Loại câu hỏi',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Loại câu hỏi" />
+      ),
       cell: ({ row }) => {
         const answer = AnswerTypeMap[row.original.answer_type]
         return (
@@ -81,6 +87,7 @@ export function getColumns({
           )
         )
       },
+      enableHiding: false,
       size: 100,
     },
   ]
@@ -131,6 +138,7 @@ export function getColumns({
           </div>
         )
       },
+      enableHiding: false,
       size: 40,
     })
   } else {
@@ -143,6 +151,7 @@ export function getColumns({
           </SortableDragHandle>
         </div>
       ),
+      enableHiding: false,
       size: 40,
     })
   }

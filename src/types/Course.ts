@@ -34,7 +34,7 @@ export interface ICourse {
   code: string
   name: string
   slug: string
-  thumbnail?: string | null
+  thumbnail: string
   intro?: string | null
   price?: number | null
   price_sale?: number | null

@@ -281,44 +281,45 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
                     type="single"
                     collapsible
                     className="space-y-4 py-4"
+                    defaultValue="0"
                   >
-                    {Object?.entries(validateData?.data.completion_status).map(
-                      ([key, value]) => {
+                    {Object?.entries(validateData?.data.completion_status || {})
+                      .filter(
+                        ([, value]) =>
+                          (value as { status: boolean }).status === false
+                      )
+                      .map(([key, value], i) => {
                         const typedValue = value as {
                           status: boolean
                           errors: string[]
                         }
-
-                        if (!typedValue.status) {
-                          return (
-                            <AccordionItem key={key} value={key}>
-                              <AccordionTrigger className="rounded-lg">
-                                {(() => {
-                                  switch (key) {
-                                    case 'course_objectives':
-                                      return 'Mục tiêu khoá học'
-                                    case 'course_overview':
-                                      return 'Trang đích của khóa học'
-                                    case 'course_curriculum':
-                                      return 'Chương trình giảng dạy'
-                                    default:
-                                      return ''
-                                  }
-                                })()}
-                              </AccordionTrigger>
-                              {typedValue.errors.map((error, index) => (
-                                <AccordionContent
-                                  key={index}
-                                  className="rounded-lg text-sm text-red-500"
-                                >
-                                  {error}
-                                </AccordionContent>
-                              ))}
-                            </AccordionItem>
-                          )
-                        }
-                      }
-                    )}
+                        return (
+                          <AccordionItem key={key} value={i + ''}>
+                            <AccordionTrigger className="rounded-lg">
+                              {(() => {
+                                switch (key) {
+                                  case 'course_objectives':
+                                    return 'Mục tiêu khoá học'
+                                  case 'course_overview':
+                                    return 'Trang đích của khóa học'
+                                  case 'course_curriculum':
+                                    return 'Chương trình giảng dạy'
+                                  default:
+                                    return ''
+                                }
+                              })()}
+                            </AccordionTrigger>
+                            {typedValue.errors.map((error, index) => (
+                              <AccordionContent
+                                key={index}
+                                className="rounded-lg text-sm text-red-500"
+                              >
+                                {error}
+                              </AccordionContent>
+                            ))}
+                          </AccordionItem>
+                        )
+                      })}
                   </Accordion>
                 </SheetContent>
               </Sheet>

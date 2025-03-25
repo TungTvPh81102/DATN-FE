@@ -394,15 +394,13 @@ const Header = () => {
                                   data-bs-dismiss="offcanvas"
                                   onClick={() => setQuery('')}
                                 >
-                                  <Avatar>
-                                    <AvatarImage
-                                      src={course?.thumbnail ?? undefined}
-                                      alt={course?.name}
-                                    />
-                                    <AvatarFallback>
-                                      {course?.name?.charAt(0).toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
+                                  <Image
+                                    src={course?.thumbnail}
+                                    alt={course?.name}
+                                    width={128}
+                                    height={128}
+                                    className="size-12 rounded-full object-cover"
+                                  />
                                   <p className="text-base">{course?.name}</p>
                                 </div>
                               </Link>

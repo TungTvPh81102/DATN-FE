@@ -46,7 +46,7 @@ export const couponSchema = z
     max_usage: z.coerce
       .number()
       .int()
-      .min(0, 'Số lần sử dụng tối đa phải lớn hơn hoặc bằng 0.')
+      .min(1, 'Số lần sử dụng tối đa phải lớn hơn hoặc bằng 1.')
       .optional(),
     status: z
       .enum(['0', '1'], {

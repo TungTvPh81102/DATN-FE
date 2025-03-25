@@ -85,7 +85,6 @@ export function useDataTable<TData>({
   const onColumnFiltersChange = (
     updaterOrValue: Updater<ColumnFiltersState>
   ) => {
-    console.log('onColumnFiltersChange')
     setColumnFilters((prev) => {
       const next =
         typeof updaterOrValue === 'function'
