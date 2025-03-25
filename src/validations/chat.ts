@@ -31,7 +31,14 @@ export const messageSchema = z.object({
       if (file instanceof File && file.size <= 10 * 1024 * 1024) return true
       return false
     }, 'File có kích thước tối đa 10MB')
-    .optional(),
+    .optional()
+    .refine((files) => {
+      if (files && files.length > 0) {
+        const firstType = files[0].type
+        return files.every((file: any) => file.type === firstType)
+      }
+      return true
+    }, 'Chỉ được phép gửi các file cùng loại'),
 })
 
 export type CreateGroupChatPayload = z.infer<typeof createGroupChatSchema>
