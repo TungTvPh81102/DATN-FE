@@ -27,7 +27,7 @@ export const CourseStatusMap: Record<
 }
 
 export interface ICourse {
-  id?: number
+  id: number
   user_id?: number
   category_id?: number
   category?: ICategory

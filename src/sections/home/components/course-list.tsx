@@ -22,6 +22,7 @@ import {
 } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { CourseItemSkeleton } from '@/components/common/CourseItemSkeleton'
+import { CourseItemRating } from '@/components/common/CourseItemRating'
 
 SwiperCore.use([Navigation, Pagination, Autoplay])
 
@@ -178,34 +179,10 @@ const CourseList = ({
                           </Link>
                         </h6>
 
-                        <div className="ratings pb-30">
-                          {course.ratings?.count > 0 ? (
-                            <>
-                              <div className="number text-lg font-bold text-gray-800">
-                                {course.ratings.average || '0.0'}
-                              </div>
-                              <div className="stars flex items-center">
-                                {[...Array(5)].map((_, index) => (
-                                  <i
-                                    key={index}
-                                    className={`icon-star-1 ${
-                                      index < Math.round(course.ratings.average)
-                                        ? 'text-yellow-500'
-                                        : 'text-gray-300'
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <div className="total text-sm text-gray-500">
-                                ({course.ratings.count})
-                              </div>
-                            </>
-                          ) : (
-                            <div className="mb-2 text-sm text-gray-500">
-                              Chưa có lượt đánh giá
-                            </div>
-                          )}
-                        </div>
+                        <CourseItemRating
+                          count={course?.ratings?.count ?? 0}
+                          average={course?.ratings?.average ?? 0}
+                        />
 
                         <Link
                           href={`/profile/${course.user.code}`}

@@ -16,9 +16,6 @@ interface PostListProps {
 const PostList = ({ title, description }: PostListProps) => {
   const { data, isLoading } = useGetTopPosts()
 
-  console.log('data', data)
-  console.log('isLoading', isLoading)
-
   return (
     <section className="section-blog pt-0">
       <div className="tf-container">
