@@ -1,6 +1,16 @@
+import { BadgeProps } from '@/components/ui/badge'
+
 export enum AnswerType {
+  SingleChoice = 'single_choice',
   MultipleChoice = 'multiple_choice',
-  OneChoice = 'single_choice',
+}
+
+export const AnswerTypeMap: Record<
+  AnswerType,
+  { label: string; badge: BadgeProps['variant'] }
+> = {
+  [AnswerType.SingleChoice]: { label: 'Một đáp án', badge: 'info' },
+  [AnswerType.MultipleChoice]: { label: 'Nhiều đáp án', badge: 'success' },
 }
 
 export interface IQuiz {
@@ -44,9 +54,9 @@ export interface Question {
   id: number
   quiz_id: number
   question: string
-  type: string
-  image: null
-  description: null | string
+  answer_type: `${AnswerType}`
+  image: string | null
+  description: string | null
   answers: Answer[]
 }
 

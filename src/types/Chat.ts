@@ -1,5 +1,3 @@
-import { IUser } from '@/types/User'
-
 export interface IMessage {
   id: number
   senderId: number
@@ -28,18 +26,26 @@ export interface IMessage {
 }
 
 export interface IChannel {
-  users: IUser[]
-  id: number
-  name: string
   avatar: string
-  owner_id?: number
   conversation_id: number
-  online?: boolean
+  id: number
+  is_online: boolean
+  name: string
+
+  // Group chat
+  online_users?: number
+  owner_id?: number
+  status?: 0 | 1
   type?: 'group' | 'direct'
-  pivot?: {
-    conversation_id: number
-  }
-  users_count: number
-  online_users: number
-  members: string[]
+  update_at?: string | Date
+  users?: {
+    id: number
+    name: string
+    avatar: string
+    pivot: {
+      conversation_id: number
+      user_id: number
+    }
+  }[]
+  users_count?: number
 }

@@ -7,6 +7,7 @@ export interface GetLessonsResponse {
   course_status: string
   total_lesson: number
   chapter_lessons: LearningPathChapterLesson[]
+  access_status: string
 }
 
 export interface LearningPathChapterLesson {

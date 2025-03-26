@@ -35,7 +35,7 @@ const DraftQuizLesson = ({ lesson }: Props) => {
             )}
             <h3 className="text-lg font-semibold">{question.question}</h3>
             <div className="mt-4 space-y-4">
-              {question.answer_type === AnswerType.OneChoice ? (
+              {question.answer_type === AnswerType.SingleChoice ? (
                 <RadioGroup className="gap-4">
                   {question.answers.map((answer, answerIndex: number) => (
                     <Label

@@ -8,7 +8,7 @@ export const instructorQuizApi = {
   downloadQuizForm: async () => {
     return await api.get(`${prefix}/download-quiz-form`)
   },
-  getQuiz: async (quizId: string): Promise<GetQuizResponse> => {
+  getQuiz: async (quizId: number): Promise<GetQuizResponse> => {
     const res = await api.get(`${prefix}/${quizId}/show-quiz`)
     return res.data
   },
@@ -16,14 +16,26 @@ export const instructorQuizApi = {
     const res = await api.get(`${prefix}/${questionId}/show-quiz-question`)
     return res.data
   },
-  createQuestion: (quizId: string, payload: StoreQuestionPayload) => {
+  createQuestion: ({
+    quizId,
+    payload,
+  }: {
+    quizId: number
+    payload: StoreQuestionPayload
+  }) => {
     return api.post(`${prefix}/${quizId}/store-quiz-question-single`, payload, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
   },
-  importQuestion: (quizId: string, payload: FormData) => {
+  importQuestion: ({
+    quizId,
+    payload,
+  }: {
+    quizId: string
+    payload: { file: File; type: 'overwrite' | 'add' }
+  }) => {
     return api.post(`${prefix}/${quizId}/import-quiz-question`, payload, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -44,7 +56,16 @@ export const instructorQuizApi = {
       }
     )
   },
-  deleteQuestion: async (questionId: string) => {
+  deleteQuestion: async (questionId: number) => {
     return await api.delete(`${prefix}/${questionId}/delete-quiz-question`)
+  },
+  updateQuestionsOrder: async ({
+    quizId,
+    payload,
+  }: {
+    quizId: string
+    payload: { id: number; order: number }[]
+  }) => {
+    return await api.put(`${prefix}/${quizId}/update-order`, payload)
   },
 }

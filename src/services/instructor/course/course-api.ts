@@ -4,18 +4,31 @@ import {
   UpdateCourseObjectivePayload,
 } from '@/validations/course'
 import api from '@/configs/api'
-import { ICourse } from '@/types'
+import { CoursePreview, ICourse } from '@/types'
 
 const prefix = '/instructor/manage/courses'
 
+export interface GetCoursesParams {
+  type: 'course' | 'practical-course'
+}
+
 export const instructorCourseApi = {
-  getCourses: async (): Promise<ICourse[]> => {
-    const res = await api.get(prefix)
+  // GET COURSES
+  getCourses: async (params?: GetCoursesParams): Promise<ICourse[]> => {
+    const res = await api.get(prefix, {
+      params,
+    })
     return res.data
   },
   getCourseOverview: async (slug: string) => {
     return await api.get(`${prefix}/${slug}`)
   },
+  getApprovedCourses: async (): Promise<CoursePreview[]> => {
+    const res = await api.get(`${prefix}/course-approved`)
+    return res.data
+  },
+
+  // MUTATE COURSES
   createCourse: (payload: CreateCoursePayload) => {
     return api.post(prefix, payload)
   },
@@ -30,12 +43,29 @@ export const instructorCourseApi = {
     slug: string,
     payload: UpdateCourseObjectivePayload
   ) => {
-    return api.put(`${prefix}/${slug}/courseObjective`, payload)
+    return api.put(`${prefix}/${slug}/courseObjective`, {
+      ...payload,
+      benefits: payload.benefits.map((benefit) => benefit.value),
+      requirements: payload.requirements.map(
+        (requirement) => requirement.value
+      ),
+      qa: payload.qa?.filter(
+        (faq) => faq.question.trim() !== '' && faq.answer.trim() !== ''
+      ),
+    })
   },
   downloadQuizForm: async () => {
     return await api.get(`/instructor/manage/lessons/quiz/download-quiz-form`, {
       responseType: 'blob',
     })
+  },
+  exportQuiz: async (quizId: number) => {
+    return await api.get(
+      `/instructor/manage/lessons/quiz/export-quiz/${quizId}`,
+      {
+        responseType: 'blob',
+      }
+    )
   },
   validateCourse: (slug: string) => {
     return api.get(`${prefix}/${slug}/validate-course`)

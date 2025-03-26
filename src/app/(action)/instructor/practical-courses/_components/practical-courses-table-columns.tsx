@@ -1,0 +1,171 @@
+'use client'
+
+import type { DataTableRowAction } from '@/types/data-table.ts'
+import type { ColumnDef } from '@tanstack/react-table'
+import { EllipsisVertical, SquarePen, Trash2 } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import * as React from 'react'
+
+import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { formatCurrency, formatDate } from '@/lib/common'
+import { dateRangeFilterFn } from '@/lib/data-table'
+import { CourseStatusMap, ICourse } from '@/types'
+
+interface GetColumnsProps {
+  setRowAction: React.Dispatch<
+    React.SetStateAction<DataTableRowAction<ICourse> | null>
+  >
+}
+
+export function getColumns({
+  setRowAction,
+}: GetColumnsProps): ColumnDef<ICourse>[] {
+  return [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+          className="text-primary"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 40,
+    },
+    {
+      accessorKey: 'name',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Khóa học" />
+      ),
+      cell: ({ row }) => {
+        const course = row.original
+        return (
+          <div className="flex min-w-80 items-center gap-4">
+            <Image
+              alt={course.name ?? ''}
+              className="size-16 rounded-lg object-cover"
+              height={128}
+              width={128}
+              src={course?.thumbnail ?? ''}
+            />
+            <div className="flex-1 space-y-1">
+              <h3 className="line-clamp-2 font-semibold">{course.name}</h3>
+              <h4 className="text-xs text-muted-foreground">
+                {course.category?.name}
+              </h4>
+            </div>
+          </div>
+        )
+      },
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'price',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Giá bán" />
+      ),
+      cell: ({ row }) => {
+        const price = Number(row.getValue('price')) || 0
+
+        return <div className="font-medium">{formatCurrency(price)}</div>
+      },
+      sortingFn: 'alphanumeric',
+    },
+    {
+      accessorKey: 'total_student',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Lượt mua" />
+      ),
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue('total_student') || 0}</div>
+      ),
+      sortingFn: 'basic',
+    },
+    {
+      accessorKey: 'status',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Trạng thái" />
+      ),
+      cell: ({ row }) => {
+        const course = CourseStatusMap[row.original.status]
+        return (
+          <Badge className="shrink-0 whitespace-nowrap" variant={course.badge}>
+            {course.label}
+          </Badge>
+        )
+      },
+      filterFn: (row, id, value) => {
+        return Array.isArray(value) && value.includes(row.getValue(id))
+      },
+    },
+    {
+      accessorKey: 'created_at',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Ngày tạo" />
+      ),
+      cell: ({ row }) =>
+        row.original.created_at ? formatDate(row.original.created_at) : '-',
+      sortingFn: 'datetime',
+      filterFn: dateRangeFilterFn,
+    },
+    {
+      id: 'actions',
+      cell: function Cell({ row }) {
+        const course = row.original
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                aria-label="Open menu"
+                variant="ghost"
+                size="icon"
+                className="rounded-full data-[state=open]:bg-muted"
+              >
+                <EllipsisVertical aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="max-w-40">
+              <DropdownMenuItem asChild>
+                <Link
+                  href={`/instructor/practical-courses/update/${course.slug}`}
+                >
+                  <SquarePen /> Sửa
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                onSelect={() => setRowAction({ row, type: 'delete' })}
+              >
+                <Trash2 /> Xóa
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+      size: 40,
+    },
+  ]
+}

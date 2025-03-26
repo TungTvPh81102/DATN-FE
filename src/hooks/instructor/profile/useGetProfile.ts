@@ -39,9 +39,14 @@ export const useFollowInstructor = () => {
     mutationFn: ({ code }: { code: string }) =>
       instructorProfileApi.followInstructor(code),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.INSTRUCTOR_CHECK_FOLLOW],
-      })
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.INSTRUCTOR_CHECK_FOLLOW],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.INSTRUCTOR_PROFILE_INFO],
+        }),
+      ])
     },
     onError: (error) => {
       if (error.message) {

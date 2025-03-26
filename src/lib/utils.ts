@@ -1,4 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
+import { formatDistanceToNow, FormatDistanceToNowOptions } from 'date-fns'
+import { vi } from 'date-fns/locale'
 import { twMerge } from 'tailwind-merge'
 
 export const cn = (...inputs: ClassValue[]) => {
@@ -33,4 +35,24 @@ export function toSentenceCase(str: string) {
     .replace(/^\w/, (c) => c.toUpperCase())
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+export const distanceToNow = (
+  date: string | number | Date,
+  options?: FormatDistanceToNowOptions
+) => {
+  return formatDistanceToNow(date, {
+    addSuffix: true,
+    locale: vi,
+    ...options,
+  })
+}
+
+export const getAvatarText = (name: string) => {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .substring(0, 2)
 }

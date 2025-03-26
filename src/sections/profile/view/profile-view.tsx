@@ -4,16 +4,16 @@ import { UserProfile } from '@/sections/profile/_components/user-profile'
 import { FollowButton } from '@/sections/profile/_components/follow-button'
 import { UserAbout } from '@/sections/profile/_components/user-about'
 import { CourseItem } from '@/sections/profile/_components/course-item'
-import { BookText, Loader2, Users, CreditCard } from 'lucide-react'
+import { BookText, CreditCard, Loader2 } from 'lucide-react'
 import {
   useGetInstructorCourses,
   useGetInstructorProfile,
 } from '@/hooks/instructor/profile/useGetProfile'
-import { useRouter } from 'next/navigation'
-import { useAuthStore } from '@/stores/useAuthStore'
 import { useEffect, useState } from 'react'
 import ModalLoading from '@/components/common/ModalLoading'
 import { CoursePagination } from '@/components/common/CoursePagination'
+import { useGetMembershipPlans } from '@/hooks/instructor/membership/useGetMembershipPlans'
+import { MembershipTab } from '@/sections/profile/_components/membership-tab'
 
 type Props = {
   code: string
@@ -22,12 +22,8 @@ type Props = {
 type TabType = 'courses' | 'membership'
 
 export const ProfileView = ({ code }: Props) => {
-  const router = useRouter()
-  const { user } = useAuthStore()
   const [page, setPage] = useState<number>(1)
   const [activeTab, setActiveTab] = useState<TabType>('courses')
-
-  if (code === user?.code) router.push('/me')
 
   const {
     data: instructorProfileData,
@@ -36,6 +32,8 @@ export const ProfileView = ({ code }: Props) => {
   } = useGetInstructorProfile(code)
   const { data: instructorCourseData, isLoading: instructorCourseDataLoading } =
     useGetInstructorCourses(code, page)
+  const { data: membershipData, isLoading: membershipDataLoading } =
+    useGetMembershipPlans(code)
 
   useEffect(() => {
     const savePage = JSON.parse(
@@ -56,7 +54,7 @@ export const ProfileView = ({ code }: Props) => {
     }
   }
 
-  if (instructorProfileDataLoading)
+  if (instructorProfileDataLoading || membershipDataLoading)
     return (
       <div className="min-h-screen">
         <ModalLoading />
@@ -71,7 +69,7 @@ export const ProfileView = ({ code }: Props) => {
     )
 
   return (
-    <div className="mx-auto mb-16 mt-9 grid w-[90%] grid-cols-12 gap-16">
+    <div className="mx-auto mb-16 mt-9 grid w-[90%] grid-cols-12 gap-8">
       <div className="col-span-3 space-y-5">
         {/* Avatar, Name and Bio */}
         <UserProfile
@@ -124,7 +122,7 @@ export const ProfileView = ({ code }: Props) => {
             }`}
           >
             <CreditCard size={18} />
-            <span>Membership</span>
+            <span>Membership ({membershipData?.data?.length})</span>
           </button>
         </div>
 
@@ -136,6 +134,18 @@ export const ProfileView = ({ code }: Props) => {
               </div>
             ) : (
               <>
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Danh sách khoá học của:{' '}
+                    {instructorProfileData?.instructor?.name ?? ''}
+                  </h3>
+                  <p className="mt-2 text-gray-600">
+                    Dưới đây là tất cả các khóa học được giảng dạy bởi giảng
+                    viên. Mỗi khóa học được thiết kế chi tiết với nội dung
+                    chuyên sâu, giúp học viên có thể nắm vững kiến thức và áp
+                    dụng thực tế một cách hiệu quả.
+                  </p>
+                </div>
                 <div className="mt-5 grid grid-cols-3 gap-6">
                   {instructorCourseData?.courses &&
                   instructorCourseData?.courses?.data?.length > 0 ? (
@@ -161,91 +171,7 @@ export const ProfileView = ({ code }: Props) => {
         )}
 
         {activeTab === 'membership' && (
-          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">
-                Gói Membership
-              </h3>
-              <button className="rounded-full bg-blue-50 px-4 py-1 text-sm font-medium text-blue-600 transition hover:bg-blue-100">
-                Xem tất cả
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="rounded-lg border border-orange-100 bg-orange-50 p-4 shadow-sm transition hover:shadow-md">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-full bg-orange-500 text-white">
-                      <CreditCard size={20} />
-                    </div>
-                    <h4 className="font-bold text-gray-900">Premium</h4>
-                  </div>
-                  <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-medium text-white">
-                    Phổ biến
-                  </span>
-                </div>
-                <div className="mb-2 flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-gray-900">
-                    1.200.000₫
-                  </span>
-                  <span className="text-sm text-gray-500">/năm</span>
-                </div>
-                <p className="mb-4 text-sm text-gray-600">
-                  Truy cập không giới hạn tất cả khóa học của giảng viên
-                </p>
-                <button className="w-full rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-orange-600">
-                  Đăng ký ngay
-                </button>
-              </div>
-
-              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-full bg-blue-500 text-white">
-                      <CreditCard size={20} />
-                    </div>
-                    <h4 className="font-bold text-gray-900">Basic</h4>
-                  </div>
-                </div>
-                <div className="mb-2 flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-gray-900">
-                    150.000₫
-                  </span>
-                  <span className="text-sm text-gray-500">/tháng</span>
-                </div>
-                <p className="mb-4 text-sm text-gray-600">
-                  Truy cập các khóa học cơ bản và hỗ trợ cơ bản
-                </p>
-                <button className="w-full rounded-lg border border-blue-500 bg-white px-4 py-2 text-sm font-medium text-blue-500 transition hover:bg-blue-50">
-                  Đăng ký ngay
-                </button>
-              </div>
-
-              <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-full bg-green-500 text-white">
-                      <Users size={20} />
-                    </div>
-                    <h4 className="font-bold text-gray-900">Dùng thử</h4>
-                  </div>
-                  <span className="rounded-full bg-green-500 px-3 py-1 text-xs font-medium text-white">
-                    Miễn phí
-                  </span>
-                </div>
-                <div className="mb-2 flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-gray-900">0₫</span>
-                  <span className="text-sm text-gray-500">/7 ngày</span>
-                </div>
-                <p className="mb-4 text-sm text-gray-600">
-                  Truy cập một số khóa học và tính năng giới hạn
-                </p>
-                <button className="w-full rounded-lg border border-green-500 bg-white px-4 py-2 text-sm font-medium text-green-500 transition hover:bg-green-50">
-                  Dùng thử miễn phí
-                </button>
-              </div>
-            </div>
-          </div>
+          <MembershipTab data={membershipData?.data ?? []} />
         )}
       </div>
     </div>

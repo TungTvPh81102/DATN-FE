@@ -67,3 +67,34 @@ export interface IInstructorCourseResponse {
 export interface IInstructorFollow {
   followed: boolean
 }
+
+export interface IPivot {
+  membership_plan_id: number
+  course_id: number
+}
+
+export interface IMembershipCourse {
+  id: number
+  code: string
+  name: string
+  slug: string
+  thumbnail?: string | null
+  pivots: IPivot
+}
+
+export interface IMembership {
+  id: number
+  code: string
+  name: string
+  description?: string
+  price: string
+  duration_months: number
+  benefits?: string[]
+  status: string
+  membership_course_access: IMembershipCourse[]
+}
+
+export interface IMembershipPlansResponse {
+  message: string
+  data: IMembership[]
+}

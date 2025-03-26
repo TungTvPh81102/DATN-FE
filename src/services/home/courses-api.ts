@@ -9,4 +9,7 @@ export const homeCoursesApi = {
   getFreeCourses: async () => {
     return await api.get(`${prefix}/free`)
   },
+  getCategoriesCourses: async () => {
+    return await api.get(`${prefix}/top-categories-with-most-courses`)
+  },
 }

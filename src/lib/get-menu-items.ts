@@ -13,7 +13,7 @@ import {
   User,
   UsersRound,
   Video,
-  Wallet,
+  Gem,
 } from 'lucide-react'
 
 import React from 'react'
@@ -46,8 +46,12 @@ export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
           icon: Book,
           items: [
             {
-              title: 'Khoá học của bạn',
+              title: 'Khoá học',
               url: '/instructor/courses',
+            },
+            {
+              title: 'Khóa học thực hành',
+              url: '/instructor/practical-courses',
             },
             {
               title: 'Quản lý học viên',
@@ -61,7 +65,7 @@ export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
         },
         {
           title: 'Trò chuyện',
-          url: '/instructor/chat',
+          url: '/instructor/chats',
           icon: UsersRound,
         },
         {
@@ -80,17 +84,27 @@ export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
           icon: TicketPercent,
         },
         {
-          title: 'Ví của bạn',
-          url: '/instructor/wallet',
-          icon: Wallet,
+          title: 'Gói thành viên',
+          url: '/instructor/memberships',
+          icon: Gem,
         },
         {
           title: 'Lịch sử mua',
-          url: '/instructor/transaction',
+          url: '#',
           icon: BadgeEuro,
+          items: [
+            {
+              title: 'Khoá học',
+              url: '/instructor/transaction/courses',
+            },
+            {
+              title: 'Gói thành viên',
+              url: '/instructor/transaction/membership',
+            },
+          ],
         },
         {
-          title: 'Giao dịch của tôi',
+          title: 'Yêu cầu thanh toán',
           url: '/instructor/with-draw-request',
           icon: Database,
         },

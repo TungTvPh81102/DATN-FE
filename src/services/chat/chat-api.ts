@@ -1,4 +1,5 @@
 import api from '@/configs/api'
+import { IChannel } from '@/types/Chat'
 import {
   AddMemberGroupChatPayload,
   CreateGroupChatPayload,
@@ -11,13 +12,16 @@ const prefixDirectChat = '/chats/direct'
 
 export const chatApi = {
   getDirectChats: async () => {
-    return await api.get(`${prefixDirectChat}/get-direct-chats`)
+    const { data } = await api.get(`${prefixDirectChat}/get-direct-chats`)
+    return data as IChannel[]
   },
   getGroupChats: async () => {
-    return await api.get(`${prefixGroupChat}/get-group-chats`)
+    const { data } = await api.get(`${prefixGroupChat}/get-group-chats`)
+    return data as IChannel[]
   },
   getGroupStudent: async () => {
-    return await api.get(`${prefixGroupChat}/get-group-chats-student`)
+    const { data } = await api.get(`${prefixGroupChat}/get-group-student`)
+    return data as IChannel[]
   },
   getInfoGroupChat: async (id: string) => {
     return await api.get(`${prefixGroupChat}/info-group-chat/${id}`)
@@ -63,8 +67,18 @@ export const chatApi = {
     }
 
     if (data.file && data.file.length > 0) {
-      formData.append('file', data.file[0].blob)
-      formData.append('type', data.file[0].type)
+      const fileType = data.file[0].type
+      const allSameType = data.file.every((file: any) => file.type === fileType)
+
+      if (!allSameType) {
+        throw new Error('Chỉ được phép gửi các file cùng loại')
+      }
+
+      data.file.forEach((file: any, index: number) => {
+        formData.append(`files[${index}]`, file.blob)
+      })
+
+      formData.append('type', fileType)
     }
 
     return await api.post(`${prefix}/send-message`, formData, {

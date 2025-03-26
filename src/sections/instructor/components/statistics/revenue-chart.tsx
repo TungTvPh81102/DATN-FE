@@ -24,8 +24,8 @@ import {
 } from '@/components/ui/select'
 import { useGetMonthlyRevenueStatistics } from '@/hooks/instructor/use-statistic'
 import { formatCurrency } from '@/lib/common'
-import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const chartConfig = {
   revenue: {
@@ -80,11 +80,7 @@ const RevenueChart = () => {
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          {isLoading ? (
-            <div className="flex size-full items-center justify-center">
-              <Loader2 className="size-8 animate-spin text-primary" />
-            </div>
-          ) : (
+          {!isLoading ? (
             <AreaChart
               data={chartData}
               margin={{ right: 24, left: 32, bottom: 8 }}
@@ -151,6 +147,8 @@ const RevenueChart = () => {
                 stackId="a"
               />
             </AreaChart>
+          ) : (
+            <Skeleton className="size-full" />
           )}
         </ChartContainer>
       </CardContent>

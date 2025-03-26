@@ -1,3 +1,5 @@
+// XÓA FILE
+
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
@@ -34,7 +36,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import DialogAddGroupChat from '@/sections/chat/_components/dialog-add-group-chat'
+import DialogAddGroupChat from '@/sections/chats/_components/dialog-add-group-chat'
 import {
   useGetDirectChats,
   useGetGroupChats,
@@ -52,6 +54,8 @@ import {
 import { IChannel, IMessage } from '@/types/Chat'
 import { SidebarChatInfo } from '@/components/shared/sidebar-chat-info'
 import EmptyChatState from '@/components/shared/empty-chat-state'
+import { AutosizeTextarea } from '@/components/ui/autosize-textarea'
+import Image from 'next/image'
 
 interface FilePreview {
   name: string
@@ -75,11 +79,13 @@ const ChatView = () => {
   const [showSearch, setShowSearch] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [filePreviews, setFilePreviews] = useState<FilePreview[]>([])
+  const [openSidebarChatInfo, setOpenSidebarChatInfo] = useState(false)
+
   const searchInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
-  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const { data: groupChatData, isLoading: isLoadingGroupChat } =
     useGetGroupChats()
@@ -196,8 +202,7 @@ const ChatView = () => {
       return newPreviews
     })
   }
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
@@ -297,8 +302,6 @@ const ChatView = () => {
       file: filesData,
     }
 
-    console.log(newMessage)
-
     senderMessage(newMessage, {
       onSuccess: () => {
         setMessage('')
@@ -322,7 +325,7 @@ const ChatView = () => {
 
   return (
     <>
-      <div className="flex h-[650px] bg-white">
+      <div className="flex h-full">
         <input
           type="file"
           ref={fileInputRef}
@@ -396,7 +399,7 @@ const ChatView = () => {
                     <Loader2 className="size-8 animate-spin text-orange-500" />
                   </div>
                 ) : (
-                  directChatData?.data.map((user: any) => (
+                  directChatData?.map((user: any) => (
                     <div
                       key={user.id}
                       className={`flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-secondary ${
@@ -450,7 +453,7 @@ const ChatView = () => {
                       <Loader2 className="size-8 animate-spin text-orange-500" />
                     </div>
                   ) : (
-                    groupChatData?.data.map((channel: any) => (
+                    groupChatData?.map((channel: any) => (
                       <div
                         key={channel.id}
                         className="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-secondary"
@@ -474,12 +477,14 @@ const ChatView = () => {
           {selectedChannel ? (
             <div className="flex h-16 items-center justify-between border-b px-4">
               <div className="flex items-center gap-3">
-                <Avatar className="size-8">
-                  <AvatarImage
-                    src="https://github.com/shadcn.png"
-                    alt={selectedChannel?.name}
-                  />
-                </Avatar>
+                {!openSidebarChatInfo && (
+                  <Avatar className="size-8">
+                    <AvatarImage
+                      src="https://github.com/shadcn.png"
+                      alt={selectedChannel?.name}
+                    />
+                  </Avatar>
+                )}
                 <div>
                   <h2 className="text-sm font-semibold">
                     {selectedChannel.name}
@@ -492,7 +497,7 @@ const ChatView = () => {
                       </p>
                     ) : (
                       <p className="text-xs text-muted-foreground">
-                        {selectedChannel?.online ? 'Online' : 'Offline'}
+                        {selectedChannel?.is_online ? 'Online' : 'Offline'}
                       </p>
                     )}
                   </p>
@@ -530,9 +535,7 @@ const ChatView = () => {
                     <Search className="size-5" />
                   </Button>
                 )}
-                <Button size="icon" variant="ghost">
-                  <Info className="size-5" />
-                </Button>
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="icon" variant="ghost">
@@ -554,6 +557,14 @@ const ChatView = () => {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setOpenSidebarChatInfo(!openSidebarChatInfo)}
+                >
+                  <Info className="size-5" />
+                </Button>
               </div>
             </div>
           ) : (
@@ -612,17 +623,18 @@ const ChatView = () => {
                   {filePreviews.map((preview, index) => (
                     <div key={index} className="relative">
                       {preview.type === 'image' ? (
-                        <div className="group relative">
-                          <img
+                        <div className="group relative aspect-video h-24">
+                          <Image
                             src={preview.url}
                             alt={preview.name}
-                            className="h-24 w-full rounded-lg object-cover"
+                            className="absolute rounded-lg object-contain"
+                            fill
                           />
                           <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="size-8 text-white hover:text-white/80"
+                              className="size-8 text-white"
                               onClick={() => removeFilePreview(index)}
                             >
                               <X className="size-4" />
@@ -651,7 +663,7 @@ const ChatView = () => {
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="size-8 text-white hover:text-white/80"
+                                className="size-8 text-white"
                                 onClick={() => removeFilePreview(index)}
                               >
                                 <X className="size-4" />
@@ -669,7 +681,7 @@ const ChatView = () => {
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="size-8 text-white hover:text-white/80"
+                              className="size-8 text-white"
                               onClick={() => removeFilePreview(index)}
                             >
                               <X className="size-4" />
@@ -767,31 +779,29 @@ const ChatView = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <Input
-                      placeholder="Type your message..."
-                      className="border-0 bg-secondary py-6 pr-24 text-base focus-visible:ring-1 focus-visible:ring-primary"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="absolute right-2 top-1/2 size-9 -translate-y-1/2 rounded-full bg-orange-500 text-white hover:bg-orange-600"
-                      onClick={() => sendMessage()}
-                      disabled={isPendingSendMessage}
-                    >
-                      <Send className="size-2" />
-                    </Button>
-                  </div>
+                  <AutosizeTextarea
+                    placeholder="Type your message..."
+                    className="resize-none border-0 bg-secondary !text-base focus-visible:ring-primary"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    maxHeight={140}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <Button
+                    size="icon"
+                    className="shrink-0 rounded-full"
+                    onClick={() => sendMessage()}
+                    disabled={isPendingSendMessage}
+                  >
+                    <Send />
+                  </Button>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {selectedChannel && (
+        {selectedChannel && openSidebarChatInfo && (
           <SidebarChatInfo
             selectedChannel={selectedChannel}
             messages={chats[selectedChannel?.conversation_id] || []}

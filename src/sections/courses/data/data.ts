@@ -1,3 +1,5 @@
+// XÓA FILE
+
 import { IChapter } from '@/types'
 
 export const chapterData: IChapter[] = [

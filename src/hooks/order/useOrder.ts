@@ -7,6 +7,8 @@ export const useGetOrders = () => {
   return useQuery({
     queryKey: [QueryKey.ORDER],
     queryFn: () => orderApi.getOrders(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }
 
@@ -15,5 +17,16 @@ export const useGetOrderById = (id?: number) => {
     queryKey: [QueryKey.ORDER, id],
     queryFn: () => orderApi.getOrderDetail(id!),
     enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  })
+}
+
+export const useGetMemberships = () => {
+  return useQuery({
+    queryKey: [QueryKey.MEMBERSHIPS],
+    queryFn: () => orderApi.getMemberships(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }

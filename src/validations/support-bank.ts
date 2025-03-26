@@ -168,7 +168,7 @@ const baseSchema = z.object({
   bank: z.string().min(1, 'Vui lòng chọn ngân hàng'),
   bank_name: z.string().min(1, 'Vui lòng chọn ngân hàng'),
   amount: z.number().min(50000, 'Số tiền rút tối thiểu là 50,000 VNĐ'),
-  add_info: z.string().min(1, 'Nhập thông tin'),
+  add_info: z.string().min(1, 'Vui lòng nhập thông tin'),
 })
 
 export const WithdrawalRequestSchema = (walletBalance: number) =>

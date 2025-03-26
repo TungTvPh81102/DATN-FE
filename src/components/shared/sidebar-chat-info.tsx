@@ -33,10 +33,11 @@ import {
 } from '@/hooks/chat/useChat'
 import { useQueryClient } from '@tanstack/react-query'
 import QUERY_KEY from '@/constants/query-key'
-import InviteMember from '@/sections/chat/_components/invite-member'
+import InviteMember from '@/sections/chats/_components/invite-member'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
+import { PLACEHOLDER_AVATAR } from '@/constants/common'
 
 interface ChannelInfoPanelProps {
   selectedChannel: IChannel
@@ -69,11 +70,20 @@ export const SidebarChatInfo = ({
         msg.type === 'image' || msg.type === 'video' || msg.type === 'file'
     ) || []
 
-  const images = mediaMessages
-    .filter((msg) => msg.type === 'image')
+  const media = mediaMessages
+    .filter((msg) => msg.type === 'image' || msg.type === 'video')
     .map((message) => ({
-      url: `${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.file_path}`,
+      url: `${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.[0]?.file_path || ''}`,
+      type: message.type as 'image' | 'video',
       sender: message.sender,
+    }))
+
+  const files = mediaMessages
+    .filter((msg) => msg.type === 'file')
+    .map((message) => ({
+      ...message,
+      fileName: message.meta_data?.[0]?.file_name || 'Unknown file',
+      filePath: `${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.[0]?.file_path || ''}`,
     }))
 
   const handleRemoveMember = (memberId: number) => {
@@ -116,10 +126,10 @@ export const SidebarChatInfo = ({
             <AvatarImage
               src={
                 isGroup
-                  ? 'https://github.com/shadcn.png'
+                  ? PLACEHOLDER_AVATAR
                   : user?.id === selectedChannel?.id
-                    ? user?.avatar || ''
-                    : selectedChannel?.avatar || ''
+                    ? user?.avatar || PLACEHOLDER_AVATAR
+                    : selectedChannel?.avatar || PLACEHOLDER_AVATAR
               }
             />
             <AvatarFallback>
@@ -264,14 +274,14 @@ export const SidebarChatInfo = ({
             </CollapsibleTrigger>
 
             <CollapsibleContent className="w-full overflow-hidden transition-all">
-              <Tabs defaultValue="images" className="w-full">
+              <Tabs defaultValue="media" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1">
                   <TabsTrigger
-                    value="images"
+                    value="media"
                     className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
                   >
                     <ImageIcon className="size-4" />
-                    Ảnh
+                    Ảnh & Video
                   </TabsTrigger>
                   <TabsTrigger
                     value="files"
@@ -282,10 +292,10 @@ export const SidebarChatInfo = ({
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="images" className="mt-4">
-                  {images.length > 0 ? (
+                <TabsContent value="media" className="mt-4">
+                  {media.length > 0 ? (
                     <div className="grid grid-cols-3 gap-2">
-                      {images.map((image, index) => (
+                      {media.map((item, index) => (
                         <div
                           key={index}
                           className="group relative aspect-square cursor-pointer overflow-hidden rounded-md ring-1 ring-gray-200"
@@ -293,7 +303,7 @@ export const SidebarChatInfo = ({
                         >
                           <div className="relative size-full">
                             <Image
-                              src={image.url}
+                              src={item.url}
                               alt="Media"
                               fill
                               sizes="(max-width: 768px) 33vw, 20vw"
@@ -301,7 +311,7 @@ export const SidebarChatInfo = ({
                             />
                           </div>
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2 text-xs text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
-                            {image.sender.name}
+                            {item.sender.name}
                           </div>
                         </div>
                       ))}
@@ -310,44 +320,39 @@ export const SidebarChatInfo = ({
                     <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
                       <ImageIcon className="size-8 text-muted-foreground/50" />
                       <p className="text-sm text-muted-foreground">
-                        Không có ảnh nào
+                        Không có ảnh hoặc video nào
                       </p>
                     </div>
                   )}
                 </TabsContent>
                 <TabsContent value="files" className="mt-4">
-                  {mediaMessages.filter((msg) => msg.type === 'file').length >
-                  0 ? (
+                  {files.length > 0 ? (
                     <div className="space-y-2">
-                      {mediaMessages
-                        .filter((msg) => msg.type === 'file')
-                        .map((message) => (
-                          <a
-                            key={message.id}
-                            href={`${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.file_path}`}
-                            download
-                            className="group flex items-center justify-between rounded-lg border p-3 transition-all hover:bg-gray-50"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                                <FileText className="size-5 text-primary" />
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="line-clamp-1 text-sm font-medium">
-                                  {message.meta_data?.file_path
-                                    .split('/')
-                                    .pop()}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  Gửi bởi {message.sender.name}
-                                </span>
-                              </div>
+                      {files.map((file) => (
+                        <a
+                          key={file.id}
+                          href={file.filePath}
+                          download
+                          className="group flex items-center justify-between rounded-lg border p-3 transition-all hover:bg-gray-50"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                              <FileText className="size-5 text-primary" />
                             </div>
-                            <div className="flex size-8 items-center justify-center rounded-full text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-gray-100">
-                              <Download className="size-4" />
+                            <div className="flex flex-col">
+                              <span className="line-clamp-1 text-sm font-medium">
+                                {file.fileName}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                Gửi bởi {file.sender.name}
+                              </span>
                             </div>
-                          </a>
-                        ))}
+                          </div>
+                          <div className="flex size-8 items-center justify-center rounded-full text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-gray-100">
+                            <Download className="size-4" />
+                          </div>
+                        </a>
+                      ))}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
@@ -367,7 +372,7 @@ export const SidebarChatInfo = ({
         <ImagePreview
           isOpen={true}
           onClose={() => setSelectedImageIndex(null)}
-          images={images}
+          images={media}
           initialIndex={selectedImageIndex}
         />
       )}

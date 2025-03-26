@@ -3,14 +3,12 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { CouponPayload } from '@/validations/coupon'
 import QueryKey from '@/constants/query-key'
 import { instructorCouponApi } from '@/services/instructor/coupon/coupon-api'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 
-export const useGetCoupons = (filters?: {
-  fromDate?: string | undefined
-  toDate?: string | undefined
-}) => {
+export const useGetCoupons = () => {
   return useQuery({
-    queryKey: [QueryKey.INSTRUCTOR_COUPON, filters],
-    queryFn: () => instructorCouponApi.getCoupons(filters),
+    queryKey: [QueryKey.INSTRUCTOR_COUPON],
+    queryFn: () => instructorCouponApi.getCoupons(),
   })
 }
 
@@ -36,8 +34,8 @@ export const useUpdateCoupon = () => {
 }
 
 export const useToggleStatus = () => {
-  return useMutation({
-    mutationFn: ({ id, action }: { id: string; action: string }) =>
-      instructorCouponApi.toggleStatus(id, action),
+  return useToastMutation({
+    mutationFn: instructorCouponApi.toggleStatus,
+    queryKey: [QueryKey.INSTRUCTOR_COUPON],
   })
 }

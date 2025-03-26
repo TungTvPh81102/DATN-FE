@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 
 import {
-  BLogCommentPayload,
+  BlogCommentPayload,
   ReplyBlogCommentPayload,
 } from '@/validations/comment'
 import QueryKey from '@/constants/query-key'
@@ -25,7 +25,7 @@ export const useGetReplyBLogComment = (commentId: string) => {
 
 export const useStoreCommentBlog = () => {
   return useMutation({
-    mutationFn: (data: BLogCommentPayload) =>
+    mutationFn: (data: BlogCommentPayload) =>
       commentBlogApi.storeCommentBlog(data),
   })
 }

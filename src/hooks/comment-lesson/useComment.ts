@@ -13,6 +13,8 @@ export const useGetLessonComments = (lessonId: string) => {
     queryKey: [QueryKey.LESSON_COMMENT, lessonId],
     queryFn: () => commentLessonApi.getCommentLessons(lessonId!),
     enabled: !!lessonId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }
 export const useGetReplyLessonComment = (commentId: string) => {

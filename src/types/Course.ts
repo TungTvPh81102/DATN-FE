@@ -5,6 +5,7 @@ import { BadgeProps } from '@/components/ui/badge'
 import { ICategory } from './Category'
 import { IQuiz } from './Quiz'
 import { IInstructorProfile } from '@/types/Instructor'
+import { IUserRating } from '@/types/Misc'
 
 export enum CourseStatus {
   Draft = 'draft',
@@ -33,7 +34,7 @@ export interface ICourse {
   code: string
   name: string
   slug: string
-  thumbnail?: string | null
+  thumbnail: string
   intro?: string | null
   price?: number | null
   price_sale?: number | null
@@ -59,12 +60,24 @@ export interface ICourse {
   user: IUser
   name_instructor: string
   code_instructor: string
+  avatar_instructor: string
   deleted_at?: Date | null
   created_at?: Date | null
   updated_at?: Date | null
   is_free?: 0 | 1
   total_video_duration?: number
   is_enrolled?: boolean
+  is_practical_course?: boolean
+}
+
+export interface CoursePreview {
+  id: number
+  code: string
+  name: string
+  thumbnail: string
+  total_student: number
+  price: number
+  created_at: Date
 }
 
 export interface IChapter {
@@ -197,4 +210,13 @@ export interface ICourseOtherResponse {
   message?: string
   get_other_courses: ICourse[]
   profile_instructor: IInstructorProfile
+}
+
+export interface ICourseRatingsResponse {
+  message: string
+  data: {
+    ratings: IUserRating[]
+    total_ratings: number
+    average_rating: number
+  }
 }

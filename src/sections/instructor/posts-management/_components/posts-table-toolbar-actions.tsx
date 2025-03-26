@@ -27,7 +27,7 @@ export function PostsTableToolbarActions({
         size="sm"
         onClick={() =>
           exportTableToXLSX(table, {
-            filename: 'Posts',
+            filename: 'posts',
             excludeColumns: ['select', 'actions'],
           })
         }

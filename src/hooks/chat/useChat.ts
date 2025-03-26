@@ -10,7 +10,7 @@ import {
 export const useGetDirectChats = () => {
   return useQuery({
     queryKey: [QUERY_KEY.GROUP_DIRECT],
-    queryFn: () => chatApi.getDirectChats(),
+    queryFn: chatApi.getDirectChats,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   })
@@ -19,7 +19,7 @@ export const useGetDirectChats = () => {
 export const useGetGroupChats = () => {
   return useQuery({
     queryKey: [QUERY_KEY.GROUP_CHAT],
-    queryFn: () => chatApi.getGroupChats(),
+    queryFn: chatApi.getGroupChats,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   })
@@ -28,7 +28,7 @@ export const useGetGroupChats = () => {
 export const useGetGroupStudent = () => {
   return useQuery({
     queryKey: [QUERY_KEY.GROUP_CHAT],
-    queryFn: () => chatApi.getGroupStudent(),
+    queryFn: chatApi.getGroupStudent,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   })

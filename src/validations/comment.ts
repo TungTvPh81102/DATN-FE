@@ -30,5 +30,5 @@ export const replyBlogCommentSchema = z.object({
     .min(1, { message: 'Nội dung bình luận không được để trống' }),
 })
 
-export type BLogCommentPayload = z.infer<typeof blogCommentSchema>
+export type BlogCommentPayload = z.infer<typeof blogCommentSchema>
 export type ReplyBlogCommentPayload = z.infer<typeof replyBlogCommentSchema>

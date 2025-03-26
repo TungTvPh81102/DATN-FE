@@ -73,6 +73,7 @@ export function PostsTableFloatingBar({ table }: PostsTableFloatingBarProps) {
                     className="size-7 border"
                     onClick={() =>
                       exportTableToXLSX(table, {
+                        filename: 'posts',
                         excludeColumns: ['select', 'actions'],
                         onlySelected: true,
                       })
@@ -82,7 +83,7 @@ export function PostsTableFloatingBar({ table }: PostsTableFloatingBarProps) {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="border bg-accent font-semibold text-foreground dark:bg-zinc-900">
-                  <p>Xuất bài viết</p>
+                  <p>Xuất</p>
                 </TooltipContent>
               </Tooltip>
             </div>

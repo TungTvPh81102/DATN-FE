@@ -82,11 +82,6 @@ const UpsertBankSheet = ({ showTrigger = true, bank, ...props }: Props) => {
     })
   }
 
-  console.group('Form')
-  console.log('values', form.getValues())
-  console.log('errors', form.formState.errors)
-  console.groupEnd()
-
   useEffect(() => {
     if (bank)
       form.reset({
@@ -286,7 +281,7 @@ const UpsertBankSheet = ({ showTrigger = true, bank, ...props }: Props) => {
             <div className="flex justify-end">
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="animate-spin" />}
-                Thêm tài khoản
+                {bank ? 'Cập nhật tài khoản' : 'Thêm tài khoản'}
               </Button>
             </div>
           </form>

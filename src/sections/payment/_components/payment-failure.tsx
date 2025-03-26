@@ -66,9 +66,9 @@ const PaymentFailureView = ({ error }: Props) => {
             </div>
 
             <div className="space-y-3 pt-4">
-              <button
-                onClick={() => (window.location.href = '/checkout')}
-                className="animate-gradient group mb-2 w-full rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-orange-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5"
+              <Link
+                href="/checkout"
+                className="animate-gradient group mb-2 inline-block w-full rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-orange-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:text-white focus:text-white"
               >
                 <span className="flex items-center justify-center gap-2">
                   <RefreshCcw
@@ -81,15 +81,16 @@ const PaymentFailureView = ({ error }: Props) => {
                     strokeWidth={1.5}
                   />
                 </span>
-              </button>
+              </Link>
 
-              <Link href="/">
-                <button className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-50">
-                  <span className="flex items-center justify-center gap-2">
-                    <Home className="size-4 text-slate-500" strokeWidth={1.5} />
-                    <span>Quay về trang chủ</span>
-                  </span>
-                </button>
+              <Link
+                href="/"
+                className="inline-block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-50 hover:text-slate-700 focus:text-slate-700"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <Home className="size-4 text-slate-500" strokeWidth={1.5} />
+                  <span>Quay về trang chủ</span>
+                </span>
               </Link>
             </div>
           </div>

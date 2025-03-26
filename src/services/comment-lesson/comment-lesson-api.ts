@@ -25,6 +25,6 @@ export const commentLessonApi = {
   },
 
   deleteComment: async (commentId: string) => {
-    return await api.delete(`comments/${commentId}`)
+    return await api.delete(`${prefix}/${commentId}`)
   },
 }

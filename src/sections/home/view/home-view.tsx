@@ -13,11 +13,15 @@ import InstructorTop from '@/sections/home/components/Instructor-top'
 import '@/styles/custom-swiper-pagination.css'
 
 import {
+  useGetCategoryCourses,
   useGetDiscountedCourses,
   useGetFreeCourses,
 } from '@/hooks/home/courses'
+import CourseListCategory from '@/sections/home/components/course-list-category'
 
 const HomeView = () => {
+  const { data: categoryCourses, isLoading: isLoadingCourses } =
+    useGetCategoryCourses()
   const { data: discountedCourses, isLoading: isLoadingDiscounted } =
     useGetDiscountedCourses()
   const { data: freeCourses, isLoading: isLoadingFree } = useGetFreeCourses()
@@ -26,6 +30,13 @@ const HomeView = () => {
     <div>
       <Banner />
       <div className="pb-12">
+        <CourseListCategory
+          title="Top khoá học theo danh mục"
+          categories={categoryCourses?.data || []}
+          isLoading={isLoadingCourses}
+          description="Hãy bắt đầu hành trình học tập của bạn cùng chúng tôi ngay bây giờ."
+        />
+
         <CourseList
           title="Khoá học đang giảm giá"
           courses={discountedCourses?.data || []}

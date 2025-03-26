@@ -6,6 +6,8 @@ export interface BannerData {
   redirect_url: string
   order: number
   status: number
+  total_student: number
+  price: number
   created_at: string
   updated_at: string
   deleted_at: string | null

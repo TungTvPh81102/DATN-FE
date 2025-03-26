@@ -30,6 +30,28 @@ export const formatCurrency = (
   }).format(value)
 }
 
+export const formatVietnameseCurrency = (value: any) => {
+  if (typeof value !== 'number' || isNaN(value)) return 'Không hợp lệ'
+
+  const units = [
+    { value: 1_000_000_000, suffix: 'tỉ' },
+    { value: 1_000_000, suffix: 'triệu' },
+    { value: 1_000, suffix: 'ngàn' },
+  ]
+
+  for (const unit of units) {
+    if (value >= unit.value) {
+      const formatted = (value / unit.value).toFixed(2).replace(/\.00$/, '')
+      return `${formatted} ${unit.suffix}`
+    }
+  }
+
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(value)
+}
+
 export const formatDate = (
   value: string | Date,
   options?: Intl.DateTimeFormatOptions

@@ -149,6 +149,11 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
 
   if (isLessonLoading || isLessonDetailLoading) return <ModalLoading />
 
+  if (!lessons) {
+    router.replace(`/not-found`)
+    return
+  }
+
   return (
     <>
       <LearningTour isRunning={runTour} onClose={() => setRunTour(false)} />
@@ -159,7 +164,13 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
               <Link href={'/'}>
                 <ChevronLeft />
               </Link>
-              <Image src="/images/Logo.png" alt="logo" width={36} height={36} />
+              <Image
+                src="/images/Logo.png"
+                className="shrink-0 rounded-md"
+                alt="logo"
+                width={36}
+                height={36}
+              />
               <p className="course-title font-bold">{course_name}</p>
             </div>
             <div className="flex items-center gap-6">

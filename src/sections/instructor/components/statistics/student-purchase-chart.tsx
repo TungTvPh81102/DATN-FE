@@ -1,5 +1,9 @@
 'use client'
 
+import { useMemo, useState } from 'react'
+import CountUp from 'react-countup'
+import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
+
 import {
   Card,
   CardContent,
@@ -23,9 +27,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useGetStudentPurchaseStatistics } from '@/hooks/instructor/use-statistic'
-import { Loader2 } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
 
 const chartConfig = {
   purchase: {
@@ -85,7 +86,7 @@ const StudentPurchaseChart = () => {
                   {chartConfig[chart].label}
                 </span>
                 <span className="text-lg font-bold leading-none sm:text-3xl">
-                  {total[key as keyof typeof total].toLocaleString()}
+                  <CountUp end={total[key as keyof typeof total]} />
                 </span>
               </div>
             )
@@ -113,15 +114,11 @@ const StudentPurchaseChart = () => {
         </div>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-4 sm:pt-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[350px] w-full"
-        >
-          {isLoading ? (
-            <div className="flex size-full items-center justify-center">
-              <Loader2 className="size-8 animate-spin text-primary" />
-            </div>
-          ) : (
+        {!isLoading ? (
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-[350px] w-full"
+          >
             <BarChart data={chartData} margin={{ right: 0, left: 0 }}>
               <CartesianGrid vertical={false} />
 
@@ -146,11 +143,82 @@ const StudentPurchaseChart = () => {
 
               <ChartLegend content={<ChartLegendContent />} />
             </BarChart>
-          )}
-        </ChartContainer>
+          </ChartContainer>
+        ) : (
+          <ChartSkeleton />
+        )}
       </CardContent>
     </Card>
   )
 }
 
 export default StudentPurchaseChart
+
+function generateFakeData() {
+  const data: {
+    [key: number]: { col1: number; col2: number }
+  } = {}
+
+  for (let i = 1; i <= 12; i++) {
+    data[i] = {
+      col1: Math.floor(Math.random() * 100),
+      col2: Math.floor(Math.random() * 100),
+    }
+  }
+
+  return data
+}
+
+const chartSkeletonConfig = {
+  col1: {
+    label: 'Cột 1',
+    color: 'rgb(0 0 0 / 0.1)',
+  },
+  col2: {
+    label: 'Cột 2',
+    color: 'rgb(0 0 0 / 0.2)',
+  },
+} satisfies ChartConfig
+
+export function ChartSkeleton() {
+  const chartData = useMemo(() => {
+    return Object.entries(generateFakeData()).map(([key, value]) => ({
+      month: key,
+      ...value,
+    }))
+  }, [])
+
+  return (
+    <ChartContainer
+      config={chartSkeletonConfig}
+      className="aspect-auto h-[350px] w-full"
+    >
+      <BarChart data={chartData} margin={{ right: 0, left: 0, bottom: 28 }}>
+        <CartesianGrid vertical={false} />
+
+        <XAxis
+          dataKey="month"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={16}
+          tickFormatter={(value) => {
+            return `Thg ${value}`
+          }}
+        />
+
+        <Bar
+          dataKey="col1"
+          fill="var(--color-col1)"
+          radius={4}
+          className="animate-pulse"
+        />
+        <Bar
+          dataKey="col2"
+          fill="var(--color-col2)"
+          radius={4}
+          className="animate-pulse"
+        />
+      </BarChart>
+    </ChartContainer>
+  )
+}

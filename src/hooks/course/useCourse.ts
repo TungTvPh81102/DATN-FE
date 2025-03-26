@@ -4,6 +4,7 @@ import { ICourseFilter } from '@/types'
 import QueryKey from '@/constants/query-key'
 import {
   getCourseDetailsBySlug,
+  getCourseRatings,
   getCourses,
   getCoursesOther,
   getCoursesRelated,
@@ -41,6 +42,15 @@ export const useGetCoursesOther = (slug: string) => {
   return useQuery({
     queryKey: [QueryKey.COURSES_OTHER, slug],
     queryFn: () => getCoursesOther(slug),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  })
+}
+
+export const useGetCourseRatings = (slug: string) => {
+  return useQuery({
+    queryKey: [QueryKey.COURSE_RATINGS, slug],
+    queryFn: () => getCourseRatings(slug),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   })

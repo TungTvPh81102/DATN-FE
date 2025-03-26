@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,6 +14,10 @@ import {
   Loader2,
   ShieldCheck,
   Wallet,
+  CreditCard,
+  Plus,
+  ChevronRight,
+  Check,
 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
@@ -44,20 +48,51 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import ModalLoading from '@/components/common/ModalLoading'
 import Container from '@/components/shared/container'
+import { useGetBanks } from '@/hooks/user/use-bank'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 const AMOUNTS = [50000, 100000, 200000, 500000, 1000000, 2000000]
+
+interface Bank {
+  id: string
+  name: string
+  bin: string
+  short_name: string
+  logo: string
+  logo_rounded: string
+  account_no: string
+  account_name: string
+  is_default: boolean
+  acq_id?: string
+}
 
 function WalletView() {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { user } = useAuthStore()
 
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
-  const { user } = useAuthStore()
+  const [selectedBank, setSelectedBank] = useState<any>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [useExistingBank, setUseExistingBank] = useState(true)
+
+  const { data: bankData, isLoading: isLoadingBankData } = useGetBanks()
   const { data: walletData, isLoading } = useGetWallet()
   const { data: supportBank, isLoading: isLoadingSupportBank } =
     useGetSupportBanks()
   const { mutate: withDrawalRequest, isPending } = useWithDrawalRequest()
   const walletBalance = walletData?.data?.balance || 0
+
+  const userBanks = Array.isArray(bankData) ? bankData : []
 
   const {
     register,
@@ -79,18 +114,73 @@ function WalletView() {
 
   const watchedAmount = watch('amount')
 
-  if (isLoading || isLoadingSupportBank) return <ModalLoading />
+  useEffect(() => {
+    if (userBanks.length > 0 && !selectedBank) {
+      const defaultBank =
+        userBanks.find((bank) => bank.is_default) || userBanks[0]
+      setSelectedBank(defaultBank)
+
+      if (useExistingBank) {
+        populateBankDetails(defaultBank)
+      }
+    }
+  }, [selectedBank, useExistingBank, userBanks])
+
+  const populateBankDetails = (bank: Bank) => {
+    if (bank && bank.acq_id) {
+      setValue('bank', bank.acq_id)
+      setValue('acq_id', bank.acq_id)
+      setValue('bank_name', bank.short_name)
+      setValue('account_no', bank.account_no)
+      setValue('account_name', bank.account_name)
+    }
+  }
+
+  const clearBankDetails = () => {
+    setValue('bank', '')
+    setValue('acq_id', '')
+    setValue('bank_name', '')
+    setValue('account_no', '')
+    setValue('account_name', '')
+  }
+
+  const handleBankSelect = (bank: Bank) => {
+    setSelectedBank(bank)
+    setIsDialogOpen(false)
+    setUseExistingBank(true)
+    populateBankDetails(bank)
+  }
+
+  const toggleUseExistingBank = (value: boolean) => {
+    setUseExistingBank(value)
+
+    if (!value) {
+      clearBankDetails()
+    } else if (selectedBank) {
+      populateBankDetails(selectedBank)
+    }
+  }
+
+  if (isLoading || isLoadingSupportBank || isLoadingBankData)
+    return <ModalLoading />
 
   const onSubmit = (data: WithDrawalRequestPayload) => {
     withDrawalRequest(data, {
       onSuccess: async (res: any) => {
         toast.success(res.message)
         reset()
+
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: [QUERY_KEY.INSTRUCTOR_WITH_DRAW_REQUEST],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: [QUERY_KEY.INSTRUCTOR_WALLET],
+          }),
+        ])
+
         setSelectedAmount(null)
         router.push(`/instructor/with-draw-request`)
-        await queryClient.invalidateQueries({
-          queryKey: [QUERY_KEY.INSTRUCTOR_WITH_DRAW_REQUEST],
-        })
       },
       onError: async (error: any) => {
         toast.error(error.message)
@@ -303,72 +393,261 @@ function WalletView() {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label>Chọn ngân hàng</Label>
-                <Select
-                  onValueChange={(value) => {
-                    const selectedBank = supportBank?.find(
-                      (bank: any) => bank.bin === value
-                    )
-                    if (selectedBank) {
-                      setValue('acq_id', selectedBank.bin)
-                      setValue('bank_name', selectedBank.short_name)
-                    }
-                    setValue('bank', value)
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn ngân hàng nhận tiền" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {supportBank?.map((bank: any) => (
-                      <SelectItem key={bank.bin} value={bank.bin}>
-                        {bank.short_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.bank && (
-                  <p className="text-sm text-red-500">{errors.bank.message}</p>
-                )}
-              </div>
+              {/* Bank account selection section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base">Tài khoản ngân hàng</Label>
 
-              <div className="space-y-2">
-                <Label htmlFor="accountNumber">Số tài khoản</Label>
-                <Input
-                  {...register('account_no')}
-                  id="accountNumber"
-                  placeholder="Nhập số tài khoản nhận tiền"
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '')
-                    setValue('account_no', value)
-                  }}
-                />
-                {errors.account_no && (
-                  <p className="text-sm text-red-500">
-                    {errors.account_no.message}
-                  </p>
-                )}
-              </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant={useExistingBank ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => toggleUseExistingBank(true)}
+                      className={cn(
+                        'h-8 text-xs',
+                        useExistingBank ? 'bg-primary' : ''
+                      )}
+                      disabled={userBanks.length === 0}
+                    >
+                      Tài khoản đã lưu
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={!useExistingBank ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => toggleUseExistingBank(false)}
+                      className={cn(
+                        'h-8 text-xs',
+                        !useExistingBank ? 'bg-primary' : ''
+                      )}
+                    >
+                      Tài khoản mới
+                    </Button>
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="account_name">Tên chủ tài khoản</Label>
-                <Input
-                  id="account_name"
-                  placeholder="Nhập tên chủ tài khoản nhận tiền"
-                  {...register('account_name')}
-                  onChange={(e) => {
-                    const valueWithNoTones = removeVietnameseTones(
-                      e.target.value
-                    )
-                    const valueUppercase = valueWithNoTones.toUpperCase()
-                    setValue('account_name', valueUppercase)
-                  }}
-                />
-                {errors.account_name && (
-                  <p className="text-sm text-red-500">
-                    {errors.account_name.message}
-                  </p>
+                {useExistingBank ? (
+                  <div className="space-y-4">
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between"
+                          disabled={userBanks.length === 0}
+                        >
+                          {selectedBank ? (
+                            <div className="flex items-center gap-3">
+                              {selectedBank.logo_rounded && (
+                                <img
+                                  src={selectedBank.logo_rounded}
+                                  alt={selectedBank.short_name}
+                                  className="size-6 object-contain"
+                                />
+                              )}
+                              <span>
+                                {selectedBank.short_name} -{' '}
+                                {selectedBank.account_no}
+                              </span>
+                            </div>
+                          ) : (
+                            <span>Chọn tài khoản ngân hàng</span>
+                          )}
+                          <ChevronRight className="size-4" />
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Chọn tài khoản ngân hàng</DialogTitle>
+                          <DialogDescription>
+                            Chọn tài khoản ngân hàng bạn muốn rút tiền về
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        <ScrollArea className="max-h-[400px] pr-4">
+                          <div className="space-y-3 py-2">
+                            {userBanks.map((bank) => (
+                              <div
+                                key={bank.id}
+                                className={cn(
+                                  'flex cursor-pointer items-center space-x-3 rounded-lg border p-4 transition-all',
+                                  selectedBank?.id === bank.id
+                                    ? 'border-primary bg-primary/5'
+                                    : 'hover:border-primary/50'
+                                )}
+                                onClick={() => handleBankSelect(bank)}
+                              >
+                                <div className="flex flex-1 items-center space-x-3">
+                                  {bank.logo_rounded && (
+                                    <img
+                                      src={bank.logo_rounded}
+                                      alt={bank.short_name}
+                                      className="size-10 object-contain"
+                                    />
+                                  )}
+                                  <div className="flex-1">
+                                    <p className="font-medium">
+                                      {bank.short_name}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                      {bank.account_no}
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="font-medium">
+                                      {bank.account_name}
+                                    </p>
+                                    {bank.is_default && (
+                                      <span className="inline-block rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                                        Mặc định
+                                      </span>
+                                    )}
+                                  </div>
+                                  {selectedBank?.id === bank.id && (
+                                    <Check className="size-5 text-primary" />
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+
+                        <div className="flex justify-end">
+                          <DialogClose asChild>
+                            <Button variant="outline">Đóng</Button>
+                          </DialogClose>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
+                    {selectedBank && (
+                      <div className="rounded-lg border bg-muted/30 p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {selectedBank.logo_rounded && (
+                              <img
+                                src={selectedBank.logo_rounded}
+                                alt={selectedBank.short_name}
+                                className="size-12 object-contain"
+                              />
+                            )}
+                            <div>
+                              <h4 className="font-medium">
+                                {selectedBank.short_name}
+                              </h4>
+                              <p className="text-sm text-muted-foreground">
+                                {selectedBank.account_no}
+                              </p>
+                              <p className="text-sm font-medium">
+                                {selectedBank.account_name}
+                              </p>
+                            </div>
+                          </div>
+
+                          {selectedBank.is_default && (
+                            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                              Tài khoản mặc định
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {userBanks.length === 0 && (
+                      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
+                        <CreditCard className="size-12 text-muted-foreground/50" />
+                        <h3 className="mt-4 text-lg font-medium">
+                          Chưa có tài khoản ngân hàng
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Bạn chưa có tài khoản ngân hàng nào được lưu. Vui lòng
+                          thêm tài khoản mới.
+                        </p>
+                        <Button
+                          variant="outline"
+                          className="mt-4"
+                          onClick={() => toggleUseExistingBank(false)}
+                        >
+                          <Plus className="mr-2 size-4" />
+                          Thêm tài khoản mới
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Chọn ngân hàng</Label>
+                      <Select
+                        onValueChange={(value) => {
+                          const selectedBank = supportBank?.find(
+                            (bank: any) => bank.bin === value
+                          )
+                          if (selectedBank) {
+                            setValue('acq_id', selectedBank.bin)
+                            setValue('bank_name', selectedBank.short_name)
+                          }
+                          setValue('bank', value)
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn ngân hàng nhận tiền" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {supportBank?.map((bank: any) => (
+                            <SelectItem key={bank.bin} value={bank.bin}>
+                              {bank.short_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.bank && (
+                        <p className="text-sm text-red-500">
+                          {errors.bank.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="accountNumber">Số tài khoản</Label>
+                      <Input
+                        {...register('account_no')}
+                        id="accountNumber"
+                        placeholder="Nhập số tài khoản nhận tiền"
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '')
+                          setValue('account_no', value)
+                        }}
+                      />
+                      {errors.account_no && (
+                        <p className="text-sm text-red-500">
+                          {errors.account_no.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="account_name">Tên chủ tài khoản</Label>
+                      <Input
+                        id="account_name"
+                        placeholder="Nhập tên chủ tài khoản nhận tiền"
+                        {...register('account_name')}
+                        onChange={(e) => {
+                          const valueWithNoTones = removeVietnameseTones(
+                            e.target.value
+                          )
+                          const valueUppercase = valueWithNoTones.toUpperCase()
+                          setValue('account_name', valueUppercase)
+                        }}
+                      />
+                      {errors.account_name && (
+                        <p className="text-sm text-red-500">
+                          {errors.account_name.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -380,13 +659,18 @@ function WalletView() {
                   placeholder="Nhập ghi chú"
                   className="resize-none"
                 />
+                {errors.add_info && (
+                  <p className="text-sm text-red-500">
+                    {errors.add_info.message}
+                  </p>
+                )}
               </div>
 
               <Button
                 className="w-full bg-gradient-to-r from-primary to-primary/80"
                 size="lg"
                 type="submit"
-                disabled={isPending || walletData?.data.balance == 0}
+                disabled={isPending || walletData?.data.balance === 0}
               >
                 {isPending ? (
                   <>

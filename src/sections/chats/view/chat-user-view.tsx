@@ -1,8 +1,41 @@
+// XÓA FILE
+
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
+import EmptyChatState from '@/components/shared/empty-chat-state'
+import {
+  EnhancedMessageItem,
+  ReplyPreview,
+} from '@/components/shared/message-content'
+import { SidebarChatInfo } from '@/components/shared/sidebar-chat-info'
+import { AutosizeTextarea } from '@/components/ui/autosize-textarea'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  useGetDirectChats,
+  useGetGroupStudent,
+  useGetMessage,
+  useSendMessage,
+} from '@/hooks/chat/useChat'
+import { setLocalStorage, timeAgo } from '@/lib/common'
+import echo from '@/lib/echo'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { IChannel, IMessage } from '@/types/Chat'
+import { MessagePayload } from '@/validations/chat'
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import {
   Archive,
   Film,
@@ -18,38 +51,9 @@ import {
   Volume2,
   X,
 } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { useAuthStore } from '@/stores/useAuthStore'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import {
-  useGetDirectChats,
-  useGetGroupStudent,
-  useGetMessage,
-  useSendMessage,
-} from '@/hooks/chat/useChat'
-import echo from '@/lib/echo'
-import { MessagePayload } from '@/validations/chat'
-import { setLocalStorage, timeAgo } from '@/lib/common'
-import {
-  EnhancedMessageItem,
-  ReplyPreview,
-} from '@/components/shared/message-content'
-import { IChannel, IMessage } from '@/types/Chat'
-import { SidebarChatInfo } from '@/components/shared/sidebar-chat-info'
-import EmptyChatState from '@/components/shared/empty-chat-state'
+import React, { useEffect, useRef, useState } from 'react'
 
 interface FilePreview {
   name: string
@@ -78,6 +82,8 @@ const ChatUserView = () => {
   const [showSearch, setShowSearch] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [filePreviews, setFilePreviews] = useState<FilePreview[]>([])
+  const [openSidebarChatInfo, setOpenSidebarChatInfo] = useState(false)
+
   const searchInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -198,7 +204,7 @@ const ChatUserView = () => {
     })
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
@@ -321,7 +327,7 @@ const ChatUserView = () => {
   }
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-full">
       <input
         type="file"
         ref={fileInputRef}
@@ -338,7 +344,6 @@ const ChatUserView = () => {
         accept="image/*"
         multiple
       />
-
       <input
         type="file"
         ref={videoInputRef}
@@ -396,7 +401,7 @@ const ChatUserView = () => {
                   <Loader2 className="size-8 animate-spin text-orange-500" />
                 </div>
               ) : (
-                directChatData?.data.map((user: any) => (
+                directChatData?.map((user: any) => (
                   <div
                     key={user.id}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-secondary ${
@@ -439,7 +444,7 @@ const ChatUserView = () => {
                     <Loader2 className="size-8 animate-spin text-orange-500" />
                   </div>
                 ) : (
-                  groupChatData?.data.map((channel: any) => (
+                  groupChatData?.map((channel: any) => (
                     <div
                       key={channel.id}
                       className="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-secondary"
@@ -463,12 +468,14 @@ const ChatUserView = () => {
         {selectedChannel ? (
           <div className="flex h-16 items-center justify-between border-b px-4">
             <div className="flex items-center gap-3">
-              <Avatar className="size-8">
-                <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt={selectedChannel?.name}
-                />
-              </Avatar>
+              {!openSidebarChatInfo && (
+                <Avatar className="size-8">
+                  <AvatarImage
+                    src="https://github.com/shadcn.png"
+                    alt={selectedChannel?.name}
+                  />
+                </Avatar>
+              )}
               <div>
                 <h2 className="text-sm font-semibold">
                   {selectedChannel.name}
@@ -481,12 +488,13 @@ const ChatUserView = () => {
                     </p>
                   ) : (
                     <p className="text-xs text-muted-foreground">
-                      {selectedChannel?.online ? 'Online' : 'Offline'}
+                      {selectedChannel?.is_online ? 'Online' : 'Offline'}
                     </p>
                   )}
                 </p>
               </div>
             </div>
+
             <div className="flex items-center gap-2">
               {showSearch ? (
                 <div className="flex items-center gap-2 rounded-md bg-secondary px-2">
@@ -519,9 +527,7 @@ const ChatUserView = () => {
                   <Search className="size-5" />
                 </Button>
               )}
-              <Button size="icon" variant="ghost">
-                <Info className="size-5" />
-              </Button>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button size="icon" variant="ghost">
@@ -543,6 +549,14 @@ const ChatUserView = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => setOpenSidebarChatInfo(!openSidebarChatInfo)}
+              >
+                <Info className="size-5" />
+              </Button>
             </div>
           </div>
         ) : (
@@ -587,21 +601,22 @@ const ChatUserView = () => {
         {filePreviews.length > 0 && (
           <div className="border-t bg-secondary p-2">
             <ScrollArea className="h-32">
-              <div className="grid grid-cols-4 gap-2 p-2">
+              <div className="grid grid-cols-2 gap-2 p-2 xl:grid-cols-4">
                 {filePreviews.map((preview, index) => (
                   <div key={index} className="relative">
                     {preview.type === 'image' ? (
-                      <div className="group relative">
-                        <img
+                      <div className="group relative aspect-video h-24">
+                        <Image
                           src={preview.url}
                           alt={preview.name}
-                          className="h-24 w-full rounded-lg object-cover"
+                          className="absolute rounded-lg object-contain"
+                          fill
                         />
                         <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="size-8 text-white hover:text-white/80"
+                            className="size-8 text-white"
                             onClick={() => removeFilePreview(index)}
                           >
                             <X className="size-4" />
@@ -630,7 +645,7 @@ const ChatUserView = () => {
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="size-8 text-white hover:text-white/80"
+                              className="size-8 text-white"
                               onClick={() => removeFilePreview(index)}
                             >
                               <X className="size-4" />
@@ -648,7 +663,7 @@ const ChatUserView = () => {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="size-8 text-white hover:text-white/80"
+                            className="size-8 text-white"
                             onClick={() => removeFilePreview(index)}
                           >
                             <X className="size-4" />
@@ -741,30 +756,28 @@ const ChatUserView = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Input
-                  placeholder="Type your message..."
-                  className="border-0 bg-secondary py-6 pr-24 text-base focus-visible:ring-1 focus-visible:ring-primary"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="absolute right-2 top-1/2 size-9 -translate-y-1/2 rounded-full bg-orange-500 text-white hover:bg-orange-600"
-                  onClick={() => sendMessage()}
-                  disabled={isPendingSendMessage}
-                >
-                  <Send className="size-5" />
-                </Button>
-              </div>
+              <AutosizeTextarea
+                placeholder="Type your message..."
+                className="resize-none border-0 bg-secondary !text-base focus-visible:ring-primary"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                maxHeight={140}
+                onKeyDown={handleKeyDown}
+              />
+              <Button
+                size="icon"
+                className="shrink-0 rounded-full"
+                onClick={() => sendMessage()}
+                disabled={isPendingSendMessage}
+              >
+                <Send />
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {selectedChannel && (
+      {selectedChannel && openSidebarChatInfo && (
         <SidebarChatInfo
           selectedChannel={selectedChannel}
           messages={chats[selectedChannel?.conversation_id] || []}

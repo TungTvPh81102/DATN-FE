@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Eye } from 'lucide-react'
 
 interface BlogDetailPostProps {
   initialBlogDetail: any
@@ -12,7 +13,7 @@ const BlogDetailPost = ({
   const [isExpanded, setIsExpanded] = useState(false)
   const [contentPreview, setContentPreview] = useState('')
   const [hasMoreContent, setHasMoreContent] = useState(false)
-
+  console.log('initialBlogDetail', initialBlogDetail)
   const PREVIEW_LENGTH = 500
 
   useEffect(() => {
@@ -54,15 +55,19 @@ const BlogDetailPost = ({
           <p>{initialBlogDetail?.published_at}</p>
         </div>
         <div className="meta-item">
+          <Eye size={21} strokeWidth={1} />
+          <p>{initialBlogDetail?.views}</p>
+        </div>
+        <div className="meta-item">
           <i className="flaticon-message"></i>
-          <p>14</p>
+          <p>{initialBlogDetail?.comment_count}</p>
         </div>
         <a href="#" className="meta-item">
           <i className="flaticon-user-1"></i>
-          <p>{initialBlogDetail.user.name}</p>
+          <p>{initialBlogDetail?.user?.name}</p>
         </a>
       </div>
-      <h2 className="fw-7 wow fadeInUp">{initialBlogDetail.title}</h2>
+      <h2 className="fw-7 wow fadeInUp">{initialBlogDetail?.title}</h2>
       <div className="title text-22 fw-5 wow fadeInUp">Giới thiệu</div>
       <p className="fs-15">
         <div
@@ -98,7 +103,7 @@ const BlogDetailPost = ({
                 setIsExpanded(false)
                 window.scrollTo({
                   top:
-                    document.querySelector('.content-container')?.offsetTop ||
+                    document?.querySelector('.content-container')?.offsetTop ||
                     0,
                   behavior: 'smooth',
                 })
@@ -117,7 +122,7 @@ const BlogDetailPost = ({
           reprehenderit voluptates est reprehenderit illo est enim perferendis
           est neque sunt.
         </div>
-        <div className="name">{initialBlogDetail.user.name}</div>
+        <div className="name">{initialBlogDetail?.user?.name}</div>
       </div>
     </div>
   )

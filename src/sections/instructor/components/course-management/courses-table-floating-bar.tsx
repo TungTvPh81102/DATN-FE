@@ -82,6 +82,7 @@ export function CoursesTableFloatingBar({
                       className="size-7 border"
                       onClick={() =>
                         exportTableToXLSX(table, {
+                          filename: 'courses',
                           excludeColumns: ['select', 'actions'],
                           onlySelected: true,
                         })
@@ -91,7 +92,7 @@ export function CoursesTableFloatingBar({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent className="border bg-accent font-semibold text-foreground dark:bg-zinc-900">
-                    <p>Xuất khóa học</p>
+                    <p>Xuất</p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -106,7 +107,7 @@ export function CoursesTableFloatingBar({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent className="border bg-accent font-semibold text-foreground dark:bg-zinc-900">
-                    <p>Xóa khóa học</p>
+                    <p>Xóa</p>
                   </TooltipContent>
                 </Tooltip>
               </div>

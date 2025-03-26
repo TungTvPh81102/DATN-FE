@@ -12,6 +12,8 @@ import { formatCurrency } from '@/lib/common'
 import { ICourse } from '@/types'
 import Link from 'next/link'
 import { CourseItemSkeleton } from '@/components/shared/course-item-skeletion'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import React from 'react'
 
 type Props = {
   courses: ICourse[]
@@ -120,10 +122,19 @@ const CourseSlideRelated = ({ isLoading, courses }: Props) => {
                     )}
                   </div>
                   <div className="author">
-                    By:
-                    <a href="#" className="author">
+                    <Link
+                      href={`/profile/${course?.user.code}`}
+                      className="author flex items-center gap-2"
+                    >
+                      <Avatar className="size-5">
+                        <AvatarImage
+                          src={course?.user.avatar ?? ''}
+                          alt={course?.user.avatar ?? ''}
+                        />
+                        <AvatarFallback>{course?.user.name}</AvatarFallback>
+                      </Avatar>
                       {course?.user?.name}
-                    </a>
+                    </Link>
                   </div>
                   <div className="bottom">
                     <div className="h6 price fw-5">

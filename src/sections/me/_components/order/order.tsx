@@ -41,7 +41,7 @@ const MeOrder = () => {
   }
 
   return (
-    <div className="section-order-right section-right">
+    <div className="section-order-right">
       <div className="heading-section pb-13 border-bottom">
         <h6 className="fs-22 fw-5 wow fadeInUp">Lịch sử đơn hàng</h6>
       </div>

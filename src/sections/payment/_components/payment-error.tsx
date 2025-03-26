@@ -57,7 +57,7 @@ const PaymentErrorView = ({ error }: Props) => {
                     <p className="flex items-center gap-2 text-xs text-red-700">
                       <span className="text-red-600">Mã lỗi:</span>
                       <code className="rounded-md bg-red-100 px-2 py-0.5 font-mono text-red-900">
-                        {error}
+                        {error ?? 'Giao dịch thất bại, vui lòng thử lại.'}
                       </code>
                     </p>
                   </div>
@@ -66,9 +66,9 @@ const PaymentErrorView = ({ error }: Props) => {
             </div>
 
             <div className="space-y-3 pt-4">
-              <button
-                onClick={() => (window.location.href = '/checkout')}
-                className="animate-gradient group mb-2 w-full rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-orange-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5"
+              <a
+                href="/checkout"
+                className="animate-gradient group mb-2 inline-block w-full rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-orange-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:text-white focus:text-white"
               >
                 <span className="flex items-center justify-center gap-2">
                   <RefreshCcw
@@ -81,14 +81,15 @@ const PaymentErrorView = ({ error }: Props) => {
                     strokeWidth={1.5}
                   />
                 </span>
-              </button>
-              <Link href="/">
-                <button className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-50">
-                  <span className="flex items-center justify-center gap-2">
-                    <Home className="size-4 text-slate-500" strokeWidth={1.5} />
-                    <span>Quay về trang chủ</span>
-                  </span>
-                </button>
+              </a>
+              <Link
+                href="/"
+                className="inline-block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-50 hover:text-slate-700 focus:text-slate-700"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <Home className="size-4 text-slate-500" strokeWidth={1.5} />
+                  <span>Quay về trang chủ</span>
+                </span>
               </Link>
             </div>
           </div>

@@ -7,12 +7,7 @@ import { toast } from 'react-toastify'
 
 import QueryKey from '@/constants/query-key'
 import { notificationApi } from '@/services/notification/notification-api'
-
-type Notification = {
-  id: string
-  message: string
-  read_at: string | null
-}
+import { Notification } from '@/types/notification'
 
 type NotificationResponse = {
   notifications: Notification[]

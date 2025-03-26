@@ -1,13 +1,25 @@
 import React, { useState } from 'react'
+import { useGetCategories } from '@/hooks/category/useCategory'
 
-const BlogListSideBar = () => {
-  const [searchText, setSearchText] = useState('')
+interface BlogListSideBarProps {
+  onCategoryClick: (slug: string) => void
+  selectedCategory: string | null
+  onSearch: (query: string) => void
+  searchQuery: string
+}
 
+const BlogListSideBar = ({
+  onCategoryClick,
+  selectedCategory,
+  onSearch,
+  searchQuery,
+}: BlogListSideBarProps) => {
   const [openSections, setOpenSections] = useState({
     categories: true,
     recentPosts: false,
     tags: false,
   })
+  const { data: CategoriesData } = useGetCategories()
 
   const toggleSection = (section: 'categories' | 'recentPosts' | 'tags') => {
     setOpenSections((prev) => ({
@@ -15,18 +27,19 @@ const BlogListSideBar = () => {
       [section]: !prev[section],
     }))
   }
-
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+  }
   return (
     <div className="right tf-sidebar rounded-lg bg-white p-6">
       <div className="sidebar-search mb-8">
-        <form action="#" className="form-search relative">
+        <form onSubmit={handleSubmit} className="form-search relative">
           <input
             className="w-full rounded-lg bg-gray-100 px-4 py-3 text-gray-800 focus:outline-none focus:ring-2"
             type="text"
             placeholder="Tìm kiếm bài viết..."
-            name="text"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => onSearch(e.target.value)}
             aria-required="true"
             required
           />
@@ -59,28 +72,23 @@ const BlogListSideBar = () => {
             </svg>
           </i>
         </div>
+
         {openSections.categories && (
           <ul className="space-y-3">
-            {[
-              { name: 'Web Development', count: 432 },
-              { name: 'Software Testing', count: 12 },
-              { name: 'Mobile Development', count: 324 },
-              { name: 'Game Development', count: 87 },
-              { name: 'Software Engineering', count: 163 },
-            ].map((category, index) => (
+            {CategoriesData?.data.map((category: any) => (
               <li
-                key={index}
-                className="group flex items-center justify-between"
+                key={category.id}
+                className={`group flex cursor-pointer items-center justify-between ${
+                  selectedCategory === category.slug ? 'text-[#E78E6A]' : ''
+                }`}
+                onClick={() => onCategoryClick(category.slug)}
               >
-                <a
-                  href="#"
-                  className="flex items-center text-gray-700 transition-colors duration-300 group-hover:text-[#E78E6A]"
-                >
+                <span className="flex items-center text-gray-700 transition-colors duration-300 group-hover:text-[#E78E6A]">
                   <span className="mr-2">•</span>
                   {category.name}
-                </a>
+                </span>
                 <span className="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-600 transition-all group-hover:bg-[#E78E6A] group-hover:text-white">
-                  {category.count}
+                  {category?.count}
                 </span>
               </li>
             ))}

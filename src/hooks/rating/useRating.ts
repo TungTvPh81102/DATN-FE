@@ -16,3 +16,10 @@ export const useCheckCourseRatingState = (slug?: string) => {
     enabled: !!slug,
   })
 }
+
+export const useGetRatingAboutPage = () => {
+  return useQuery({
+    queryKey: [QueryKey.RATING_ABOUT_PAGE],
+    queryFn: () => ratingApi.getRatingAboutPage(),
+  })
+}

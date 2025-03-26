@@ -1,6 +1,5 @@
 'use client'
 
-import { useDebouncedCallback } from '@/hooks/use-debounced-callback'
 import type { ExtendedSortingState } from '@/types/data-table'
 import {
   type ColumnFiltersState,
@@ -19,17 +18,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+
+const ARRAY: any[] = []
 
 interface UseDataTableProps<TData>
   extends Omit<TableOptions<TData>, 'state' | 'getCoreRowModel' | 'data'> {
   data?: TData[]
-
-  /**
-   * Debounce time (ms) for filter updates to enhance performance during rapid input.
-   * @default 300
-   */
-  debounceMs?: number
 
   initialState?: Omit<Partial<TableState>, 'sorting'> & {
     // Extend to make the sorting id typesafe
@@ -38,11 +33,18 @@ interface UseDataTableProps<TData>
 }
 
 export function useDataTable<TData>({
-  data = [],
-  debounceMs = 300,
+  data,
   initialState,
   ...props
 }: UseDataTableProps<TData>) {
+  const memoData = useMemo(() => {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      return ARRAY
+    }
+
+    return data
+  }, [data])
+
   const [rowSelection, setRowSelection] = useState<RowSelectionState>(
     initialState?.rowSelection ?? {}
   )
@@ -59,12 +61,7 @@ export function useDataTable<TData>({
     initialState?.sorting ?? []
   )
 
-  const [filterValues, setFilterValues] = useState<ColumnFiltersState>([])
-
-  const debouncedSetFilterValues = useDebouncedCallback(
-    setFilterValues,
-    debounceMs
-  )
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const onPaginationChange = (updaterOrValue: Updater<PaginationState>) => {
     if (typeof updaterOrValue === 'function') {
@@ -85,46 +82,24 @@ export function useDataTable<TData>({
     }
   }
 
-  // Filter
-  const initialColumnFilters: ColumnFiltersState = useMemo(() => {
-    return Object.entries(filterValues).reduce<ColumnFiltersState>(
-      (filters, [key, value]) => {
-        if (value !== null) {
-          filters.push({
-            id: key,
-            value: Array.isArray(value) ? value : [value],
-          })
-        }
-        return filters
-      },
-      []
-    )
-  }, [filterValues])
+  const onColumnFiltersChange = (
+    updaterOrValue: Updater<ColumnFiltersState>
+  ) => {
+    setColumnFilters((prev) => {
+      const next =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(prev)
+          : updaterOrValue
 
-  const [columnFilters, setColumnFilters] =
-    useState<ColumnFiltersState>(initialColumnFilters)
+      void setPagination({ pageIndex: 0, pageSize: pagination.pageSize })
 
-  const onColumnFiltersChange = useCallback(
-    (updaterOrValue: Updater<ColumnFiltersState>) => {
-      setColumnFilters((prev) => {
-        const next =
-          typeof updaterOrValue === 'function'
-            ? updaterOrValue(prev)
-            : updaterOrValue
-
-        void setPagination({ pageIndex: 0, pageSize: pagination.pageSize })
-
-        return next
-      })
-    },
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [debouncedSetFilterValues, setPagination]
-  )
+      return next
+    })
+  }
 
   const table = useReactTable({
     ...props,
-    data,
+    data: memoData,
     initialState,
     state: {
       pagination,

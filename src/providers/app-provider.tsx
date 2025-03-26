@@ -5,6 +5,8 @@ import { Toaster } from 'react-hot-toast'
 import { ToastContainer } from 'react-toastify'
 
 import QueryProvider from './query-provider'
+import { GoogleOAuthProvider } from '@react-oauth/google'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 type Props = {
   children: React.ReactNode
@@ -22,8 +24,15 @@ const AppProvider = ({ children }: Props) => {
   }
 
   return (
-    <QueryProvider>
-      {children}
+    <div id="wrapper">
+      <QueryProvider>
+        <GoogleOAuthProvider
+          clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
+        >
+          {children}
+        </GoogleOAuthProvider>
+      </QueryProvider>
+
       <ToastContainer newestOnTop closeOnClick />
       <Toaster
         position="top-center"
@@ -33,7 +42,9 @@ const AppProvider = ({ children }: Props) => {
           },
         }}
       />
-    </QueryProvider>
+
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID!} />
+    </div>
   )
 }
 

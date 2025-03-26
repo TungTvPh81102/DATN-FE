@@ -1,8 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import BlogListPagination from '@/sections/blogs/_components/blog-list/pagination'
 import { formatDate } from '@/lib/common'
+import { Eye } from 'lucide-react'
 
 interface BlogListItemProps {
   initialBlogs: any
@@ -43,7 +43,7 @@ const BlogSkeleton = () => {
 }
 
 const BlogListItem = ({ initialBlogs, isLoading }: BlogListItemProps) => {
-  const posts = initialBlogs?.data
+  const blogs = initialBlogs?.data
 
   return (
     <>
@@ -55,7 +55,7 @@ const BlogListItem = ({ initialBlogs, isLoading }: BlogListItemProps) => {
             <BlogSkeleton />
           </>
         ) : (
-          posts?.map((blog: any) => (
+          blogs?.map((blog: any) => (
             <div
               key={blog.id}
               className="blog-article-item style-row hover-img fadeInUp"
@@ -63,38 +63,42 @@ const BlogListItem = ({ initialBlogs, isLoading }: BlogListItemProps) => {
               <div className="article-thumb image-wrap">
                 <Image
                   className="lazyload object-fit-cover"
-                  src={blog.thumbnail}
+                  src={blog?.thumbnail}
                   alt=""
                   width={500}
                   height={250}
                 />
               </div>
               <div className="article-content">
-                <div className="article-label">{blog.category.name}</div>
+                <div className="article-label">{blog?.category?.name}</div>
                 <h3 className="fw-5">
-                  <Link href={`/blogs/${blog.slug}`}>{blog.title}</Link>
+                  <Link href={`/blogs/${blog.slug}`}>{blog?.title}</Link>
                 </h3>
                 <p
                   className="text-justify leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      blog.description.length > 260
-                        ? blog.description.substring(0, 260) + '...'
-                        : blog.description,
+                      blog?.description.length > 260
+                        ? blog?.description.substring(0, 260) + '...'
+                        : blog?.description,
                   }}
                 />
                 <div className="meta">
                   <div className="meta-item">
                     <i className="flaticon-calendar"></i>
-                    <p>{formatDate(blog.created_at)}</p>
+                    <p>{formatDate(blog?.published_at)}</p>
+                  </div>
+                  <div className="meta-item">
+                    <Eye size={20} strokeWidth={1} />
+                    <p>{blog?.views}</p>
                   </div>
                   <div className="meta-item">
                     <i className="flaticon-message"></i>
-                    <p>14</p>
+                    <p>{blog?.comment_count}</p>
                   </div>
                   <a href="#" className="meta-item">
                     <i className="flaticon-user-1"></i>
-                    <p>{blog.user.name}</p>
+                    <p>{blog.user?.name}</p>
                   </a>
                 </div>
                 <Link href={`/blogs/${blog.slug}`} className="tf-btn-arrow">
@@ -105,7 +109,6 @@ const BlogListItem = ({ initialBlogs, isLoading }: BlogListItemProps) => {
           ))
         )}
       </div>
-      <BlogListPagination />
     </>
   )
 }

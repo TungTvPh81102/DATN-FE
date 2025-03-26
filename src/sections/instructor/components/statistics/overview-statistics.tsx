@@ -1,21 +1,28 @@
 'use client'
+
+import { CircleDollarSign, Folder, Star, UsersRound } from 'lucide-react'
 import CountUp from 'react-countup'
+
 import { Card, CardContent } from '@/components/ui/card'
+import { useSidebar } from '@/components/ui/sidebar'
 import { useGetOverviewStatistics } from '@/hooks/instructor/use-statistic'
-import { formatCurrency } from '@/lib/common'
-import {
-  CircleDollarSign,
-  Folder,
-  Loader2,
-  Star,
-  UsersRound,
-} from 'lucide-react'
+import { formatVietnameseCurrency } from '@/lib/common'
+import { cn } from '@/lib/utils'
 
 const OverviewStatistics = () => {
-  const { data: overviewStatistics, isLoading } = useGetOverviewStatistics()
+  const { data: overviewStatistics } = useGetOverviewStatistics()
+  const { open } = useSidebar()
 
   return (
-    <div className="grid h-full grid-cols-2 items-stretch gap-3 lg:gap-5">
+    <div
+      className={cn(
+        'grid h-full items-stretch gap-3 lg:gap-5',
+        open
+          ? 'md:grid-cols-2 lg:grid-cols-4'
+          : 'md:grid-cols-4 lg:grid-cols-2',
+        'xl:grid-cols-2'
+      )}
+    >
       <Card className="channel-stats-bg flex h-full flex-col justify-between gap-6 bg-cover bg-[left_top_-1.7rem] bg-no-repeat">
         <div className="ms-5 mt-4 inline-flex size-14 items-center justify-center rounded-xl bg-primary/15">
           <Folder className="text-primary" />
@@ -23,11 +30,7 @@ const OverviewStatistics = () => {
 
         <CardContent className="flex flex-col gap-1">
           <span className="text-2xl font-semibold">
-            {isLoading ? (
-              <Loader2 className="mb-3 ml-3 animate-spin text-muted-foreground" />
-            ) : (
-              <CountUp end={overviewStatistics?.totalCourse ?? 0} />
-            )}
+            <CountUp end={overviewStatistics?.totalCourse ?? 0} />
           </span>
           <span className="text-sm font-normal text-muted-foreground">
             Tổng số khóa học
@@ -39,22 +42,16 @@ const OverviewStatistics = () => {
         <div className="ms-5 mt-4 inline-flex size-14 items-center justify-center rounded-xl bg-primary/15">
           <CircleDollarSign className="text-primary" />
         </div>
-        <CardContent className="flex flex-col gap-1">
-          <span className="text-2xl font-semibold">
-            {isLoading ? (
-              <Loader2 className="mb-3 ml-3 animate-spin text-muted-foreground" />
-            ) : (
-              <CountUp
-                end={
-                  overviewStatistics?.totalRevenue
-                    ? +overviewStatistics.totalRevenue
-                    : 0
-                }
-                formattingFn={(value) => formatCurrency(value)}
-                separator="."
-              />
-            )}
-          </span>
+        <CardContent className="flex flex-col gap-1 p-5 pt-0">
+          <CountUp
+            end={
+              overviewStatistics?.totalRevenue
+                ? +overviewStatistics?.totalRevenue
+                : 0
+            }
+            formattingFn={formatVietnameseCurrency}
+            className="truncate text-2xl font-semibold"
+          />
           <span className="text-sm font-normal text-muted-foreground">
             Tổng doanh thu
           </span>
@@ -67,16 +64,11 @@ const OverviewStatistics = () => {
         </div>
 
         <CardContent className="flex flex-col gap-1">
-          <span className="text-2xl font-semibold">
-            {isLoading ? (
-              <Loader2 className="mb-3 ml-3 animate-spin text-muted-foreground" />
-            ) : (
-              <CountUp
-                end={overviewStatistics?.totalEnrollments ?? 0}
-                separator="."
-              />
-            )}
-          </span>
+          <CountUp
+            end={overviewStatistics?.totalEnrollments ?? 0}
+            separator="."
+            className="text-2xl font-semibold"
+          />
           <span className="text-sm font-normal text-muted-foreground">
             Số học viên
           </span>
@@ -89,21 +81,16 @@ const OverviewStatistics = () => {
         </div>
 
         <CardContent className="flex flex-col gap-1">
-          <span className="text-2xl font-semibold">
-            {isLoading ? (
-              <Loader2 className="mb-3 ml-3 animate-spin text-muted-foreground" />
-            ) : (
-              <CountUp
-                end={
-                  overviewStatistics?.averageRating
-                    ? +overviewStatistics.averageRating
-                    : 0
-                }
-                decimals={1}
-                decimal=","
-              />
-            )}
-          </span>
+          <CountUp
+            end={
+              overviewStatistics?.averageRating
+                ? +overviewStatistics.averageRating
+                : 0
+            }
+            decimals={1}
+            decimal=","
+            className="text-2xl font-semibold"
+          />
           <span className="text-sm font-normal text-muted-foreground">
             Đánh giá trung bình
           </span>

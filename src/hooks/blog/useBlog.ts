@@ -17,3 +17,10 @@ export const useGetBlogBySlug = (slug?: string) => {
     enabled: !!slug,
   })
 }
+export const useGetBlogsOfCategory = (slug: string) => {
+  return useQuery({
+    queryKey: [QueryKey.BLOGS, slug],
+    queryFn: () => blogApi.getCategoryBlogs(slug),
+    enabled: !!slug,
+  })
+}

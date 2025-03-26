@@ -6,7 +6,8 @@ import MeOrder from './order/order'
 import MeProfile from '@/sections/me/_components/profile/me-profile'
 import MePassWord from '@/sections/me/_components/password/me-password'
 import MeBio from '@/sections/me/_components/bio/me-bio'
-import { BadgeCheck, CircleUser, FileLock2 } from 'lucide-react'
+import { BadgeCheck, CircleUser, FileLock2, Gem } from 'lucide-react'
+import MeMembership from '@/sections/me/_components/membership/membership'
 
 const menuItems = [
   {
@@ -23,6 +24,11 @@ const menuItems = [
     icon: <i className="flaticon-bag"></i>,
     label: 'Khóa học đã mua',
     component: <MeOrder />,
+  },
+  {
+    icon: <Gem size="18" />,
+    label: 'Gói thành viên',
+    component: <MeMembership />,
   },
   {
     icon: <BadgeCheck size="21" />,

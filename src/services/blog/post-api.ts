@@ -9,4 +9,7 @@ export const blogApi = {
   getBlogBySlug: async (slug: string) => {
     return await api.get(`${prefix}/${slug}`)
   },
+  getCategoryBlogs: async (slug: string) => {
+    return await api.get(`${prefix}/category/${slug}`)
+  },
 }

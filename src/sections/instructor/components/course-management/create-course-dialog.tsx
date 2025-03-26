@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 
 import { useGetCategories } from '@/hooks/category/useCategory'
@@ -29,7 +30,13 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-const CreateCourseDialog = () => {
+interface Props {
+  isPracticalCourse?: boolean
+}
+
+const CreateCourseDialog = ({ isPracticalCourse = false }: Props) => {
+  const router = useRouter()
+
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategories()
 
@@ -43,25 +50,45 @@ const CreateCourseDialog = () => {
 
   const form = useForm<CreateCoursePayload>({
     resolver: zodResolver(createCourseSchema),
+    defaultValues: {
+      name: '',
+      isPracticalCourse,
+    },
     disabled: isCourseCreating,
   })
 
   const onSubmit = (values: CreateCoursePayload) => {
-    createCourse(values)
+    createCourse(values, {
+      onSuccess: (res) => {
+        const courseSlug = res?.data.slug
+        if (!isPracticalCourse) {
+          router.push(`/instructor/courses/update/${courseSlug}`)
+        } else {
+          router.push(`/instructor/practical-courses/update/${courseSlug}`)
+        }
+      },
+    })
   }
+
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(open) => {
+        if (!open) {
+          form.reset()
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus />
-          Tạo khoá học
+          Tạo khóa học
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Thêm tiêu đề và chọn danh mục cho khoá học</DialogTitle>
+          <DialogTitle>Thêm tiêu đề và chọn danh mục cho khóa học</DialogTitle>
           <DialogDescription>
-            Bạn có thể thêm tiêu đề và chọn danh mục cho khoá học của mình.
+            Bạn có thể thêm tiêu đề và chọn danh mục cho khóa học của mình.
           </DialogDescription>
         </DialogHeader>
 
@@ -72,7 +99,7 @@ const CreateCourseDialog = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tiêu đề khoá học</FormLabel>
+                  <FormLabel>Tiêu đề khóa học</FormLabel>
                   <FormControl>
                     <Input placeholder="Nhập tiêu đề" {...field} />
                   </FormControl>
@@ -83,7 +110,7 @@ const CreateCourseDialog = () => {
             <FormCombobox
               control={form.control}
               name="category_id"
-              label="Danh mục khóa học"
+              label="Danh mục"
               options={categoryOptions}
               isLoading={isCategoriesLoading}
               placeholder="Chọn danh mục"

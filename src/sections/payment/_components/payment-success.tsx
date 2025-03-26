@@ -91,14 +91,14 @@ const PaymentSuccessView = () => {
                 </button>
               </Link>
 
-              <Link href="/">
-                <button className="group flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 font-medium text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50">
-                  <Home
-                    className="size-4 text-slate-500 transition-colors group-hover:text-slate-700"
-                    strokeWidth={1.5}
-                  />
-                  <span className="text-base">Quay về trang chủ</span>
-                </button>
+              <Link
+                href="/"
+                className="inline-block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-50 hover:text-slate-700 focus:text-slate-700"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <Home className="size-4 text-slate-500" strokeWidth={1.5} />
+                  <span>Quay về trang chủ</span>
+                </span>
               </Link>
             </div>
           </div>

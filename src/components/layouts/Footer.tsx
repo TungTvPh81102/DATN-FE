@@ -39,14 +39,14 @@ const Footer = () => {
                     data-wow-delay="0s"
                   >
                     <div className="footer-logo">
-                      <a href="#">
+                      <Link href="/">
                         <Image
                           src="/images/logo/logo.svg"
                           alt=""
-                          width={500}
+                          width={200}
                           height={300}
                         />
-                      </a>
+                      </Link>
                     </div>
                     <ul className="mb-8 space-y-4">
                       <li className="flex items-center gap-3 text-gray-600">

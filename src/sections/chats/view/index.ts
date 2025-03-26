@@ -1,1 +1,1 @@
-export { default as ChatUserView } from './chat-user-view'
+export { default as ChatView } from './chat-view'

@@ -2,40 +2,29 @@
 
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useWishListStore } from '@/stores/useWishListStore'
-import { Bell, CheckCircle, Loader2, Search } from 'lucide-react'
+import { Bell, Loader2, Search } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
-import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 
 import { Role } from '@/constants/role'
 import { useLogOut } from '@/hooks/auth/useLogOut'
 import { useGetCategories } from '@/hooks/category/useCategory'
 import { useDebounce } from '@/hooks/debounce/useDebounce'
-import {
-  useGetNotifications,
-  useMarkAsRead,
-} from '@/hooks/notification/useNotification'
 import { useSearch } from '@/hooks/search/userSearch'
 import { useGetWishLists } from '@/hooks/wish-list/useWishList'
-import echo from '@/lib/echo'
-import { cn } from '@/lib/utils'
 import { ICourse, IInstructorProfile } from '@/types'
 import { ICategory } from '@/types/Category'
 
 import WishListIcon from '@/components/common/WishListIcon'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { Slot } from '@radix-ui/react-slot'
+import { NotificationPopover } from '../notification/notification-popover'
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
   ssr: false,
@@ -44,14 +33,6 @@ const MobileMenu = dynamic(() => import('./MobileMenu'), {
 const Header = () => {
   const [query, setQuery] = useState('')
   const [inputWidth, setInputWidth] = useState(0)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [notifications, setNotifications] = useState<
-    { id: string; message: string; read_at: string | null }[]
-  >([])
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useGetNotifications()
-  const { mutate: markAsRead } = useMarkAsRead()
 
   const { user, isAuthenticated, role } = useAuthStore()
   const { isPending, mutate } = useLogOut()
@@ -74,38 +55,6 @@ const Header = () => {
 
     router.push('/courses')
   }
-
-  useEffect(() => {
-    if (!isLoading && data) {
-      setNotifications(data?.pages.flatMap((page) => page.notifications) || [])
-    }
-  }, [user?.id, data, isLoading])
-
-  useEffect(() => {
-    if (!user?.id) return
-
-    const privateChannel = echo.private(`member.${user?.id}`)
-
-    privateChannel.notification((notification: any) => {
-      // console.log('🔔 Notification for Member:', notification)
-      toast.info(notification.message)
-
-      setNotifications((prev) => {
-        if (prev.some((noti) => noti.id === notification.id)) {
-          // console.log('Duplicate notification detected:', notification.id)
-          return prev
-        }
-        return [
-          { id: notification.id, message: notification.message, read_at: null },
-          ...prev,
-        ]
-      })
-    })
-
-    return () => {
-      echo.leave(`member.${user.id}`)
-    }
-  }, [user?.id])
 
   useEffect(() => {
     if (inputRef.current) {
@@ -143,28 +92,11 @@ const Header = () => {
     })
   }
 
-  const handleMarkAsRead = (id: string) => {
-    markAsRead(id)
-    setNotifications((prev) =>
-      prev.map((n) =>
-        n.id === id ? { ...n, read_at: new Date().toISOString() } : n
-      )
-    )
-  }
-
-  const filteredNotifications = notifications
-    .filter((noti: any) =>
-      noti?.data?.message?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .slice(0, 5)
-
-  const hasUnread = notifications.some((n) => !n.read_at)
-
   const dropdownMenuLinks = [
     {
       content: (
         <div className="flex items-center space-x-2">
-          <Avatar className="size-16">
+          <Avatar className="size-14">
             <AvatarImage
               src={user?.avatar || '/assets/images/avatar/user-1.png'}
               alt="@shadcn"
@@ -173,8 +105,10 @@ const Header = () => {
           </Avatar>
 
           <div className="space-y-1">
-            <div className="text-lg">{user?.name}</div>
-            <div className="text-sm text-gray-400">{user?.email}</div>
+            <div className="max-w-[150px] truncate text-lg">{user?.name}</div>
+            <div className="max-w-[150px] truncate text-sm text-gray-400">
+              {user?.email}
+            </div>
           </div>
         </div>
       ),
@@ -202,12 +136,15 @@ const Header = () => {
       separator: true,
     },
     {
+      content: 'Vận may',
+      href: '/lucky-wheel',
+    },
+    {
       content: 'Thông báo',
       href: '#',
     },
     {
-      content: 'Tin nhắn',
-      href: 'chats',
+      content: <a href="/chats">Tin nhắn</a>,
       separator: true,
     },
 
@@ -237,14 +174,13 @@ const Header = () => {
               />
               <div id="site-logo">
                 <Link href="/" rel="home" className="flex items-center gap-2">
-                  <div className="flex aspect-square size-10 rounded-lg">
-                    <Image
-                      src="/images/Logo.png"
-                      alt="CourseMeLy logo"
-                      width={40}
-                      height={40}
-                    />
-                  </div>
+                  <Image
+                    src="/images/Logo.png"
+                    alt="CourseMeLy logo"
+                    width={40}
+                    height={40}
+                    className="shrink-0 rounded-md"
+                  />
                   <span className="truncate text-xl font-extrabold">
                     CourseMeLy
                   </span>
@@ -291,7 +227,7 @@ const Header = () => {
             </div>
             <div className="header-right grow !justify-end">
               <a
-                className="header-search-icon flex items-center justify-center"
+                className="header-search-icon flex w-10 items-center justify-center"
                 href="#canvasSearch"
                 data-bs-toggle="offcanvas"
                 aria-controls="offcanvasLeft"
@@ -300,101 +236,17 @@ const Header = () => {
               </a>
               <WishListIcon />
 
-              <Popover>
-                <PopoverTrigger asChild>
-                  <div className="relative">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="hover:bg-transparent hover:text-primary [&_svg]:size-5"
-                    >
-                      <Bell
-                        className={cn(
-                          'stroke-[1.6]',
-                          hasUnread && 'animate-bell'
-                        )}
-                      />
-                    </Button>
-                    {hasUnread && (
-                      <span className="absolute right-[5px] top-px flex size-3">
-                        <span className="absolute size-full animate-ping rounded-full bg-red-400/75"></span>
-                        <span className="relative size-3 rounded-full bg-red-500"></span>
-                      </span>
-                    )}
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="start"
-                  side="bottom"
-                  className="w-100 mr-6 p-2"
-                >
-                  <div className="flex justify-between gap-2">
-                    <h4 className="text-sm font-medium">Thông báo</h4>
-                    <input
-                      type="text"
-                      placeholder="Tìm kiếm..."
-                      className="w-60 rounded border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <Separator className="my-2" />
-                  {isLoading ? (
-                    <Loader2 />
-                  ) : filteredNotifications.length > 0 ? (
-                    <div className="flex w-full flex-col gap-3">
-                      {filteredNotifications.map((noti: any) => (
-                        <div
-                          key={noti.id}
-                          className={`flex cursor-pointer items-center gap-4 rounded p-2 ${
-                            noti.read_at ? 'bg-gray-100' : 'bg-blue-50'
-                          }`}
-                          onClick={() => handleMarkAsRead(noti.id)}
-                        >
-                          <div className="flex size-8 items-center justify-center rounded-full bg-gray-300">
-                            {noti?.data.course_thumbnail ? (
-                              <Image
-                                src={noti?.data.course_thumbnail}
-                                alt="thumbnail"
-                                className="size-full rounded-full object-cover"
-                                width={32}
-                                height={32}
-                              />
-                            ) : (
-                              <span className="text-sm font-bold text-white">
-                                {noti?.data.sender?.charAt(0) ?? 'N'}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex flex-1 items-center justify-between">
-                            <span className="text-sm">
-                              {noti?.data.message}
-                            </span>
-                            {!noti.read_at && (
-                              <CheckCircle className="size-4 text-green-500" />
-                            )}
-                          </div>
-                        </div>
-                      ))}
-
-                      {hasNextPage && (
-                        <button
-                          className="mt-2 w-full text-center font-bold text-primary"
-                          onClick={() => fetchNextPage()}
-                          disabled={!hasNextPage || isFetchingNextPage}
-                        >
-                          {isFetchingNextPage ? 'Đang tải...' : 'Xem thêm'}
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-gray-500">
-                      Không có thông báo mới
-                    </p>
-                  )}
-                </PopoverContent>
-              </Popover>
+              <NotificationPopover
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-10 hover:bg-transparent hover:text-primary [&_svg]:size-5"
+                  >
+                    <Bell className="stroke-[1.6]" />
+                  </Button>
+                }
+              />
 
               {isAuthenticated ? (
                 <>
@@ -542,15 +394,13 @@ const Header = () => {
                                   data-bs-dismiss="offcanvas"
                                   onClick={() => setQuery('')}
                                 >
-                                  <Avatar>
-                                    <AvatarImage
-                                      src={course?.thumbnail ?? undefined}
-                                      alt={course?.name}
-                                    />
-                                    <AvatarFallback>
-                                      {course?.name?.charAt(0).toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
+                                  <Image
+                                    src={course?.thumbnail}
+                                    alt={course?.name}
+                                    width={128}
+                                    height={128}
+                                    className="size-12 rounded-full object-cover"
+                                  />
                                   <p className="text-base">{course?.name}</p>
                                 </div>
                               </Link>

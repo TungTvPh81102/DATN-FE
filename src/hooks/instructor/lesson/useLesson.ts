@@ -10,10 +10,11 @@ import {
 } from '@/validations/lesson'
 import QueryKey from '@/constants/query-key'
 import { instructorLessonApi } from '@/services/instructor/lesson/lesson-api'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 
 export const useGetLessonCoding = (lessonSlug: string, codingId: string) => {
   return useQuery({
-    queryKey: [QueryKey.INSTRUCTOR_LESSON_CODING, lessonSlug, codingId, ,],
+    queryKey: [QueryKey.INSTRUCTOR_LESSON_CODING, lessonSlug, codingId],
     queryFn: () => instructorLessonApi.getLessonCoding(lessonSlug, codingId),
     enabled: !!codingId,
   })
@@ -223,34 +224,13 @@ export const useCreateLessonQuiz = () => {
 }
 
 export const useUpdateQuizContent = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({
-      quizId,
-      payload,
-    }: {
-      quizId: string
-      payload: LessonQuizPayload
-    }) => instructorLessonApi.updateQuizContent(quizId, payload),
-
-    onSuccess: async (res) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: [QueryKey.INSTRUCTOR_COURSE],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [QueryKey.VALIDATE_COURSE],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [QueryKey.INSTRUCTOR_QUIZ, res.data.id],
-        }),
-      ])
-      toast.success(res.message)
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
+  return useToastMutation({
+    mutationFn: instructorLessonApi.updateQuizContent,
+    queryKeys: [
+      [QueryKey.INSTRUCTOR_COURSE],
+      [QueryKey.VALIDATE_COURSE],
+      [QueryKey.INSTRUCTOR_QUIZ],
+    ],
   })
 }
 
@@ -320,6 +300,7 @@ export const useDeleteLesson = () => {
     mutationFn: ({ chapterId, id }: { chapterId: number; id: number }) =>
       instructorLessonApi.deleteLesson(chapterId, id),
     onSuccess: async (res: any) => {
+      toast.success(res.message)
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: [QueryKey.INSTRUCTOR_COURSE],
@@ -328,7 +309,6 @@ export const useDeleteLesson = () => {
           queryKey: [QueryKey.VALIDATE_COURSE],
         }),
       ])
-      toast.success(res.message)
     },
     onError: (error) => {
       toast.error(error.message)

@@ -21,3 +21,10 @@ export const useApplyCoupon = () => {
     mutationFn: (data: any) => transationApi.applyCoupon(data),
   })
 }
+
+export const useDeleteApplyCoupon = () => {
+  return useMutation({
+    mutationFn: (data: { code: string }) =>
+      transationApi.deleteApplyCoupon(data),
+  })
+}

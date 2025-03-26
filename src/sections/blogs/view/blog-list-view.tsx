@@ -1,16 +1,42 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 
-import { useGetBlogs } from '@/hooks/blog/useBlog'
+import { useGetBlogs, useGetBlogsOfCategory } from '@/hooks/blog/useBlog'
 
 import BlogListBanner from '../_components/blog-list/banner'
 import BlogListItem from '../_components/blog-list/item'
 import BlogListSideBar from '../_components/blog-list/sidebar'
+import BlogListPagination from '@/sections/blogs/_components/blog-list/pagination'
 
 const BlogListView = () => {
-  const { data: blogs, isLoading } = useGetBlogs()
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
+  const { data: allBlogs, isLoading: isLoadingAll } = useGetBlogs()
+
+  const { data: categoryBlogs, isLoading: isLoadingCategory } =
+    useGetBlogsOfCategory(selectedCategory || '')
+
+  const blogs = selectedCategory ? categoryBlogs : allBlogs
+
+  const isLoading = selectedCategory ? isLoadingCategory : isLoadingAll
+  const filteredBlogs = blogs?.data
+    ? {
+        data: blogs.data.filter(
+          (blog: any) =>
+            blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            blog.description.toLowerCase().includes(searchQuery.toLowerCase())
+        ),
+      }
+    : blogs
+  const handleCategoryClick = (slug: string) => {
+    setSelectedCategory(slug)
+    setSearchQuery('')
+  }
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+  }
   return (
     <div>
       <BlogListBanner />
@@ -22,10 +48,16 @@ const BlogListView = () => {
                 <div className="left">
                   <BlogListItem
                     isLoading={isLoading}
-                    initialBlogs={blogs?.data}
+                    initialBlogs={filteredBlogs}
                   />
+                  <BlogListPagination />
                 </div>
-                <BlogListSideBar />
+                <BlogListSideBar
+                  onCategoryClick={handleCategoryClick}
+                  selectedCategory={selectedCategory}
+                  onSearch={handleSearch}
+                  searchQuery={searchQuery}
+                />
               </div>
             </div>
           </div>

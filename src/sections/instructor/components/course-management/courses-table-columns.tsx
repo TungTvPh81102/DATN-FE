@@ -93,34 +93,7 @@ export function getColumns({
         className: 'hidden',
       },
     },
-    {
-      accessorKey: 'created_at',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Ngày tạo" />
-      ),
-      cell: ({ getValue }) => {
-        return (
-          <div className="space-y-1">
-            <div className="font-medium">
-              {formatDate(getValue() as Date, {
-                dateStyle: 'medium',
-              })}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {formatDate(getValue() as Date, {
-                timeStyle: 'short',
-                hour12: true,
-              })}
-            </div>
-          </div>
-        )
-      },
-      sortingFn: 'datetime',
-      filterFn: dateRangeFilterFn,
-      meta: {
-        label: 'Ngày tạo',
-      },
-    },
+
     {
       accessorKey: 'price',
       header: ({ column }) => (
@@ -174,6 +147,19 @@ export function getColumns({
       },
       meta: {
         label: 'Trạng thái',
+      },
+    },
+    {
+      accessorKey: 'created_at',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Ngày tạo" />
+      ),
+      cell: ({ row }) =>
+        row.original.created_at ? formatDate(row.original.created_at) : '-',
+      sortingFn: 'datetime',
+      filterFn: dateRangeFilterFn,
+      meta: {
+        label: 'Ngày tạo',
       },
     },
     {

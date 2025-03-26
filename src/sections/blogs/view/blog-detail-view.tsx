@@ -2,20 +2,21 @@
 
 import React from 'react'
 import { Loader2 } from 'lucide-react'
-
 import { useGetBlogBySlug } from '@/hooks/blog/useBlog'
-
 import BlogDetailPost from '../_components/blog-detail/post'
 import BlogDetailProfileItem from '../_components/blog-detail/profile-item'
-import BlogDetailReviewList from '../_components/blog-detail/review-list'
+import BlogDetaiCommentsList from '../_components/blog-detail/comment-list'
 import BlogDetailSharePost from '../_components/blog-detail/share-post'
 import BlogDetailSimilarPosts from '../_components/blog-detail/similar-posts'
 import Image from 'next/image'
+import { notFound } from 'next/navigation'
 
 const BlogDetailView = ({ slug }: { slug: string }) => {
-  const { data: blogDetail, isLoading: isLoadingBlogDetail } =
-    useGetBlogBySlug(slug)
-  const postId = blogDetail?.data?.id
+  const {
+    data: blogDetail,
+    isLoading: isLoadingBlogDetail,
+    error,
+  } = useGetBlogBySlug(slug)
 
   if (isLoadingBlogDetail) {
     return (
@@ -25,11 +26,18 @@ const BlogDetailView = ({ slug }: { slug: string }) => {
     )
   }
 
+  if (error || !blogDetail?.data) {
+    return notFound()
+  }
+
+  const postId = blogDetail?.data?.id
+  const categorySlug = blogDetail?.data?.category?.slug
+
   return (
     <div>
-      <section className="tf-spacing tf-spacing-3">
+      <section>
         <div className="page-blog-single">
-          <div className="image-head">
+          <div className="image-head mt-10">
             <Image
               className="lazyload h-[400px] w-full object-cover"
               src={blogDetail?.data?.thumbnail}
@@ -46,16 +54,22 @@ const BlogDetailView = ({ slug }: { slug: string }) => {
             <BlogDetailSharePost initialBlogDetail={blogDetail?.data} />
             <BlogDetailProfileItem initialBlogDetail={blogDetail?.data} />
             <div className="post-control flex flex-wrap items-center justify-between gap-[20px]">
-              <BlogDetailReviewList postId={postId} />
+              <BlogDetaiCommentsList postId={postId} />
             </div>
           </div>
         </div>
       </section>
-      {/* <!-- blog --> */}
-      <section className="tf-spacing tf-spacing-1 pt-0">
-        <BlogDetailSimilarPosts />
-      </section>
-      {/* <!-- /blog --> */}
+      {/*<section className="mb-10">*/}
+      {/*  <BlogDetailSimilarPosts />*/}
+      {/*</section>*/}
+      {categorySlug && (
+        <section className="mb-10">
+          <BlogDetailSimilarPosts
+            categorySlug={categorySlug}
+            currentPostId={postId}
+          />
+        </section>
+      )}
     </div>
   )
 }

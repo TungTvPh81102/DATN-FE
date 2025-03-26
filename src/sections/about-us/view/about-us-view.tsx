@@ -1,8 +1,12 @@
+'use client'
 import { MissionVision } from '@/sections/about-us/_components/mission-vision'
 import { FoundingTeam } from '@/sections/about-us/_components/founding-team'
 import { StatisticsOverview } from '@/sections/about-us/_components/statistics-overview'
 import { StudentTestimonials } from '@/sections/about-us/_components/student-testimonials'
 import Link from 'next/link'
+import { useGetRatingAboutPage } from '@/hooks/rating/useRating'
+import ModalLoading from '@/components/common/ModalLoading'
+import React from 'react'
 
 const members = [
   {
@@ -43,6 +47,15 @@ const members = [
 ]
 
 export const AboutUsView = () => {
+  const { data, isLoading } = useGetRatingAboutPage()
+
+  if (isLoading)
+    return (
+      <div className="min-h-screen">
+        <ModalLoading />
+      </div>
+    )
+
   return (
     <div className="space-y-16 py-12">
       {/* Hero Section */}
@@ -63,7 +76,7 @@ export const AboutUsView = () => {
       <FoundingTeam members={members} />
 
       {/* Học viên nói gì về CourseMely */}
-      <StudentTestimonials />
+      <StudentTestimonials data={data?.data ?? []} />
 
       {/* CTA */}
       <section className="text-center">

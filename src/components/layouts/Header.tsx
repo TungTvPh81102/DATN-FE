@@ -1,3 +1,5 @@
+// XÓA FILE
+
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -5,7 +7,13 @@ import InputSeach from '@/components/common/InputSearch'
 
 const Logo = () => (
   <Link href="/" className="flex items-center space-x-3">
-    <Image src="/images/Logo.png" alt="logo" width={54} height={54} />
+    <Image
+      src="/images/Logo.png"
+      alt="logo"
+      width={54}
+      height={54}
+      className="shrink-0 rounded-md"
+    />
     <h2 className="text-3xl font-extrabold">CourseMeLy</h2>
   </Link>
 )

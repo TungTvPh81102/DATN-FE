@@ -18,15 +18,13 @@ const Banner = () => {
   const [scrollPosition, setScrollPosition] = useState(0)
 
   useEffect(() => {
-    if (BannerData?.data.banners) {
-      const sorted = [...BannerData.data.banners].sort(
+    if (BannerData?.data.slides) {
+      const sorted = [...BannerData.data.slides].sort(
         (a: BannerData, b: BannerData) => a.order - b.order
       )
       setSortedBanners(sorted)
     }
   }, [BannerData])
-
-  console.log(BannerData)
 
   useEffect(() => {
     if (!autoplay || !sortedBanners.length) return
@@ -124,9 +122,9 @@ const Banner = () => {
       <div className="flex min-h-[350px] items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="size-12 animate-spin text-primary" />
-          <p className="text-lg font-medium text-gray-600">
-            Loading courses...
-          </p>
+          {/*<p className="text-lg font-medium text-gray-600">*/}
+          {/*  Loading courses...*/}
+          {/*</p>*/}
         </div>
       </div>
     )
@@ -250,30 +248,38 @@ const Banner = () => {
                       strokeLinecap="round"
                     />
                   </svg>
-                  <span className="relative z-10">Khóa học chất lượng cao</span>
+                  <span className="relative z-10">Khóa học nổi bật</span>
                 </div>
 
-                <h1
-                  className="font-cardo animate-text-reveal text-3xl font-bold leading-tight text-white md:text-5xl"
+                <h2
+                  className="animate-text-reveal text-3xl font-bold leading-tight text-white md:text-5xl"
                   style={{
                     ...getTransform(1.2, 0.3),
                     transformOrigin: 'left center',
                     textShadow: '0 0 15px rgba(255,255,255,0.3)',
                   }}
                 >
-                  {currentBanner.title || 'Khám phá thế giới lập trình'}
-                </h1>
+                  {currentBanner.title || ' '}
+                </h2>
 
-                <p
+                <div
                   className="animate-text-reveal animation-delay-100 text-base leading-relaxed text-gray-200 md:text-lg"
                   style={{
                     ...getTransform(1, 0.3),
                     transformOrigin: 'left center',
                   }}
                 >
-                  {currentBanner.content ||
-                    'Bắt đầu, chuyển đổi hoặc thăng tiến sự nghiệp của bạn với hơn 5.000 khóa học, chứng chỉ chuyên môn và bằng cấp từ các trường đại học và công ty đẳng cấp thế giới.'}
-                </p>
+                  {/*{currentBanner.content || ' '}*/}
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: currentBanner.content
+                        ? currentBanner.content.length > 150
+                          ? currentBanner.content.slice(0, 150) + '...'
+                          : currentBanner.content
+                        : ' ',
+                    }}
+                  />
+                </div>
 
                 <div
                   className="animate-fade-up animation-delay-200 flex flex-wrap items-center gap-4"
@@ -328,14 +334,17 @@ const Banner = () => {
                   </div>
                   <div className="group relative overflow-hidden rounded-lg bg-white/10 p-4 text-center backdrop-blur-sm transition-transform duration-300 hover:scale-105 hover:bg-white/15 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                     <div className="text-2xl font-bold text-white">
-                      {BannerData?.data.total_courses ?? '50'}+
+                      {BannerData?.data.total_courses ?? ' '}+
                     </div>
                     <div className="text-xs text-gray-300">Khóa học</div>
                     <div className="absolute -bottom-2 -right-2 size-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-50"></div>
                   </div>
                   <div className="group relative overflow-hidden rounded-lg bg-white/10 p-4 text-center backdrop-blur-sm transition-transform duration-300 hover:scale-105 hover:bg-white/15 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                     <div className="text-2xl font-bold text-white">
-                      {BannerData?.data.system_average_rating ?? '4.9'}
+                      {/*{BannerData?.data.system_average_rating ?? ' '}*/}
+                      {parseFloat(
+                        BannerData?.data.system_average_rating
+                      ).toFixed(2) ?? ' '}
                     </div>
                     <div className="text-xs text-gray-300">Đánh giá</div>
                     <div className="absolute -bottom-2 -right-2 size-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-50"></div>
@@ -392,7 +401,7 @@ const Banner = () => {
                         transformOrigin: 'right top',
                       }}
                     >
-                      1.299k students
+                      {currentBanner?.total_student ?? ''}
                     </div>
 
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
@@ -428,28 +437,28 @@ const Banner = () => {
                             </svg>
                           </div>
                           <span className="text-sm font-medium text-white transition-colors duration-300 group-hover:text-blue-400">
-                            HTML & CSS Pro
+                            {currentBanner?.title}
                           </span>
                         </div>
 
-                        <div
-                          className="group flex items-center gap-1 text-yellow-300"
-                          style={{
-                            ...getTransform(2, 0.4),
-                            transformOrigin: 'right center',
-                          }}
-                        >
-                          <svg
-                            className="size-4 animate-pulse transition-transform duration-300 group-hover:rotate-12"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                          >
-                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
-                          </svg>
-                          <span className="text-sm font-medium">
-                            Chất lượng cao
-                          </span>
-                        </div>
+                        {/*<div*/}
+                        {/*  className="group flex items-center gap-1 text-yellow-300"*/}
+                        {/*  style={{*/}
+                        {/*    ...getTransform(2, 0.4),*/}
+                        {/*    transformOrigin: 'right center',*/}
+                        {/*  }}*/}
+                        {/*>*/}
+                        {/*  <svg*/}
+                        {/*    className="size-4 animate-pulse transition-transform duration-300 group-hover:rotate-12"*/}
+                        {/*    viewBox="0 0 24 24"*/}
+                        {/*    fill="currentColor"*/}
+                        {/*  >*/}
+                        {/*    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>*/}
+                        {/*  </svg>*/}
+                        {/*  <span className="text-sm font-medium">*/}
+                        {/*    Chất lượng cao*/}
+                        {/*  </span>*/}
+                        {/*</div>*/}
                       </div>
 
                       <div className="mt-3 flex items-center justify-between">

@@ -10,6 +10,8 @@ export const useGetWishLists = () => {
   return useQuery({
     queryKey: [QueryKey.WISH_LIST],
     queryFn: () => wishListApi.getWishLists(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }
 

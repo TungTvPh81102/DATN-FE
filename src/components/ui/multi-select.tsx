@@ -234,7 +234,7 @@ const MultiSelectorTrigger = forwardRef<
     <div
       ref={ref}
       className={cn(
-        'flex flex-wrap gap-1 rounded-lg bg-background p-1 py-2 ring-1 ring-muted',
+        'flex flex-wrap gap-1 rounded-lg bg-background p-1 py-2 ring-1 ring-border',
         {
           'ring-1 focus-within:ring-ring': activeIndex === -1,
         },
@@ -242,7 +242,7 @@ const MultiSelectorTrigger = forwardRef<
       )}
       {...props}
     >
-      {value.map((item, index) => {
+      {value?.map((item, index) => {
         const selectedLabel =
           options && Array.isArray(options)
             ? options.find((option) => option.value === item)?.label || item
@@ -255,7 +255,7 @@ const MultiSelectorTrigger = forwardRef<
               'flex items-center gap-1 rounded-xl px-1',
               activeIndex === index && 'ring-2 ring-muted-foreground'
             )}
-            variant="secondary"
+            variant={'secondary'}
           >
             <span className="text-xs">{selectedLabel}</span>
 
@@ -282,7 +282,8 @@ MultiSelectorTrigger.displayName = 'MultiSelectorTrigger'
 const MultiSelectorInput = forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
->(({ className, ...props }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+>(({ className, ...props }, ref) => {
   const {
     setOpen,
     inputValue,
@@ -305,7 +306,7 @@ const MultiSelectorInput = forwardRef<
       onFocus={() => setOpen(true)}
       onClick={() => setActiveIndex(-1)}
       className={cn(
-        'ml-2 flex-1 bg-transparent outline-none placeholder:text-sm placeholder:text-muted-foreground',
+        'ml-2 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground',
         className,
         activeIndex !== -1 && 'caret-transparent'
       )}
@@ -343,7 +344,7 @@ const MultiSelectorList = forwardRef<
     >
       {children}
       <CommandEmpty>
-        <span className="text-muted-foreground">No results found</span>
+        <span className="text-muted-foreground">Không có kết quả</span>
       </CommandEmpty>
     </CommandList>
   )

@@ -139,7 +139,13 @@ const DraftCourseView = ({ slug }: Props) => {
             onClick={() => router.back()}
             className="cursor-pointer"
           />
-          <Image src="/images/Logo.png" alt="logo" width={36} height={36} />
+          <Image
+            src="/images/Logo.png"
+            className="shrink-0 rounded-md"
+            alt="logo"
+            width={36}
+            height={36}
+          />
           <p className="font-bold">{draftCourse?.title}</p>
         </div>
       </div>

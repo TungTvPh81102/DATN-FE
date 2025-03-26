@@ -27,14 +27,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" className="hover:bg-inherit" asChild>
               <Link href="/instructor">
-                <div className="flex aspect-square size-8 rounded-lg">
-                  <Image
-                    src="/images/Logo.png"
-                    alt="CourseMeLy logo"
-                    width={32}
-                    height={32}
-                  />
-                </div>
+                <Image
+                  src="/images/Logo.png"
+                  alt="CourseMeLy logo"
+                  width={32}
+                  height={32}
+                  className="shrink-0 rounded-md"
+                />
                 <span className="truncate text-lg font-extrabold">
                   CourseMeLy
                 </span>

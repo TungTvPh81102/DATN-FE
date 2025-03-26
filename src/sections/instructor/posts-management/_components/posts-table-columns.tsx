@@ -133,7 +133,6 @@ export function getColumns(): ColumnDef<IPost>[] {
         <DataTableColumnHeader column={column} title="Trạng thái" />
       ),
       cell: ({ row }) => {
-        console.log(row.original.status)
         const post = PostStatusMap[row.original.status]
         return (
           post && (

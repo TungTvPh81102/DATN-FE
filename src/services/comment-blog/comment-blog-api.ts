@@ -1,5 +1,5 @@
 import {
-  BLogCommentPayload,
+  BlogCommentPayload,
   ReplyBlogCommentPayload,
 } from '@/validations/comment'
 import api from '@/configs/api'
@@ -15,7 +15,7 @@ export const commentBlogApi = {
     return await api.get(`${prefix}/${commentId}/replies`)
   },
 
-  storeCommentBlog: async (data: BLogCommentPayload) => {
+  storeCommentBlog: async (data: BlogCommentPayload) => {
     return await api.post(`${prefix}/store-blog-comment`, data)
   },
 

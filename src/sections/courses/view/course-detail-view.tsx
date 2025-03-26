@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -13,6 +13,7 @@ import {
   CircleX,
   Eye,
   FileCode2,
+  Loader2,
   ScrollText,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
@@ -20,6 +21,7 @@ import { toast } from 'react-toastify'
 import { formatCurrency, formatDuration } from '@/lib/common'
 import {
   useGetCourseDetails,
+  useGetCourseRatings,
   useGetCoursesOther,
   useGetCoursesRelated,
 } from '@/hooks/course/useCourse'
@@ -33,6 +35,8 @@ import { LessonPreviewModal } from '@/sections/courses/_components/course-list-s
 import { IChapter } from '@/types'
 import CourseSlideRelated from '@/sections/courses/_components/course-slide-related'
 import { CourseItemSkeleton } from '@/components/shared/course-item-skeletion'
+import { RatingForm } from '@/sections/courses/_components/rating-form'
+import { RatingsList } from '@/sections/courses/_components/ratings-list'
 
 const lessonTypeIcons = {
   video: <CirclePlay size={16} />,
@@ -71,6 +75,10 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
     useGetCoursesRelated(slug)
   const { data: coursesOtherData, isLoading: isCoursesOtherDataLoading } =
     useGetCoursesOther(slug)
+  const { data: courseRatingsData, isLoading: isCourseRatingsDataLoading } =
+    useGetCourseRatings(slug)
+
+  const totalRatings = courseRatingsData?.data?.total_ratings
 
   const { mutate: enrollFreeCourse } = useEnrollFreeCourse()
 
@@ -339,7 +347,9 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
                     </div>
                     <div className="text">
                       <span className="text-1">By </span>
-                      <a href="#">{courseDetails?.user?.name}</a>
+                      <Link href={`/profile/${courseDetails?.user.code}`}>
+                        {courseDetails?.user?.name}
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -560,265 +570,31 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
                       >
                         <div className="course-rating">
                           <i className="icon-star-1" />
-                          <div className="fs-15">4.9 course rating</div>
+                          <div className="fs-15">
+                            {courseRatingsData?.data?.average_rating} course
+                            rating
+                          </div>
                         </div>
                         <div className="rating relative">
-                          <div className="fs-15">4K ratings</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="review-item">
-                        <div className="avatar">
-                          <img
-                            className="ls-is-cached lazyloaded"
-                            data-src="/assets/images/avatar/review-1.png"
-                            src="/assets/images/avatar/review-1.png"
-                            alt=""
-                          />
-                        </div>
-                        <div className="comment-box">
-                          <h5 className="author-name">
-                            {' '}
-                            <a href="#">{courseDetails?.user?.name}</a>
-                          </h5>
-                          <div className="ratings">
-                            <div className="number">4.9</div>
-                            <i className="icon-star-1" />
-                            <i className="icon-star-1" />
-                            <i className="icon-star-1" />
-                            <i className="icon-star-1" />
-                            <svg
-                              width={12}
-                              height={11}
-                              viewBox="0 0 12 11"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M3.54831 7.10382L3.58894 6.85477L3.41273 6.67416L1.16841 4.37373L4.24914 3.90314L4.51288 3.86286L4.62625 3.62134L5.99989 0.694982L7.37398 3.62182L7.48735 3.86332L7.75108 3.9036L10.8318 4.37419L8.58749 6.67462L8.41128 6.85523L8.4519 7.10428L8.98079 10.3465L6.24201 8.8325L6.00014 8.69879L5.75826 8.83247L3.01941 10.3461L3.54831 7.10382ZM11.0444 4.15626L11.0442 4.15651L11.0444 4.15626Z"
-                                stroke="#131836"
-                              />
-                            </svg>
-                            <div className="total">2 months ago</div>
+                          <div className="fs-15">
+                            {`${totalRatings || 0} ${totalRatings && totalRatings > 1 ? 'ratings' : 'rating'}`}
                           </div>
-                          <p className="evaluate">Excellent Course</p>
-                          <p className="comment">
-                            Lorem ipsum dolor sit amet. Qui incidunt dolores non
-                            similique ducimus et debitis molestiae. Et autem
-                            quia eum reprehenderit voluptates est reprehenderit
-                            illo est enim perferendis est neque sunt.{' '}
-                          </p>
-                          <ul className="reaction">
-                            <li className="btn-like">
-                              <i className="icon-like" />
-                              Helpful
-                            </li>
-                            <li className="btn-dislike">
-                              <i className="icon-dislike" />
-                              Not helpful
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                      <div className="review-item">
-                        <div className="avatar">
-                          <img
-                            className="ls-is-cached lazyloaded"
-                            data-src="/assets/images/avatar/review-2.png"
-                            src="/assets/images/avatar/review-2.png"
-                            alt=""
-                          />
-                        </div>
-                        <div className="comment-box">
-                          <h5 className="author-name">
-                            {' '}
-                            <a href="#">Theresa Edin</a>
-                          </h5>
-                          <div className="ratings">
-                            <div className="number">4.9</div>
-                            <i className="icon-star-1" />
-                            <i className="icon-star-1" />
-                            <i className="icon-star-1" />
-                            <i className="icon-star-1" />
-                            <svg
-                              width={12}
-                              height={11}
-                              viewBox="0 0 12 11"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M3.54831 7.10382L3.58894 6.85477L3.41273 6.67416L1.16841 4.37373L4.24914 3.90314L4.51288 3.86286L4.62625 3.62134L5.99989 0.694982L7.37398 3.62182L7.48735 3.86332L7.75108 3.9036L10.8318 4.37419L8.58749 6.67462L8.41128 6.85523L8.4519 7.10428L8.98079 10.3465L6.24201 8.8325L6.00014 8.69879L5.75826 8.83247L3.01941 10.3461L3.54831 7.10382ZM11.0444 4.15626L11.0442 4.15651L11.0444 4.15626Z"
-                                stroke="#131836"
-                              />
-                            </svg>
-                            <div className="total">2 months ago</div>
-                          </div>
-                          <p className="evaluate">Excellent Course</p>
-                          <p className="comment">
-                            Lorem ipsum dolor sit amet. Qui incidunt dolores non
-                            similique ducimus et debitis molestiae. Et autem
-                            quia eum reprehenderit voluptates est reprehenderit
-                            illo est enim perferendis est neque sunt.{' '}
-                          </p>
-                          <ul className="reaction">
-                            <li className="btn-like">
-                              <i className="icon-like" />
-                              Helpful
-                            </li>
-                            <li className="btn-dislike">
-                              <i className="icon-dislike" />
-                              Not helpful
-                            </li>
-                          </ul>
                         </div>
                       </div>
                     </div>
-                    <a href="#" className="tf-btn style-third w-100">
-                      View More Reviews
-                      <i className="icon-arrow-top-right" />
-                    </a>
+
+                    {isCourseRatingsDataLoading ? (
+                      <div className="flex h-40 items-center justify-center">
+                        <Loader2 className="size-8 animate-spin" />
+                      </div>
+                    ) : (
+                      <RatingsList
+                        data={courseRatingsData?.data?.ratings ?? []}
+                      />
+                    )}
                   </div>
-                  <div className="add-review-wrap">
-                    <div className="add-review-title text-22 fw-5">
-                      Leave A Reply
-                    </div>
-                    <p className="fs-15">
-                      Your email address will not be published.&nbsp;Required
-                      fields are marked&nbsp;*
-                    </p>
-                    <div className="ratings">
-                      <h6 className="fw-5">Ratings</h6>
-                      <i className="icon-star-1" />
-                      <i className="icon-star-1" />
-                      <i className="icon-star-1" />
-                      <i className="icon-star-1" />
-                      <svg
-                        width={12}
-                        height={11}
-                        viewBox="0 0 12 11"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M3.54831 7.10382L3.58894 6.85477L3.41273 6.67416L1.16841 4.37373L4.24914 3.90314L4.51288 3.86286L4.62625 3.62134L5.99989 0.694982L7.37398 3.62182L7.48735 3.86332L7.75108 3.9036L10.8318 4.37419L8.58749 6.67462L8.41128 6.85523L8.4519 7.10428L8.98079 10.3465L6.24201 8.8325L6.00014 8.69879L5.75826 8.83247L3.01941 10.3461L3.54831 7.10382ZM11.0444 4.15626L11.0442 4.15651L11.0444 4.15626Z"
-                          stroke="#131836"
-                        />
-                      </svg>
-                    </div>
-                    <form action="#" className="form-add-review">
-                      <div className="cols">
-                        <fieldset className="tf-field">
-                          <input
-                            className="tf-input style-1"
-                            id="field1"
-                            type="text"
-                            placeholder=""
-                            name="text"
-                            tabIndex={2}
-                            defaultValue=""
-                            aria-required="true"
-                          />
-                          <label
-                            className="tf-field-label fs-15"
-                            htmlFor="field1"
-                          >
-                            First Name
-                          </label>
-                        </fieldset>
-                        <fieldset className="tf-field">
-                          <input
-                            className="tf-input style-1"
-                            id="field2"
-                            type="email"
-                            placeholder=""
-                            name="email"
-                            tabIndex={2}
-                            defaultValue="creativelayers088@gmail.com"
-                            aria-required="true"
-                          />
-                          <label
-                            className="tf-field-label fs-15"
-                            htmlFor="field2"
-                          >
-                            Email
-                          </label>
-                        </fieldset>
-                      </div>
-                      <div className="cols">
-                        <fieldset className="tf-field">
-                          <input
-                            className="tf-input style-1"
-                            id="field3"
-                            type="number"
-                            placeholder=""
-                            name="number"
-                            tabIndex={2}
-                            defaultValue=""
-                            aria-required="true"
-                          />
-                          <label
-                            className="tf-field-label fs-15"
-                            htmlFor="field3"
-                          >
-                            Phone
-                          </label>
-                        </fieldset>
-                        <fieldset className="tf-field">
-                          <input
-                            className="tf-input style-1"
-                            id="field4"
-                            type="email"
-                            placeholder=""
-                            name="email"
-                            tabIndex={2}
-                            defaultValue=""
-                            aria-required="true"
-                          />
-                          <label
-                            className="tf-field-label fs-15"
-                            htmlFor="field4"
-                          >
-                            Title
-                          </label>
-                        </fieldset>
-                      </div>
-                      <fieldset className="tf-field">
-                        <textarea
-                          className="tf-input style-1"
-                          name="message"
-                          rows={4}
-                          placeholder=""
-                          tabIndex={2}
-                          aria-required="true"
-                          defaultValue={''}
-                        />
-                        <label
-                          className="tf-field-label type-textarea fs-15"
-                          htmlFor=""
-                        >
-                          Textarea
-                        </label>
-                      </fieldset>
-                      <div className="checkbox-item">
-                        <label>
-                          <p className="fs-15">
-                            Save my name, email, and website in this browser for
-                            the next time I comment.
-                          </p>
-                          <input type="checkbox" />
-                          <span className="btn-checkbox" />
-                        </label>
-                      </div>
-                      <div className="button-submit">
-                        <button className="tf-btn w-100" type="submit">
-                          Post Comment
-                          <i className="icon-arrow-top-right" />
-                        </button>
-                      </div>
-                    </form>
-                  </div>
+
+                  <RatingForm />
                 </div>
               </div>
               <div className="col-lg-4">
@@ -969,25 +745,28 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
                       type="button"
                       className="tf-btn add-to-cart cursor-pointer"
                     >
-                      {courseDetails?.user_id === user?.id ||
-                      courseDetails?.is_enrolled
-                        ? 'Đã sở hữu khoá học'
-                        : courseDetails?.is_free === 1
-                          ? 'Tham gia ngay'
-                          : 'Mua khoá học'}
+                      {courseDetails?.user_id === user?.id
+                        ? 'Đây là khoá học của bạn'
+                        : courseDetails?.is_enrolled
+                          ? 'Đã sở hữu khoá học'
+                          : courseDetails?.is_free === 1
+                            ? 'Tham gia ngay'
+                            : 'Mua khoá học'}
                       <i className="icon-shopcart fs-18"></i>
                     </button>
                     <div className="course-list">
                       <h5 className="fw-5">Khoá học gồm có:</h5>
                       <ul className="course-benefit-list">
-                        <li className="course-benefit-item">
-                          <i className="flaticon-play-1" />
-                          <p>
-                            {formatDuration(
-                              courseDetails?.total_video_duration ?? 0
-                            )}
-                          </p>
-                        </li>
+                        {(courseDetails?.total_video_duration ?? 0) > 0 && (
+                          <li className="course-benefit-item">
+                            <i className="flaticon-play-1" />
+                            <p>
+                              {formatDuration(
+                                courseDetails?.total_video_duration ?? 0
+                              )}
+                            </p>
+                          </li>
+                        )}
                         <li className="course-benefit-item">
                           <i className="flaticon-document" />
                           <p>{courseDetails?.lessons_count} bài học</p>
