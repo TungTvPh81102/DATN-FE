@@ -153,6 +153,7 @@ const BuyCourseModal = ({ course, isOpen, onClose }: BuyCourseModalProps) => {
     resetPrice()
     setDiscountAmount(0)
     setDiscountCode('')
+    setHasDiscountCode(false)
     if (selectedCoupon) {
       deleteApplyCoupon({ code: selectedCoupon.coupon.code })
     }

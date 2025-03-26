@@ -7,6 +7,6 @@ export const useSearch = (query: string) => {
   return useQuery({
     queryKey: [QueryKey.SEARCH, query],
     queryFn: () => searchApi.getDataBySearchQuery(query),
-    enabled: !!query.trim() && query.length > 2,
+    enabled: !!query.trim() && query.length > 1,
   })
 }
