@@ -5,6 +5,7 @@ import {
   ICourseOtherResponse,
   ICourseRatingsResponse,
   ICourseRelatedResponse,
+  IPracticeExerciseResponse,
 } from '@/types'
 import api from '@/configs/api'
 
@@ -56,3 +57,8 @@ export const getCourseRatings = async (
 ): Promise<ICourseRatingsResponse> => {
   return await api.get(`get-course-ratings/${slug}`)
 }
+
+export const getPracticeExercises =
+  async (): Promise<IPracticeExerciseResponse> => {
+    return await api.get(`${prefix}/practice-exercises`)
+  }

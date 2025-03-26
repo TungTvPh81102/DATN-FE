@@ -47,3 +47,19 @@ export interface ILikePost {
   createdAt?: Date | null
   updatedAt?: Date | null
 }
+
+export interface ITopPost {
+  id: number
+  title: string
+  thumbnail?: string | null
+  created_at: Date | string
+  author: string
+  category: string
+  views: number
+  total_comments: number
+}
+
+export interface ITopPostResponse {
+  message: string
+  data: ITopPost[]
+}

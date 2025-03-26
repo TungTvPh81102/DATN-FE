@@ -8,6 +8,7 @@ import {
   getCourses,
   getCoursesOther,
   getCoursesRelated,
+  getPracticeExercises,
 } from '@/services/course/course-api'
 
 export const useGetCourseDetails = (slug: string) => {
@@ -51,6 +52,15 @@ export const useGetCourseRatings = (slug: string) => {
   return useQuery({
     queryKey: [QueryKey.COURSE_RATINGS, slug],
     queryFn: () => getCourseRatings(slug),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  })
+}
+
+export const useGetPracticeExercises = () => {
+  return useQuery({
+    queryKey: [QueryKey.PRACTICE_EXERCISES],
+    queryFn: () => getPracticeExercises(),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   })

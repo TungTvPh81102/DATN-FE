@@ -12,6 +12,7 @@ enum QueryKey {
   COURSE_RATINGS = 'course-ratings',
   COURSES_CATEGORIES = 'course-category',
   INSTRUCTOR_ALL = 'instructor-all',
+  INSTRUCTOR_TOP = 'instructor-top',
   INSTRUCTOR_COURSE = 'instructor-course',
   INSTRUCTOR_COURSE_APPROVED = 'instructor-course-approved',
   INSTRUCTOR_COURSE_TRASH = 'instructor-course-trash',
@@ -35,6 +36,7 @@ enum QueryKey {
   COURSE = 'course',
   QA_SYSTEM = 'qa-systems',
   POSTS = 'posts',
+  TOP_POSTS = 'top-posts',
   BLOGS = 'blogs',
   BLOG_DETAILS = 'blog-details',
   WISH_LIST = 'wish-list',
@@ -78,6 +80,7 @@ enum QueryKey {
   WHEEL_REWARDS = 'wheel-rewards',
   WHEEL_TURN = 'wheel-spin-turn',
   WHEEL_SPIN_HISTORY = 'wheel-spin-history',
+  PRACTICE_EXERCISES = 'practice-exercises',
 }
 
 export default QueryKey

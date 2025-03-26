@@ -1,18 +1,10 @@
-'use client'
-
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useCreateWishList } from '@/hooks/wish-list/useWishList'
-import { formatCurrency, formatDuration } from '@/lib/common'
-import { ICourse } from '@/types'
-import { CreateWishListPayload } from '@/validations/wish-list'
-import Image from 'next/image'
 import Link from 'next/link'
+import { useGetPracticeExercises } from '@/hooks/course/useCourse'
+import { useCreateWishList } from '@/hooks/wish-list/useWishList'
+import { CreateWishListPayload } from '@/validations/wish-list'
 import Swal from 'sweetalert2'
-import SwiperCore from 'swiper'
-import 'swiper/css'
-import 'swiper/css/navigation'
-import 'swiper/css/pagination'
-import 'swiper/css/scrollbar'
+import { CourseItemSkeleton } from '@/components/common/CourseItemSkeleton'
+import { Swiper, SwiperSlide } from 'swiper/react'
 import {
   A11y,
   Autoplay,
@@ -20,26 +12,21 @@ import {
   Pagination,
   Scrollbar,
 } from 'swiper/modules'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { CourseItemSkeleton } from '@/components/common/CourseItemSkeleton'
+import Image from 'next/image'
+import { formatCurrency } from '@/lib/common'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CourseItemRating } from '@/components/common/CourseItemRating'
+import SwiperCore from 'swiper'
 
 SwiperCore.use([Navigation, Pagination, Autoplay])
 
-interface CourseListProps {
-  className?: string
+type Props = {
   title: string
-  description?: string
-  courses: ICourse[]
-  isLoading?: boolean
+  description: string
 }
 
-const CourseList = ({
-  title,
-  description,
-  courses,
-  isLoading,
-}: CourseListProps) => {
+export const PracticeExercise = ({ title, description }: Props) => {
+  const { data, isLoading } = useGetPracticeExercises()
   const { mutate: createWishList, isPending: isWishListPending } =
     useCreateWishList()
 
@@ -68,16 +55,17 @@ const CourseList = ({
           <div className="col-12">
             <div className="heading-section">
               <h2 className="fw-7 wow fadeInUp" data-wow-delay="0s">
-                {title ?? ''}
+                {title}
               </h2>
+
               <div className="flex flex-wrap items-center justify-between gap-[10px]">
-                <div className="sub fs-15 wow fadeInUp" data-wow-delay="0.2s">
-                  {description ?? ''}
+                <div className="sub fs-15 wow fadeInUp" data-wow-delay="0.1s">
+                  {description}
                 </div>
                 <Link
                   href="/courses"
                   className="tf-btn-arrow wow fadeInUp"
-                  data-wow-delay="0.3s"
+                  data-wow-delay="0.2s"
                 >
                   Xem thêm <i className="icon-arrow-top-right" />
                 </Link>
@@ -113,8 +101,8 @@ const CourseList = ({
                   },
                 }}
               >
-                {courses.map((course: any) => (
-                  <SwiperSlide key={course.id}>
+                {data?.data?.map((course) => (
+                  <SwiperSlide key={course?.id}>
                     <div className="course-item hover-img title-small">
                       <div className="features image-wrap">
                         <div style={{ width: '330px', height: '175px' }}>
@@ -122,17 +110,17 @@ const CourseList = ({
                             width={256}
                             height={187}
                             className="lazyload"
-                            src={course.thumbnail ?? ''}
-                            alt={course.name}
+                            src={course?.thumbnail ?? ''}
+                            alt={course?.name}
                           />
                         </div>
 
                         <div className="box-tags">
-                          {course.is_free ? (
+                          {course?.is_free ? (
                             <Link href="#" className="item free best-seller">
                               Miễn phí
                             </Link>
-                          ) : course.price_sale > 0 ? (
+                          ) : course?.price_sale && course.price_sale > 0 ? (
                             <Link href="#" className="item sale best-seller">
                               Đang giảm giá
                             </Link>
@@ -144,7 +132,7 @@ const CourseList = ({
                         </div>
                         <div
                           onClick={() =>
-                            handleAddToWishList({ course_id: course.id })
+                            handleAddToWishList({ course_id: course?.id })
                           }
                           className="box-wishlist tf-action-btns"
                         >
@@ -157,11 +145,6 @@ const CourseList = ({
                           <div className="meta-item !pr-2 md:pr-[10px]">
                             <i className="flaticon-calendar" />
                             <p>{course.lessons_count} Lessons</p>
-                          </div>
-
-                          <div className="meta-item pl-2 md:pl-[10px]">
-                            <i className="flaticon-clock" />
-                            <p>{formatDuration(course.total_video_duration)}</p>
                           </div>
                         </div>
 
@@ -190,29 +173,31 @@ const CourseList = ({
                         >
                           <Avatar className="size-5">
                             <AvatarImage
-                              src={course.user.avatar}
-                              alt={course.user.name}
+                              src={course?.user?.avatar ?? ''}
+                              alt={course?.user?.name}
                             />
-                            <AvatarFallback>{course.user.name}</AvatarFallback>
+                            <AvatarFallback>
+                              {course?.user?.name}
+                            </AvatarFallback>
                           </Avatar>
-                          {course.user.name}
+                          {course?.user?.name}
                         </Link>
 
                         <div className="bottom">
                           <div className="h6 price fw-5">
                             {course.is_free ? (
                               <span className="text-primary">Miễn phí</span>
-                            ) : course.price_sale > 0 ? (
+                            ) : course?.price_sale && course.price_sale > 0 ? (
                               <>
                                 <span className="text-lg font-bold text-primary">
                                   {formatCurrency(course.price_sale)}
                                 </span>
                                 <span className="ml-2 text-gray-500 line-through">
-                                  {formatCurrency(course.price)}
+                                  {formatCurrency(course?.price ?? 0)}
                                 </span>
                               </>
                             ) : (
-                              <span>{formatCurrency(course.price)}</span>
+                              <span>{formatCurrency(course?.price ?? 0)}</span>
                             )}
                           </div>
 
@@ -236,5 +221,3 @@ const CourseList = ({
     </section>
   )
 }
-
-export default CourseList

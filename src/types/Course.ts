@@ -27,7 +27,7 @@ export const CourseStatusMap: Record<
 }
 
 export interface ICourse {
-  id?: number
+  id: number
   user_id?: number
   category_id?: number
   category?: ICategory
@@ -219,4 +219,18 @@ export interface ICourseRatingsResponse {
     total_ratings: number
     average_rating: number
   }
+}
+
+export interface IPracticeExerciseRating {
+  count: number
+  average: number
+}
+
+export interface IPracticeExercise extends ICourse {
+  ratings: IPracticeExerciseRating
+}
+
+export interface IPracticeExerciseResponse {
+  message: string
+  data: IPracticeExercise[]
 }
