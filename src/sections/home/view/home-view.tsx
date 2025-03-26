@@ -21,11 +21,11 @@ import CourseListCategory from '@/sections/home/components/course-list-category'
 import { PracticeExercise } from '@/sections/home/components/practice-exercise'
 
 const HomeView = () => {
+  const { data: categoryCourses, isLoading: isLoadingCourses } =
+    useGetCategoryCourses()
   const { data: discountedCourses, isLoading: isLoadingDiscounted } =
     useGetDiscountedCourses()
   const { data: freeCourses, isLoading: isLoadingFree } = useGetFreeCourses()
-  const { data: categoryCourses, isLoading: isLoadingCourses } =
-    useGetCategoryCourses()
 
   return (
     <div>

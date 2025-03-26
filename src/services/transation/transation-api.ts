@@ -11,4 +11,9 @@ export const transationApi = {
   applyCoupon: async (data: any) => {
     return await api.post(`${prefix}/apply-coupon`, data)
   },
+  deleteApplyCoupon: async (data: { code: string }) => {
+    return await api.delete(`${prefix}/delete-apply-coupon`, {
+      data,
+    })
+  },
 }

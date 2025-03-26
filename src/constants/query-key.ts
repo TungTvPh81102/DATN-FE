@@ -2,6 +2,7 @@ enum QueryKey {
   AUTH = 'auth',
   AUTH_ONLINE = 'auth-online',
   PROFILE = 'profile',
+  TAGS = 'tags',
   CHANGE_PASSWORD = 'change-password',
   ORDER = 'order',
   COURSES_RELATED = 'related-courses',

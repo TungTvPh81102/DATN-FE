@@ -57,7 +57,7 @@ const PaymentErrorView = ({ error }: Props) => {
                     <p className="flex items-center gap-2 text-xs text-red-700">
                       <span className="text-red-600">Mã lỗi:</span>
                       <code className="rounded-md bg-red-100 px-2 py-0.5 font-mono text-red-900">
-                        {error}
+                        {error ?? 'Giao dịch thất bại, vui lòng thử lại.'}
                       </code>
                     </p>
                   </div>

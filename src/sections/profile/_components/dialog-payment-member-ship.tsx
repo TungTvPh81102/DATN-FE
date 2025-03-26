@@ -206,7 +206,7 @@ const DialogPaymentMemberShip = ({
                         <Image
                           src={method.icon}
                           alt={method.name}
-                          width={80}
+                          width={50}
                           height={50}
                           className="mx-auto mb-2"
                         />

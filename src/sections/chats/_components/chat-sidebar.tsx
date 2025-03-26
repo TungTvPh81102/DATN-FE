@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Search } from 'lucide-react'
+import { MessageCircleQuestion, Plus, Search } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -18,6 +18,20 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { IChannel } from '@/types/Chat'
 import { ChatItem, ChatSkeleton, GroupChatSkeleton } from './chat-item'
 import DialogAddGroupChat from './dialog-add-group-chat'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export const ChatSidebar = ({
   selectedChannel,
@@ -31,16 +45,36 @@ export const ChatSidebar = ({
 
   const [activeTab, setActiveTab] = useState<'chats' | 'contacts'>('chats')
   const [addGroupChat, setAddGroupChat] = useState(false)
-
+  const [isSystemMessageModalOpen, setIsSystemMessageModalOpen] =
+    useState(false)
+  const [systemMessageReason, setSystemMessageReason] = useState('')
+  const [selectedEmployee, setSelectedEmployee] = useState('')
   const getGroupChat = isInstructor ? useGetGroupChats : useGetGroupStudent
 
   const { data: groupChatData, isLoading: isLoadingGroupChat } = getGroupChat()
   const { data: directChatData, isLoading: isLoadingDirectChatData } =
     useGetDirectChats()
 
+  const systemMessageReasons = [
+    'Technical Support',
+    'Billing Inquiry',
+    'Account Issue',
+    'Other',
+  ]
+
+  const employees = [
+    { id: '1', name: 'John Doe', department: 'Support' },
+    { id: '2', name: 'Jane Smith', department: 'Billing' },
+    { id: '3', name: 'Mike Johnson', department: 'Admin' },
+  ]
+
   const handleChannelSelect = (channel: IChannel) => {
     setSelectedChannel(channel)
     setLocalStorage(StorageKey.CHANNEL, channel)
+  }
+
+  const handleSystemMessageClick = () => {
+    setIsSystemMessageModalOpen(true)
   }
 
   return (
@@ -49,6 +83,15 @@ export const ChatSidebar = ({
         <div className="border-b p-4">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-semibold">Liên hệ</h2>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleSystemMessageClick}
+              className="text-muted-foreground"
+              title="Create System Message"
+            >
+              <MessageCircleQuestion className="size-5" />
+            </Button>
           </div>
           <div className="relative">
             <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
@@ -139,6 +182,67 @@ export const ChatSidebar = ({
           )}
         </ScrollArea>
       </div>
+
+      <Dialog
+        open={isSystemMessageModalOpen}
+        onOpenChange={setIsSystemMessageModalOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create System Message</DialogTitle>
+            <DialogDescription>
+              Select a reason and assign an employee to handle this issue.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-2 block">Reason for System Message</label>
+              <Select
+                value={systemMessageReason}
+                onValueChange={setSystemMessageReason}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a reason" />
+                </SelectTrigger>
+                <SelectContent>
+                  {systemMessageReasons.map((reason) => (
+                    <SelectItem key={reason} value={reason}>
+                      {reason}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="mb-2 block">Assign to Employee</label>
+              <Select
+                value={selectedEmployee}
+                onValueChange={setSelectedEmployee}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employees.map((employee) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.name} - {employee.department}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              className="w-full"
+              disabled={!systemMessageReason || !selectedEmployee}
+            >
+              Submit System Message
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {isInstructor && (
         <DialogAddGroupChat

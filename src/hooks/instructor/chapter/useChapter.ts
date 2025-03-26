@@ -69,6 +69,8 @@ export const useDeleteChapter = () => {
     mutationFn: ({ slug, id }: { slug: string; id: number }) =>
       instructorChapterApi.deleteChapter(slug, id),
     onSuccess: async (res: any) => {
+      toast.success(res.message)
+
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: [QueryKey.INSTRUCTOR_COURSE],
@@ -77,7 +79,6 @@ export const useDeleteChapter = () => {
           queryKey: [QueryKey.VALIDATE_COURSE],
         }),
       ])
-      toast.success(res.message)
     },
     onError: (error) => {
       toast.error(error.message)

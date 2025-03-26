@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
 import { useGetCategories } from '@/hooks/category/useCategory'
+import { useGetTags } from '@/hooks/tags/useTags'
 
 interface BlogListSideBarProps {
   onCategoryClick: (slug: string) => void
   selectedCategory: string | null
+  onTagClick: (slug: string) => void
+  selectedTags: string | null
   onSearch: (query: string) => void
   searchQuery: string
 }
@@ -11,6 +14,8 @@ interface BlogListSideBarProps {
 const BlogListSideBar = ({
   onCategoryClick,
   selectedCategory,
+  onTagClick,
+  selectedTags,
   onSearch,
   searchQuery,
 }: BlogListSideBarProps) => {
@@ -20,6 +25,9 @@ const BlogListSideBar = ({
     tags: false,
   })
   const { data: CategoriesData } = useGetCategories()
+  const { data: TagsData } = useGetTags()
+  console.log('CategoriesData', CategoriesData)
+  console.log('TagsData', TagsData)
 
   const toggleSection = (section: 'categories' | 'recentPosts' | 'tags') => {
     setOpenSections((prev) => ({
@@ -96,72 +104,72 @@ const BlogListSideBar = ({
         )}
       </div>
 
-      <div className="sidebar-item sidebar-recent mb-8 border-b border-gray-200 pb-6">
-        <div
-          className="sidebar-title mb-4 flex cursor-pointer items-center justify-between"
-          onClick={() => toggleSection('recentPosts')}
-        >
-          <h5 className="text-xl font-medium">Bài viết gần đây</h5>
-          <i
-            className={`transition-transform duration-300 ${openSections.recentPosts ? 'rotate-0' : 'rotate-180'}`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-            >
-              <path d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z" />
-            </svg>
-          </i>
-        </div>
-        {openSections.recentPosts && (
-          <ul>
-            {[
-              {
-                title: 'Why Is Education So Famous?',
-                date: '06 April 2024',
-                image: '/assets/images/blog/blog-05.jpg',
-              },
-              {
-                title: 'Difficult Things About Education.',
-                date: '06 April 2024',
-                image: '/assets/images/blog/blog-12.jpg',
-              },
-              {
-                title: 'Why Is Education So Famous?',
-                date: '06 April 2024',
-                image: '/assets/images/blog/blog-03.jpg',
-              },
-            ].map((post, index) => (
-              <li
-                key={index}
-                className="group flex space-x-4 rounded p-2 transition-all duration-300 hover:bg-gray-50"
-              >
-                <div className="image-wrap size-16 shrink-0 overflow-hidden rounded">
-                  <img
-                    className="size-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    src={post.image}
-                    alt={post.title}
-                  />
-                </div>
-                <div className="flex flex-col justify-center">
-                  <a
-                    href="blog-single.html"
-                    className="line-clamp-2 font-medium text-gray-800 transition-colors group-hover:text-[#E78E6A]"
-                  >
-                    {post.title}
-                  </a>
-                  <p className="mt-1 flex items-center text-sm text-gray-500">
-                    {post.date}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {/*<div className="sidebar-item sidebar-recent mb-8 border-b border-gray-200 pb-6">*/}
+      {/*  <div*/}
+      {/*    className="sidebar-title mb-4 flex cursor-pointer items-center justify-between"*/}
+      {/*    onClick={() => toggleSection('recentPosts')}*/}
+      {/*  >*/}
+      {/*    <h5 className="text-xl font-medium">Bài viết gần đây</h5>*/}
+      {/*    <i*/}
+      {/*      className={`transition-transform duration-300 ${openSections.recentPosts ? 'rotate-0' : 'rotate-180'}`}*/}
+      {/*    >*/}
+      {/*      <svg*/}
+      {/*        xmlns="http://www.w3.org/2000/svg"*/}
+      {/*        width="16"*/}
+      {/*        height="16"*/}
+      {/*        fill="currentColor"*/}
+      {/*        viewBox="0 0 16 16"*/}
+      {/*      >*/}
+      {/*        <path d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z" />*/}
+      {/*      </svg>*/}
+      {/*    </i>*/}
+      {/*  </div>*/}
+      {/*  {openSections.recentPosts && (*/}
+      {/*    <ul>*/}
+      {/*      {[*/}
+      {/*        {*/}
+      {/*          title: 'Why Is Education So Famous?',*/}
+      {/*          date: '06 April 2024',*/}
+      {/*          image: '/assets/images/blog/blog-05.jpg',*/}
+      {/*        },*/}
+      {/*        {*/}
+      {/*          title: 'Difficult Things About Education.',*/}
+      {/*          date: '06 April 2024',*/}
+      {/*          image: '/assets/images/blog/blog-12.jpg',*/}
+      {/*        },*/}
+      {/*        {*/}
+      {/*          title: 'Why Is Education So Famous?',*/}
+      {/*          date: '06 April 2024',*/}
+      {/*          image: '/assets/images/blog/blog-03.jpg',*/}
+      {/*        },*/}
+      {/*      ].map((post, index) => (*/}
+      {/*        <li*/}
+      {/*          key={index}*/}
+      {/*          className="group flex space-x-4 rounded p-2 transition-all duration-300 hover:bg-gray-50"*/}
+      {/*        >*/}
+      {/*          <div className="image-wrap size-16 shrink-0 overflow-hidden rounded">*/}
+      {/*            <img*/}
+      {/*              className="size-full object-cover transition-transform duration-500 group-hover:scale-110"*/}
+      {/*              src={post.image}*/}
+      {/*              alt={post.title}*/}
+      {/*            />*/}
+      {/*          </div>*/}
+      {/*          <div className="flex flex-col justify-center">*/}
+      {/*            <a*/}
+      {/*              href="blog-single.html"*/}
+      {/*              className="line-clamp-2 font-medium text-gray-800 transition-colors group-hover:text-[#E78E6A]"*/}
+      {/*            >*/}
+      {/*              {post.title}*/}
+      {/*            </a>*/}
+      {/*            <p className="mt-1 flex items-center text-sm text-gray-500">*/}
+      {/*              {post.date}*/}
+      {/*            </p>*/}
+      {/*          </div>*/}
+      {/*        </li>*/}
+      {/*      ))}*/}
+      {/*    </ul>*/}
+      {/*  )}*/}
+      {/*</div>*/}
 
       <div className="sidebar-item">
         <div
@@ -184,26 +192,21 @@ const BlogListSideBar = ({
           </i>
         </div>
         {openSections.tags && (
-          <div className="flex flex-wrap gap-2">
-            {[
-              'Course',
-              'SEO',
-              'Designer',
-              'Software',
-              'Java',
-              'CSS',
-              'ReactJS',
-              'NodeJS',
-            ].map((tag, index) => (
-              <a
-                key={index}
-                href="#"
-                className="rounded-lg bg-gray-100 px-3 py-2 text-gray-700 transition-colors duration-300 hover:bg-[#E78E6A] hover:text-white"
+          <ul className="flex flex-wrap gap-2">
+            {TagsData?.data.map((tag: any) => (
+              <li
+                key={tag.id}
+                onClick={() => onTagClick(tag.slug)}
+                className={`cursor-pointer rounded-lg px-3 py-2 transition-colors duration-300 ${
+                  selectedTags === tag.slug
+                    ? 'bg-[#E78E6A] text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-[#E78E6A] hover:text-white'
+                }`}
               >
-                {tag}
-              </a>
+                {tag.name}
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
     </div>

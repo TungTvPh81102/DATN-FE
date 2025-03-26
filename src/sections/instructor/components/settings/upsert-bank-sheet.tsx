@@ -281,7 +281,7 @@ const UpsertBankSheet = ({ showTrigger = true, bank, ...props }: Props) => {
             <div className="flex justify-end">
               <Button type="submit" disabled={isPending}>
                 {isPending && <Loader2 className="animate-spin" />}
-                Thêm tài khoản
+                {bank ? 'Cập nhật tài khoản' : 'Thêm tài khoản'}
               </Button>
             </div>
           </form>
