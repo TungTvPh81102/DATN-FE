@@ -59,9 +59,6 @@ const BlogDetailView = ({ slug }: { slug: string }) => {
           </div>
         </div>
       </section>
-      {/*<section className="mb-10">*/}
-      {/*  <BlogDetailSimilarPosts />*/}
-      {/*</section>*/}
       {categorySlug && (
         <section className="mb-10">
           <BlogDetailSimilarPosts
