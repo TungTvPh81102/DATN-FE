@@ -24,3 +24,10 @@ export const useGetBlogsOfCategory = (slug: string) => {
     enabled: !!slug,
   })
 }
+export const useGetBlogsOfTags = (slug: string) => {
+  return useQuery({
+    queryKey: [QueryKey.BLOGS, slug],
+    queryFn: () => blogApi.getTagsBlogs(slug),
+    enabled: !!slug,
+  })
+}
