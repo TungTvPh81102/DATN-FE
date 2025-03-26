@@ -567,7 +567,9 @@ function WalletView() {
                         <Button
                           variant="outline"
                           className="mt-4"
-                          onClick={() => toggleUseExistingBank(false)}
+                          onClick={() =>
+                            router.push('/instructor/settings/profile')
+                          }
                         >
                           <Plus className="mr-2 size-4" />
                           Thêm tài khoản mới

@@ -53,10 +53,17 @@ export interface ITopPost {
   title: string
   thumbnail?: string | null
   created_at: Date | string
-  author: string
-  category: string
+  user: {
+    name: string
+    avatar: string
+    code: string
+  }
+  category: {
+    name: string
+    slug: string
+  }
   views: number
-  total_comments: number
+  comments_count: number
 }
 
 export interface ITopPostResponse {

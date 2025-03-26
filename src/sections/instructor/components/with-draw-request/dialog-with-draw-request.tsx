@@ -319,7 +319,9 @@ const DialogWithDrawRequest = ({
                       </div>
                     </div>
 
-                    {withDrawRequestData?.data.status === 'Đã xử lý' && (
+                    {(withDrawRequestData?.data.status === 'Đã xử lý' ||
+                      withDrawRequestData?.data.instructor_confirmation ===
+                        'not_received') && (
                       <div className="mt-6 border-t border-gray-200 pt-6">
                         <div className="mb-4 flex items-center">
                           <div className="flex size-10 items-center justify-center rounded-full bg-[#E27447]/10">

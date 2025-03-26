@@ -16,6 +16,8 @@ interface PostListProps {
 const PostList = ({ title, description }: PostListProps) => {
   const { data, isLoading } = useGetTopPosts()
 
+  console.log(data)
+
   return (
     <section className="section-blog pt-0">
       <div className="tf-container">
@@ -108,8 +110,8 @@ const PostList = ({ title, description }: PostListProps) => {
                       </div>
                       <div className="article-content">
                         <div className="article-label">
-                          <a href={post?.category} className="">
-                            {post?.category}
+                          <a href={`/blog/${post?.category.slug}`} className="">
+                            {post?.category.name}
                           </a>
                         </div>
                         <h5 className="fw-5">
@@ -128,11 +130,14 @@ const PostList = ({ title, description }: PostListProps) => {
                           </div>
                           <div className="meta-item">
                             <i className="flaticon-message" />
-                            <p>{post?.total_comments}</p>
+                            <p>{post?.comments_count ?? ''}</p>
                           </div>
-                          <a href={post?.author} className="meta-item">
+                          <a
+                            href={`/profile/${post?.user.code}}`}
+                            className="meta-item"
+                          >
                             <i className="flaticon-user-1" />
-                            <p>{post.author}</p>
+                            <p>{post?.user.name}</p>
                           </a>
                         </div>
                       </div>
