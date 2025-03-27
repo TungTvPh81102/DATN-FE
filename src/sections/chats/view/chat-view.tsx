@@ -24,7 +24,7 @@ import {
   EnhancedMessageItem,
   ReplyPreview,
 } from '@/components/shared/message-content'
-import { SidebarChatInfo } from '@/components/shared/sidebar-chat-info'
+import { SidebarChatInfo } from '@/components/chat/sidebar-chat-info'
 import { AutosizeTextarea } from '@/components/ui/autosize-textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'

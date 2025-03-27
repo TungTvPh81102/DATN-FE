@@ -1,6 +1,6 @@
 import React from 'react'
 
-import RoomLiveStream from '@/components/shared/room-live-stream'
+import RoomLiveStream from '@/components/live-stream/room-live-stream'
 
 interface Props {
   params: {

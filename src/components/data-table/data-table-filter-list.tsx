@@ -482,6 +482,7 @@ export function DataTableFilterList<TData>({
         value: filter.value,
       }))
     )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters])
 
   return (

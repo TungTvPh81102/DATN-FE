@@ -7,16 +7,15 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/scrollbar'
 
-import Image from 'next/image'
-import { formatCurrency } from '@/lib/common'
-import { ICourse } from '@/types'
-import Link from 'next/link'
 import { CourseItemSkeleton } from '@/components/shared/course-item-skeletion'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import React from 'react'
+import { formatCurrency } from '@/lib/common'
+import { RelatedCourse } from '@/types'
+import Image from 'next/image'
+import Link from 'next/link'
 
 type Props = {
-  courses: ICourse[]
+  courses: RelatedCourse[]
   isLoading?: boolean
 }
 

@@ -28,14 +28,14 @@ const DraftQuizLesson = ({ lesson }: Props) => {
         {lesson.questions?.map((question, questionIndex) => (
           <div key={questionIndex}>
             Câu hỏi {questionIndex + 1}:{' '}
-            {question.answer_type === AnswerType.MultipleChoice && (
+            {question.answer_type === AnswerType.MULTIPLE_CHOICE && (
               <span className="text-sm text-muted-foreground">
                 (Chọn nhiều đáp án)
               </span>
             )}
             <h3 className="text-lg font-semibold">{question.question}</h3>
             <div className="mt-4 space-y-4">
-              {question.answer_type === AnswerType.SingleChoice ? (
+              {question.answer_type === AnswerType.SINGLE_CHOICE ? (
                 <RadioGroup className="gap-4">
                   {question.answers.map((answer, answerIndex: number) => (
                     <Label

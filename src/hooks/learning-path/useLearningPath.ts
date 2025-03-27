@@ -1,8 +1,10 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import QueryKey from '@/constants/query-key'
 import { learningPathApi } from '@/services/learning-path/learning-path-api'
-import { CompleteLessonPayload } from '@/types/LearningPath'
+import { useToastMutation } from '../use-toast-mutation'
 
 export const useGetLessons = (course: string) => {
   return useQuery({
@@ -18,11 +20,43 @@ export const useGetChapterFromLesson = (lessonId: number) => {
   })
 }
 
-export const useGetLessonDetail = (course: string, lesson: string) => {
+export const useGetLessonDetail = (params: {
+  courseSlug: string
+  lessonId: number
+}) => {
   return useQuery({
-    queryKey: [QueryKey.LEARNING_PATH_LESSON, course, lesson],
-    queryFn: () => learningPathApi.getLessonDetail(course, lesson),
+    queryKey: [
+      QueryKey.LEARNING_PATH_LESSON,
+      params.courseSlug,
+      params.lessonId,
+    ],
+    queryFn: () => learningPathApi.getLessonDetail(params),
   })
+}
+
+export const usePrefetchLessonDetail = ({
+  courseSlug,
+  lessonId,
+}: {
+  courseSlug: string
+  lessonId?: number
+}) => {
+  const queryClient = useQueryClient()
+
+  const prefetch = () => {
+    if (!lessonId) return
+
+    queryClient.prefetchQuery({
+      queryKey: [QueryKey.LEARNING_PATH_LESSON, courseSlug, lessonId],
+      queryFn: () =>
+        learningPathApi.getLessonDetail({
+          courseSlug,
+          lessonId,
+        }),
+    })
+  }
+
+  return { prefetch }
 }
 
 export const useGetQuizSubmission = (
@@ -49,14 +83,10 @@ export const useGetCodeSubmission = (
   })
 }
 
-export const useCompleteLesson = (lessonId: number) => {
+export const useCompleteLesson = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (payload: CompleteLessonPayload) => {
-      if (lessonId === undefined)
-        return Promise.reject(new Error('Lesson ID is required'))
-      return learningPathApi.completeLesson(lessonId, payload)
-    },
+    mutationFn: learningPathApi.completeLesson,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QueryKey.LEARNING_PATH_LESSON],
@@ -67,6 +97,12 @@ export const useCompleteLesson = (lessonId: number) => {
     },
   })
 }
+
+export const useCompletePracticeExercise = () =>
+  useToastMutation({
+    mutationFn: learningPathApi.completePracticeExercise,
+    queryKeys: [[QueryKey.LEARNING_PATH_LESSON], [QueryKey.COURSE_PROGRESS]],
+  })
 
 export const useUpdateLastTime = () => {
   return useMutation({

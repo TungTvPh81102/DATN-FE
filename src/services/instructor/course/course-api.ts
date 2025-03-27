@@ -5,6 +5,7 @@ import {
 } from '@/validations/course'
 import api from '@/configs/api'
 import { CoursePreview, ICourse } from '@/types'
+import { ValidateCourse } from '@/types/validate-course'
 
 const prefix = '/instructor/manage/courses'
 
@@ -20,8 +21,9 @@ export const instructorCourseApi = {
     })
     return res.data
   },
-  getCourseOverview: async (slug: string) => {
-    return await api.get(`${prefix}/${slug}`)
+  getCourseOverview: async (slug: string): Promise<ICourse> => {
+    const res = await api.get(`${prefix}/${slug}`)
+    return res.data
   },
   getApprovedCourses: async (): Promise<CoursePreview[]> => {
     const res = await api.get(`${prefix}/course-approved`)
@@ -67,8 +69,9 @@ export const instructorCourseApi = {
       }
     )
   },
-  validateCourse: (slug: string) => {
-    return api.get(`${prefix}/${slug}/validate-course`)
+  validateCourse: async (slug: string): Promise<ValidateCourse> => {
+    const { data } = await api.get(`${prefix}/${slug}/validate-course`)
+    return data
   },
   submitCourse: (slug: string) => {
     return api.post(`${prefix}/${slug}/submit-course`)

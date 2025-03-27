@@ -235,7 +235,7 @@ export const storeQuestionSchema = z
     ).length
 
     if (
-      question.answer_type === AnswerType.SingleChoice &&
+      question.answer_type === AnswerType.SINGLE_CHOICE &&
       correctAnswers !== 1
     ) {
       ctx.addIssue({
@@ -246,7 +246,7 @@ export const storeQuestionSchema = z
     }
 
     if (
-      question.answer_type === AnswerType.MultipleChoice &&
+      question.answer_type === AnswerType.MULTIPLE_CHOICE &&
       correctAnswers < 1
     ) {
       ctx.addIssue({

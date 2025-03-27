@@ -7,7 +7,7 @@ interface ReplyListProps {
   replies: any[]
   commentId: string
   user: any
-  lessonId: string
+  lessonId: number
   visible: boolean
   onToggleVisibility: () => void
 }

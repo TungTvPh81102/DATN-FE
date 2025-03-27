@@ -6,9 +6,8 @@ import { useGetMyCourses } from '@/hooks/user/useUser'
 import { formatDuration } from '@/lib/common'
 
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import React, { useEffect, useState } from 'react'
 import CourseSummary from '@/sections/my-courses/_components/course-summany'
+import { useEffect, useState } from 'react'
 
 const MyCourseView = () => {
   const [course, setMyCourse] = useState<any[]>([])
@@ -114,7 +113,7 @@ const MyCourseView = () => {
                         }}
                       />
 
-                      <div className="absolute right-2 top-2 rounded-md bg-black bg-opacity-70 px-2 py-1 text-sm text-white">
+                      <div className="absolute right-2 top-2 rounded-md bg-black/70 px-2 py-1 text-sm text-white">
                         {course.progress_percent}%
                       </div>
 
@@ -204,24 +203,27 @@ const MyCourseView = () => {
                       </div>
                       <div className="mt-4">
                         <Button
-                          className={cn(
-                            'text-white',
-                            course.progress_percent === 100 &&
-                              'bg-green-500 hover:bg-green-500/80',
-                            course?.status === 'draft' &&
-                              'bg-yellow-500 hover:bg-yellow-500/80'
-                          )}
-                          onClick={() => {
-                            window.location.href = `/learning/${course.slug}/lesson/${course.current_lesson.id}`
-                          }}
+                          asChild
+                          variant={
+                            course.progress_percent === 100
+                              ? 'success'
+                              : course?.status === 'draft'
+                                ? 'warning'
+                                : 'default'
+                          }
+                          className="!text-primary-foreground"
                         >
-                          {course?.status === 'draft'
-                            ? 'Đang sửa đổi nội dung'
-                            : course.progress_percent === 100
-                              ? 'Đã hoàn thành'
-                              : course.progress_percent === 0
-                                ? 'Bắt đầu học'
-                                : 'Tiếp tục học'}
+                          <a
+                            href={`/learning/${course.slug}/lesson/${course.current_lesson.id}`}
+                          >
+                            {course?.status === 'draft'
+                              ? 'Đang sửa đổi nội dung'
+                              : course.progress_percent === 100
+                                ? 'Đã hoàn thành'
+                                : course.progress_percent === 0
+                                  ? 'Bắt đầu học'
+                                  : 'Tiếp tục học'}
+                          </a>
                         </Button>
                       </div>
                     </div>

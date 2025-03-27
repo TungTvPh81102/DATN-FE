@@ -159,14 +159,14 @@ export function getColumns({
             >
               <DropdownMenuItem
                 onSelect={() => setRowAction({ type: 'update', row })}
-                disabled={status !== MembershipStatus.Draft}
+                disabled={status !== MembershipStatus.DRAFT}
               >
                 <SquarePen /> Sửa
               </DropdownMenuItem>
-              {(status === MembershipStatus.Active ||
-                status === MembershipStatus.Inactive) && (
+              {(status === MembershipStatus.ACTIVE ||
+                status === MembershipStatus.INACTIVE) && (
                 <DropdownMenuItem onClick={() => toggleStatus(code)}>
-                  {status === MembershipStatus.Active ? (
+                  {status === MembershipStatus.ACTIVE ? (
                     <>
                       <X />
                       Dừng hoạt động
@@ -179,7 +179,7 @@ export function getColumns({
                 </DropdownMenuItem>
               )}
 
-              {status === MembershipStatus.Draft && (
+              {status === MembershipStatus.DRAFT && (
                 <DropdownMenuItem onClick={() => sendRequest(code)}>
                   <Check /> Gửi yêu cầu
                 </DropdownMenuItem>

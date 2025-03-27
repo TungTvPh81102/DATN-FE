@@ -7,7 +7,10 @@ import {
   UpdateLastTimePayload,
 } from '@/types/LearningPath'
 import { CodeSubmissionPayLoad } from '@/validations/code-submission'
-import { Answers } from '@/validations/quiz-submission'
+import {
+  Answers,
+  PracticeExerciseSubmissionPayload,
+} from '@/validations/quiz-submission'
 
 const prefix = 'learning-paths'
 
@@ -21,11 +24,14 @@ export const learningPathApi = {
     return await api.get(`${prefix}/${lessonId}/get-chapter-from-lesson`)
   },
 
-  getLessonDetail: async (
-    course: string,
-    lesson: string
-  ): Promise<GetLessonDetailResponse> => {
-    const response = await api.get(`${prefix}/${course}/lesson/${lesson}`)
+  getLessonDetail: async ({
+    courseSlug,
+    lessonId,
+  }: {
+    courseSlug: string
+    lessonId: number
+  }): Promise<GetLessonDetailResponse> => {
+    const response = await api.get(`${prefix}/${courseSlug}/lesson/${lessonId}`)
     return response.data
   },
 
@@ -49,11 +55,33 @@ export const learningPathApi = {
     return res.data
   },
 
-  completeLesson: (
-    lessonId: number,
-    payload: CompleteLessonPayload
-  ): Promise<any> => {
+  completeLesson: ({
+    lessonId,
+    payload,
+  }: {
+    lessonId: number
+    payload?: CompleteLessonPayload
+  }): Promise<any> => {
     return api.patch(`${prefix}/lesson/${lessonId}/complete-lesson`, payload)
+  },
+
+  completePracticeExercise: ({
+    lessonId,
+    payload,
+  }: {
+    lessonId: number
+    payload: PracticeExerciseSubmissionPayload
+  }): Promise<{
+    message: string
+    data: {
+      correct_answer: number
+      total_question: string
+    }
+  }> => {
+    return api.patch(
+      `${prefix}/lesson/${lessonId}/complete-practice-exercise`,
+      payload
+    )
   },
 
   updateLastTime: ({ lesson_id, last_time_video }: UpdateLastTimePayload) => {

@@ -187,7 +187,7 @@ const ProfileMeView = ({ profileData, isLoadingProfileData }: Props) => {
               height={150}
               className="size-32 rounded-full object-cover"
             />
-            <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
               <Upload className="text-white" />
             </div>
             <input
@@ -302,7 +302,7 @@ const ProfileMeView = ({ profileData, isLoadingProfileData }: Props) => {
       </form>
 
       {showCropModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-black/50">
           <div className="relative max-h-[90vh] w-full max-w-2xl overflow-auto rounded-lg bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-medium">Điều chỉnh ảnh đại diện</h3>

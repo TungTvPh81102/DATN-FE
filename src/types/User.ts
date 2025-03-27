@@ -1,7 +1,7 @@
 export enum UserStatus {
-  Active = 'active',
-  Inactive = 'inactive',
-  Banned = 'banned',
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  BANNED = 'banned',
 }
 
 export interface IUser {

@@ -3,20 +3,20 @@ import { ICategory } from './Category'
 import { IUser } from './User'
 
 export enum PostStatus {
-  Draft = 'draft',
-  Pending = 'pending',
-  Published = 'published',
-  Private = 'private',
+  DRAFT = 'draft',
+  PENDING = 'pending',
+  PUBLISHED = 'published',
+  PRIVATE = 'private',
 }
 
 export const PostStatusMap: Record<
   PostStatus,
   { label: string; badge: BadgeProps['variant'] }
 > = {
-  [PostStatus.Draft]: { label: 'Bản nháp', badge: 'secondary' },
-  [PostStatus.Pending]: { label: 'Chờ duyệt', badge: 'info' },
-  [PostStatus.Published]: { label: 'Công khai', badge: 'success' },
-  [PostStatus.Private]: { label: 'Riêng tư', badge: 'warning' },
+  [PostStatus.DRAFT]: { label: 'Bản nháp', badge: 'secondary' },
+  [PostStatus.PENDING]: { label: 'Chờ duyệt', badge: 'info' },
+  [PostStatus.PUBLISHED]: { label: 'Công khai', badge: 'success' },
+  [PostStatus.PRIVATE]: { label: 'Riêng tư', badge: 'warning' },
 }
 
 export interface IPost {

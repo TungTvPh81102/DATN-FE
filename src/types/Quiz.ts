@@ -1,35 +1,36 @@
 import { BadgeProps } from '@/components/ui/badge'
 
 export enum AnswerType {
-  SingleChoice = 'single_choice',
-  MultipleChoice = 'multiple_choice',
+  SINGLE_CHOICE = 'single_choice',
+  MULTIPLE_CHOICE = 'multiple_choice',
 }
 
 export const AnswerTypeMap: Record<
   AnswerType,
   { label: string; badge: BadgeProps['variant'] }
 > = {
-  [AnswerType.SingleChoice]: { label: 'Một đáp án', badge: 'info' },
-  [AnswerType.MultipleChoice]: { label: 'Nhiều đáp án', badge: 'success' },
+  [AnswerType.SINGLE_CHOICE]: { label: 'Một đáp án', badge: 'info' },
+  [AnswerType.MULTIPLE_CHOICE]: { label: 'Nhiều đáp án', badge: 'success' },
 }
 
 export interface IQuiz {
-  id?: number
-  quiz_id?: number
+  id: number
+  quiz_id: number
   question: string
-  image?: string | null
+  image: string | null
   answer_type: AnswerType
-  answers: IQuizAnswer[]
-  description?: string | null
+  description: string | null
+  order: number
   created_at: string
   updated_at: string
+  answers: IQuizAnswer[]
 }
 
 export interface IQuizAnswer {
-  id?: number
-  question_id?: number
+  id: number
+  question_id: number
   answer: string
-  is_correct?: 0 | 1
+  is_correct: 0 | 1
   created_at: string
   updated_at: string
 }

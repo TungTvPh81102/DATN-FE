@@ -1,4 +1,4 @@
-import { ICourseDataResponse } from '@/types/Course'
+import { ICourse, ICourseDataResponse } from '@/types/Course'
 
 export interface IInstructorProfile {
   id?: number
@@ -61,7 +61,27 @@ export interface IInstructorProfileResponse {
 
 export interface IInstructorCourseResponse {
   message: string
-  courses: ICourseDataResponse
+  courses: InstructorCourses
+}
+
+export interface InstructorCourses extends Omit<ICourseDataResponse, 'data'> {
+  data: InstructorCourse[]
+}
+
+export interface InstructorCourse
+  extends Pick<
+    ICourse,
+    | 'id'
+    | 'name'
+    | 'slug'
+    | 'thumbnail'
+    | 'price'
+    | 'price_sale'
+    | 'is_free'
+    | 'total_student'
+  > {
+  avg_rating: string
+  lessons_count: number
 }
 
 export interface IInstructorFollow {

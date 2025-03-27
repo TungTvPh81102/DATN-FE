@@ -336,7 +336,7 @@ export const ReplyItem = ({
 }: {
   reply: any
   user: any
-  lessonId: string
+  lessonId: number
   commentId: string
 }) => {
   const queryClient = useQueryClient()
@@ -532,7 +532,7 @@ export const ReplyItem = ({
                   {openDropdown && (
                     <div
                       ref={dropdownRef}
-                      className="animate-fade-in absolute right-0 top-6 z-50 w-40 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+                      className="animate-fade-in absolute right-0 top-6 z-50 w-40 rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5"
                     >
                       <button
                         className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"

@@ -42,13 +42,13 @@ import Link from 'next/link'
 const NoteList = ({
   open,
   onOpenChange,
-  slug,
+  courseSlug,
   lessonId,
 }: {
   open: boolean
   onOpenChange: (value: boolean) => void
-  slug: string
-  lessonId: string
+  courseSlug: string
+  lessonId: number
 }) => {
   const queryClient = useQueryClient()
 
@@ -66,8 +66,8 @@ const NoteList = ({
     content: string
   }>({ id: null, content: '' })
 
-  const { data: chapterData } = useGetChapterFromLesson(+lessonId)
-  const { data: noteData, isLoading } = useGetNotes(slug, filters)
+  const { data: chapterData } = useGetChapterFromLesson(lessonId)
+  const { data: noteData, isLoading } = useGetNotes(courseSlug, filters)
 
   const { mutate: updateNote, isPending: isPendingUpdateNote } = useUpdateNote()
   const { mutate: deleteNote, isPending: isPendingDeleteNote } = useDeleteNote()
@@ -98,7 +98,7 @@ const NoteList = ({
   const handleSaveNote = () => {
     if (selectNote.id && selectNote.content) {
       const payload = {
-        lesson_id: +lessonId,
+        lesson_id: lessonId,
         content: selectNote.content,
       }
 
@@ -173,7 +173,7 @@ const NoteList = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Link
-                      href={`/learning/${slug}/lesson/${note.lesson_id}?time=${note.time}`}
+                      href={`/learning/${courseSlug}/lesson/${note.lesson_id}?time=${note.time}`}
                       onClick={() => onOpenChange(false)}
                     >
                       <Badge>
@@ -182,7 +182,7 @@ const NoteList = ({
                     </Link>
                     <Link
                       className="font-bold text-primary hover:text-primary/80"
-                      href={`/learning/${slug}/lesson/${note.lesson_id} `}
+                      href={`/learning/${courseSlug}/lesson/${note.lesson_id} `}
                       onClick={() => onOpenChange(false)}
                     >
                       <h4>{note.lesson_name}</h4>

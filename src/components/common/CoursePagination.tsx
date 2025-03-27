@@ -1,9 +1,8 @@
-import React from 'react'
-import { ICourseDataResponse } from '@/types'
+import { ICourseDataResponse, InstructorCourses } from '@/types'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 type Props = {
-  data: ICourseDataResponse
+  data: ICourseDataResponse | InstructorCourses
   handlePageChange: (pageUrl?: string | null) => void
 }
 

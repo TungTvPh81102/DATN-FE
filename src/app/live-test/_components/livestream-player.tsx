@@ -14,6 +14,7 @@ import {
   Users,
   Share2,
 } from 'lucide-react'
+import Image from 'next/image'
 
 export function LivestreamPlayer() {
   const [isPlaying, setIsPlaying] = useState(true)
@@ -25,10 +26,11 @@ export function LivestreamPlayer() {
     <div className="relative aspect-video overflow-hidden rounded-xl bg-black">
       {/* Video placeholder */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <img
+        <Image
           src="/placeholder.svg?height=720&width=1280"
           alt="Livestream video"
           className="size-full object-cover"
+          fill
         />
       </div>
 

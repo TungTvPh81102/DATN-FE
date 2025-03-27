@@ -1,4 +1,5 @@
 import {
+  CourseDetail,
   ICourse,
   ICourseDataResponse,
   ICourseFilter,
@@ -25,7 +26,7 @@ export const getInstructorsCourseBySlug = async (
 
 export const getCourseDetailsBySlug = async (
   slug: string
-): Promise<ICourse> => {
+): Promise<CourseDetail> => {
   const { data } = await api.get(`${prefix}/${slug}`)
   return data
 }

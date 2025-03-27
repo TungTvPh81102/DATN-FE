@@ -113,7 +113,7 @@ export function getColumns({
         const coupon = row.original
         return (
           <div className="font-medium">
-            {coupon.discount_type === DiscountType.Fixed
+            {coupon.discount_type === DiscountType.FIXED
               ? formatCurrency(Number(coupon.discount_value))
               : formatPercentage(Number(coupon.discount_value))}
           </div>

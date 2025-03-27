@@ -1,11 +1,11 @@
 export interface ICategory {
   id: number
   name: string
-  parent_id?: number | null
   slug: string
+  parent_id: number | null
   icon: null
-  status: number
-  deleted_at: null
+  status: 0 | 1
+  deleted_at: Date | null
   created_at: Date
   updated_at: Date
 }
