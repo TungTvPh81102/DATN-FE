@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useCreateWishList } from '@/hooks/wish-list/useWishList'
 import { formatCurrency, formatDuration } from '@/lib/common'
-import { ICourse } from '@/types'
+import { ICourse, PriceType } from '@/types'
 import { CreateWishListPayload } from '@/validations/wish-list'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -23,6 +23,8 @@ import {
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { CourseItemSkeleton } from '@/components/common/CourseItemSkeleton'
 import { CourseItemRating } from '@/components/common/CourseItemRating'
+import { useRouter } from 'next/navigation'
+import { updateCourseFilters } from '@/lib/utils'
 
 SwiperCore.use([Navigation, Pagination, Autoplay])
 
@@ -42,6 +44,23 @@ const CourseList = ({
 }: CourseListProps) => {
   const { mutate: createWishList, isPending: isWishListPending } =
     useCreateWishList()
+
+  const router = useRouter()
+
+  const handleUpdateFilter = () => {
+    const priceMap: Record<string, PriceType> = {
+      'Khoá học đang giảm giá': 'price_sale',
+      'Khoá học miễn phí': 'free',
+    }
+
+    const priceFilter = priceMap[title]
+
+    if (priceFilter) {
+      updateCourseFilters('price', priceFilter)
+    }
+
+    router.push('/courses')
+  }
 
   const handleAddToWishList = (values: CreateWishListPayload) => {
     if (isWishListPending) return
@@ -78,6 +97,10 @@ const CourseList = ({
                   href="/courses"
                   className="tf-btn-arrow wow fadeInUp"
                   data-wow-delay="0.3s"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleUpdateFilter()
+                  }}
                 >
                   Xem thêm <i className="icon-arrow-top-right" />
                 </Link>

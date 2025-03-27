@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from 'clsx'
 import { formatDistanceToNow, FormatDistanceToNowOptions } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { twMerge } from 'tailwind-merge'
+import { ICourseFilter } from '@/types'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
@@ -55,4 +56,18 @@ export const getAvatarText = (name: string) => {
     .join('')
     .toUpperCase()
     .substring(0, 2)
+}
+
+export const updateCourseFilters = <K extends keyof ICourseFilter>(
+  key: K,
+  value: ICourseFilter[K]
+) => {
+  localStorage.removeItem('courseFilters')
+
+  const updatedFilters: ICourseFilter = {
+    [key]: value,
+  }
+
+  localStorage.setItem('courseFilters', JSON.stringify(updatedFilters))
+  window.dispatchEvent(new Event('courseFiltersUpdated'))
 }

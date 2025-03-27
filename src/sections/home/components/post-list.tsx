@@ -133,11 +133,11 @@ const PostList = ({ title, description }: PostListProps) => {
                             <p>{post?.comments_count ?? ''}</p>
                           </div>
                           <a
-                            href={`/profile/${post?.user.code}}`}
+                            href={`/profile/${post?.user?.code}}`}
                             className="meta-item"
                           >
                             <i className="flaticon-user-1" />
-                            <p>{post?.user.name}</p>
+                            <p>{post?.user?.name}</p>
                           </a>
                         </div>
                       </div>
