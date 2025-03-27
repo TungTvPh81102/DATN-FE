@@ -52,7 +52,7 @@ import {
   ReplyPreview,
 } from '@/components/shared/message-content'
 import { IChannel, IMessage } from '@/types/Chat'
-import { SidebarChatInfo } from '@/components/shared/sidebar-chat-info'
+import { SidebarChatInfo } from '@/components/chat/sidebar-chat-info'
 import EmptyChatState from '@/components/shared/empty-chat-state'
 import { AutosizeTextarea } from '@/components/ui/autosize-textarea'
 import Image from 'next/image'

@@ -120,7 +120,7 @@ export const PracticeExercise = ({ title, description }: Props) => {
                             <Link href="#" className="item free best-seller">
                               Miễn phí
                             </Link>
-                          ) : course?.price_sale && course.price_sale > 0 ? (
+                          ) : +course.price_sale > 0 ? (
                             <Link href="#" className="item sale best-seller">
                               Đang giảm giá
                             </Link>
@@ -187,7 +187,7 @@ export const PracticeExercise = ({ title, description }: Props) => {
                           <div className="h6 price fw-5">
                             {course.is_free ? (
                               <span className="text-primary">Miễn phí</span>
-                            ) : course?.price_sale && course.price_sale > 0 ? (
+                            ) : +course.price_sale > 0 ? (
                               <>
                                 <span className="text-lg font-bold text-primary">
                                   {formatCurrency(course.price_sale)}

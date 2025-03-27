@@ -2,6 +2,7 @@
 
 import LearningProcess from '@/components/common/LearningProcess'
 import ModalLoading from '@/components/common/ModalLoading'
+import LearningTour from '@/components/shared/learning-tour'
 import {
   Accordion,
   AccordionContent,
@@ -19,6 +20,7 @@ import { lessonTypeIcons } from '@/configs'
 import {
   useGetLessonDetail,
   useGetLessons,
+  usePrefetchLessonDetail,
 } from '@/hooks/learning-path/useLearningPath'
 import { useCheckCourseRatingState } from '@/hooks/rating/useRating'
 import { useDownloadCertificate, useGetProgress } from '@/hooks/user/useUser'
@@ -42,11 +44,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import Swal from 'sweetalert2'
-import LearningTour from '@/components/shared/learning-tour'
+import { PracticeExercise } from '../_components/practice-exercise'
+import { Level } from '@/types'
 
 type Props = {
   courseSlug: string
-  lessonId: string
+  lessonId: number
 }
 
 const LearningPathView = ({ courseSlug, lessonId }: Props) => {
@@ -58,11 +61,21 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
 
   const { data: lessons, isLoading: isLessonLoading } =
     useGetLessons(courseSlug)
-  const { chapter_lessons, course_name, total_lesson, course_status } =
-    lessons || {}
+  const {
+    chapter_lessons,
+    course_name,
+    total_lesson,
+    course_status,
+    is_practical_course,
+  } = lessons || {}
 
   const { data: lessonDetail, isLoading: isLessonDetailLoading } =
-    useGetLessonDetail(courseSlug, lessonId)
+    useGetLessonDetail({ courseSlug, lessonId })
+
+  const { prefetch } = usePrefetchLessonDetail({
+    courseSlug,
+    lessonId: lessonDetail?.next_lesson?.id,
+  })
 
   const isCompleted = !!lessonDetail?.lesson_process?.is_completed
   const lastTimeVideo = lessonDetail?.lesson_process?.last_time_video
@@ -81,7 +94,7 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
       case 'coding':
         return 300
       case 'quiz':
-        return 180
+        return (lesson?.total_questions ?? 0) * 30
       default:
         return 10
     }
@@ -100,32 +113,6 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
       }, 0),
     [chapter_lessons]
   )
-
-  useEffect(() => {
-    if (lessons && lessonDetail && chapter_lessons) {
-      const firstIncompleteLesson = chapter_lessons
-        ?.flatMap((chapter) => chapter.lessons)
-        .find((lesson) => !lesson.is_completed && lesson.is_unlocked)
-
-      const currentLesson = chapter_lessons
-        ?.flatMap((chapter) => chapter.lessons)
-        .find((lesson) => lesson.id === Number(lessonId))
-
-      if (currentLesson?.is_unlocked || currentLesson?.is_completed) {
-        return
-      }
-
-      if (
-        firstIncompleteLesson &&
-        currentLesson &&
-        Number(lessonId) > Number(firstIncompleteLesson.id)
-      ) {
-        router.replace(
-          `/learning/${courseSlug}/lesson/${firstIncompleteLesson.id}`
-        )
-      }
-    }
-  }, [lessons, lessonDetail, chapter_lessons, lessonId, router, courseSlug])
 
   useEffect(() => {
     if (
@@ -147,6 +134,20 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
     }
   }, [course_status, hasAlerted, router])
 
+  useEffect(() => {
+    let timeout: NodeJS.Timeout
+    if (lessonDetail?.next_lesson?.id) {
+      timeout = setTimeout(() => {
+        prefetch()
+      }, 5000)
+    }
+
+    return () => {
+      clearTimeout(timeout)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lessonDetail?.next_lesson?.id])
+
   if (isLessonLoading || isLessonDetailLoading) return <ModalLoading />
 
   if (!lessons) {
@@ -157,11 +158,12 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
   return (
     <>
       <LearningTour isRunning={runTour} onClose={() => setRunTour(false)} />
+
       <div className="relative flex min-h-screen flex-col">
         <div className="fixed inset-x-0 top-0 z-10 h-16 bg-[#292f3b] text-primary-foreground">
           <div className="mx-16 flex h-full items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href={'/'}>
+              <Link href={'/my-courses'}>
                 <ChevronLeft />
               </Link>
               <Image
@@ -219,96 +221,145 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
 
         <div className="fixed inset-x-0 inset-y-16 grid grid-cols-12 overflow-hidden">
           <div className="lesson-content col-span-9 overflow-y-auto">
-            {lessonDetail && (
-              <LessonContent
-                lesson={lessonDetail.lesson}
-                isCompleted={isCompleted}
-                lastTimeVideo={lastTimeVideo}
-              />
-            )}
+            {lessonDetail &&
+              (!is_practical_course ? (
+                <LessonContent
+                  lesson={lessonDetail.lesson}
+                  isCompleted={isCompleted}
+                  lastTimeVideo={lastTimeVideo}
+                />
+              ) : (
+                <PracticeExercise
+                  lesson={lessonDetail.lesson}
+                  isCompleted={isCompleted}
+                />
+              ))}
           </div>
 
           <div className="course-content col-span-3 overflow-y-auto border-l-2">
             <h2 className="border-b-2 p-4 font-bold">Nội dung khoá học</h2>
 
-            <Accordion
-              type="multiple"
-              defaultValue={[`chapter-${lessonDetail?.lesson?.chapter_id}`]}
-            >
-              {chapter_lessons?.map((chapter, chapterIndex) => {
-                const duration = chapter?.lessons.reduce(
-                  (acc, lesson) => acc + getLessonDuration(lesson),
-                  0
-                )
-                return (
-                  <AccordionItem
-                    key={chapterIndex}
-                    value={`chapter-${chapter.chapter_id}`}
-                    className="border-b-2"
-                  >
-                    <AccordionTrigger className="border-0 hover:bg-gray-200">
-                      <div>
-                        <h3 className="font-semibold">
-                          {chapterIndex + 1}. {chapter.chapter_title}
-                        </h3>
-                        <p className="mt-1 text-xs font-light">
-                          {getChapterProgress(chapter.lessons)}/
-                          {chapter?.lessons.length} |{' '}
-                          {formatDuration(duration, 'colon')}
-                        </p>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="m-0 border-0 p-0">
-                      {chapter?.lessons?.map((lesson, lessonIndex) => {
-                        const isSelected =
-                          lesson?.id === lessonDetail?.lesson?.id
-                        return (
-                          <div
-                            onClick={() => {
-                              if (lesson.is_unlocked)
-                                router.push(
-                                  `/learning/${courseSlug}/lesson/${lesson?.id}`
-                                )
-                            }}
-                            className={cn(
-                              `flex cursor-default items-center space-x-3 border-t-2 p-3 pr-4 transition-colors duration-300`,
-                              isSelected
-                                ? 'bg-orange-100'
-                                : lesson.is_unlocked
-                                  ? 'hover:cursor-pointer hover:bg-gray-200'
-                                  : 'bg-muted'
-                            )}
-                            key={lessonIndex}
-                          >
-                            <div className="ml-2 w-full flex-1 space-y-1">
-                              <h4>
-                                {chapterIndex + 1}.{lessonIndex + 1}{' '}
-                                {lesson?.title}
-                              </h4>
-                              <div className="flex items-center gap-1 text-xs font-light [&_svg]:size-3">
-                                {lessonTypeIcons[lesson?.type]}{' '}
-                                {formatDuration(
-                                  getLessonDuration(lesson),
-                                  'colon'
-                                )}
+            {!is_practical_course ? (
+              <Accordion
+                type="multiple"
+                defaultValue={[`chapter-${lessonDetail?.lesson?.chapter_id}`]}
+              >
+                {chapter_lessons?.map((chapter, chapterIndex) => {
+                  const duration = chapter?.lessons.reduce(
+                    (acc, lesson) => acc + getLessonDuration(lesson),
+                    0
+                  )
+                  return (
+                    <AccordionItem
+                      key={chapterIndex}
+                      value={`chapter-${chapter.chapter_id}`}
+                      className="border-b-2"
+                    >
+                      <AccordionTrigger className="border-0 hover:bg-gray-200">
+                        <div>
+                          <h3 className="font-semibold">
+                            {chapterIndex + 1}. {chapter.chapter_title}
+                          </h3>
+                          <p className="mt-1 text-xs font-light">
+                            {getChapterProgress(chapter.lessons)}/
+                            {chapter?.lessons.length} |{' '}
+                            {formatDuration(duration, 'colon')}
+                          </p>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="m-0 border-0 p-0">
+                        {chapter?.lessons?.map((lesson, lessonIndex) => {
+                          const isSelected =
+                            lesson?.id === lessonDetail?.lesson?.id
+                          return (
+                            <div
+                              onClick={() => {
+                                if (lesson.is_unlocked)
+                                  router.push(
+                                    `/learning/${courseSlug}/lesson/${lesson?.id}`
+                                  )
+                              }}
+                              className={cn(
+                                `flex cursor-default items-center space-x-3 border-t-2 p-3 pr-4 transition-colors duration-300`,
+                                isSelected
+                                  ? 'bg-orange-100'
+                                  : lesson.is_unlocked
+                                    ? 'hover:cursor-pointer hover:bg-gray-200'
+                                    : 'bg-muted'
+                              )}
+                              key={lessonIndex}
+                            >
+                              <div className="ml-2 w-full flex-1 space-y-1">
+                                <h4>
+                                  {chapterIndex + 1}.{lessonIndex + 1}{' '}
+                                  {lesson?.title}
+                                </h4>
+                                <div className="flex items-center gap-1 text-xs font-light [&_svg]:size-3">
+                                  {lessonTypeIcons[lesson?.type]}{' '}
+                                  {formatDuration(
+                                    getLessonDuration(lesson),
+                                    'colon'
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="size-5 *:size-full">
+                                {!lesson.is_unlocked ? (
+                                  <Lock className="text-muted-foreground" />
+                                ) : lesson.is_completed ? (
+                                  <CheckCircle className="text-green-500" />
+                                ) : null}
                               </div>
                             </div>
-
-                            <div className="size-5 *:size-full">
-                              {!lesson.is_unlocked ? (
-                                <Lock className="text-muted-foreground" />
-                              ) : lesson.is_completed ? (
-                                <CheckCircle className="text-green-500" />
-                              ) : null}
-                            </div>
-                          </div>
+                          )
+                        })}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )
+                })}
+              </Accordion>
+            ) : (
+              chapter_lessons?.[0]?.lessons?.map((lesson, lessonIndex) => {
+                const isSelected = lesson?.id === lessonDetail?.lesson?.id
+                return (
+                  <div
+                    onClick={() => {
+                      if (lesson.is_unlocked)
+                        router.push(
+                          `/learning/${courseSlug}/lesson/${lesson?.id}`
                         )
-                      })}
-                    </AccordionContent>
-                  </AccordionItem>
+                    }}
+                    className={cn(
+                      `flex cursor-default items-center space-x-3 border-b-2 p-3 pr-4 transition-colors duration-300`,
+                      isSelected
+                        ? 'bg-orange-100'
+                        : lesson.is_unlocked
+                          ? 'hover:cursor-pointer hover:bg-gray-200'
+                          : 'bg-muted'
+                    )}
+                    key={lessonIndex}
+                  >
+                    <div className="ml-2 w-full flex-1 space-y-1">
+                      <h4 className="font-semibold">
+                        {lessonIndex + 1} {lesson?.title}
+                      </h4>
+                      <div className="flex items-center gap-1 text-xs font-light [&_svg]:size-3">
+                        {lessonTypeIcons[lesson?.type]}{' '}
+                        {lesson.total_questions ?? 0} câu hỏi
+                      </div>
+                    </div>
+
+                    <div className="size-5 *:size-full">
+                      {!lesson.is_unlocked ? (
+                        <Lock className="text-muted-foreground" />
+                      ) : lesson.is_completed ? (
+                        <CheckCircle className="text-green-500" />
+                      ) : null}
+                    </div>
+                  </div>
                 )
-              })}
-            </Accordion>
+              })
+            )}
           </div>
         </div>
 
@@ -320,9 +371,9 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
               className="rounded-full border-primary font-semibold text-primary hover:text-primary/80 [&_svg]:size-5"
               disabled={!lessonDetail?.previous_lesson}
               onClick={() => {
-                if (lessonDetail?.previous_lesson)
+                if (lessonDetail?.previous_lesson?.id)
                   router.push(
-                    `/learning/${courseSlug}/lesson/${lessonDetail?.previous_lesson.id}`
+                    `/learning/${courseSlug}/lesson/${lessonDetail.previous_lesson.id}`
                   )
               }}
             >
@@ -333,11 +384,14 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
             <Button
               size="lg"
               className="rounded-full font-semibold [&_svg]:size-5"
-              disabled={!lessonDetail?.next_lesson || !isCompleted}
+              disabled={
+                !lessonDetail?.next_lesson ||
+                (lessons.level === Level.ADVANCED && !isCompleted)
+              }
               onClick={() => {
-                if (lessonDetail?.next_lesson && isCompleted)
+                if (lessonDetail?.next_lesson?.id)
                   router.push(
-                    `/learning/${courseSlug}/lesson/${lessonDetail?.next_lesson.id}`
+                    `/learning/${courseSlug}/lesson/${lessonDetail.next_lesson.id}`
                   )
               }}
             >
@@ -354,10 +408,11 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
           </div>
         </div>
       </div>
+
       <NoteList
         open={isSheetOpen}
         onOpenChange={setIsSheetOpen}
-        slug={courseSlug}
+        courseSlug={courseSlug}
         lessonId={lessonId}
       />
     </>

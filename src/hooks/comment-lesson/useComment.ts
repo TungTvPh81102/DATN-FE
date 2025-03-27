@@ -8,7 +8,7 @@ import {
 import QueryKey from '@/constants/query-key'
 import { commentLessonApi } from '@/services/comment-lesson/comment-lesson-api'
 
-export const useGetLessonComments = (lessonId: string) => {
+export const useGetLessonComments = (lessonId: number) => {
   return useQuery({
     queryKey: [QueryKey.LESSON_COMMENT, lessonId],
     queryFn: () => commentLessonApi.getCommentLessons(lessonId!),

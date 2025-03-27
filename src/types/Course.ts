@@ -8,66 +8,80 @@ import { IInstructorProfile } from '@/types/Instructor'
 import { IUserRating } from '@/types/Misc'
 
 export enum CourseStatus {
-  Draft = 'draft',
-  Pending = 'pending',
-  Approved = 'approved',
-  Reject = 'rejected',
-  ModifyRequest = 'modify_request',
+  DRAFT = 'draft',
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECT = 'rejected',
+  MODIFY_REQUEST = 'modify_request',
 }
 
 export const CourseStatusMap: Record<
   CourseStatus,
   { label: string; badge: BadgeProps['variant'] }
 > = {
-  [CourseStatus.Draft]: { label: 'Bản nháp', badge: 'secondary' },
-  [CourseStatus.Pending]: { label: 'Chờ duyệt', badge: 'info' },
-  [CourseStatus.Approved]: { label: 'Đã duyệt', badge: 'success' },
-  [CourseStatus.Reject]: { label: 'Từ chối', badge: 'error' },
-  [CourseStatus.ModifyRequest]: { label: 'Sửa đổi', badge: 'warning' },
+  [CourseStatus.DRAFT]: { label: 'Bản nháp', badge: 'secondary' },
+  [CourseStatus.PENDING]: { label: 'Chờ duyệt', badge: 'info' },
+  [CourseStatus.APPROVED]: { label: 'Đã duyệt', badge: 'success' },
+  [CourseStatus.REJECT]: { label: 'Từ chối', badge: 'error' },
+  [CourseStatus.MODIFY_REQUEST]: { label: 'Sửa đổi', badge: 'warning' },
+}
+
+export enum CourseVisibility {
+  PUBLIC = 'public',
+  PRIVATE = 'private',
+}
+
+export enum Level {
+  BEGINNER = 'beginner',
+  ADVANCED = 'advanced',
+}
+
+export const LevelMap: Record<Level, string> = {
+  [Level.BEGINNER]: 'Cơ bản',
+  [Level.ADVANCED]: 'Nâng cao',
 }
 
 export interface ICourse {
   id: number
-  user_id?: number
-  category_id?: number
-  category?: ICategory
+  user_id: number
+  category_id: number
   code: string
   name: string
   slug: string
   thumbnail: string
-  intro?: string | null
-  price?: number | null
-  price_sale?: number | null
-  description?: string | null
-  content?: string | null
-  level?: string | null
-  duration?: number | string | null
-  total_student?: number
-  total_lesson?: number
-  total_duration?: string
-  requirements?: string | string[]
-  benefits?: string | string[]
-  qa?: { question: string; answer: string }[]
-  is_popular?: 0 | 1
-  status: CourseStatus
-  chapters?: IChapter[]
-  lessons_count?: number
-  chapters_count?: number
-  ratings_count?: number
-  avg_rating?: string
-  total_rating?: string
-  accepted?: Date | null
+  intro: string | null
+  price: string
+  price_sale: string
+  is_free: 0 | 1
+  description: null
+  level: `${Level}`
+  total_student: number
+  requirements: string[]
+  benefits: string[]
+  qa: { question: string; answer: string }[]
+  is_popular: 0 | 1
+  is_sequential: 0 | 1
+  status: `${CourseStatus}`
+  visibility: `${CourseVisibility}`
+  modification_request: 0 | 1
+  accepted: Date | null
+  is_practical_course: 0 | 1
+  views: number
+  deleted_at: Date | null
+  created_at: Date
+  updated_at: Date
   user: IUser
-  name_instructor: string
-  code_instructor: string
-  avatar_instructor: string
-  deleted_at?: Date | null
-  created_at?: Date | null
-  updated_at?: Date | null
-  is_free?: 0 | 1
-  total_video_duration?: number
-  is_enrolled?: boolean
-  is_practical_course?: boolean
+  category: ICategory
+  chapters: IChapter[]
+}
+
+export interface CourseDetail extends ICourse {
+  chapters_count: number
+  lessons_count: number
+  is_enrolled: boolean
+  total_video_duration: number
+  ratings_count: number
+  avg_rating: number | null
 }
 
 export interface CoursePreview {
@@ -93,21 +107,22 @@ export interface IChapter {
 }
 
 export interface ILesson {
-  id?: number
-  slug?: string
-  chapter_id?: number
+  id: number
+  chapter_id: number
   title: string
-  duration?: number | null
+  slug: string
   content: string
-  playbackId?: string | null
-  is_free_preview?: 0 | 1
-  order?: number | null
+  is_free_preview: 0 | 1
+  order: number
   type: LessonType
-  lessonable_id?: number
-  lessonable?: Lessonable
-  created_at: string
-  updated_at: string
+  lessonable_id: number
+  lessonable_type: string
+  status: string
+  is_new: 0 | 1
+  created_at: Date
+  updated_at: Date
   chapter?: IChapter
+  lessonable?: Lessonable
 }
 
 export interface Lessonable {
@@ -187,7 +202,7 @@ export interface ILinkPagination {
 
 export interface ICourseDataResponse {
   current_page: number
-  data: ICourse[]
+  data: CourseFiltered[]
   first_page_url: string
   last_page_url: string
   from: number
@@ -201,15 +216,78 @@ export interface ICourseDataResponse {
   total: number
 }
 
+export interface CourseFiltered
+  extends Pick<
+    ICourse,
+    | 'id'
+    | 'user_id'
+    | 'category_id'
+    | 'name'
+    | 'slug'
+    | 'thumbnail'
+    | 'price'
+    | 'price_sale'
+    | 'is_free'
+    | 'level'
+    | 'total_student'
+    | 'status'
+  > {
+  total_rating: null | string
+  lessons_count: number
+  user: Pick<IUser, 'id' | 'name' | 'code'>
+}
+
 export interface ICourseRelatedResponse {
-  current_course: ICourse
-  related_courses: ICourse[]
+  current_course: {
+    id: number
+    name: string
+    category: string
+  }
+  related_courses: RelatedCourse[]
+}
+
+export interface RelatedCourse
+  extends Pick<
+    ICourse,
+    | 'id'
+    | 'name'
+    | 'slug'
+    | 'thumbnail'
+    | 'level'
+    | 'is_free'
+    | 'price'
+    | 'price_sale'
+    | 'total_student'
+  > {
+  lessons_count: number
+  total_video_duration: number
+  ratings_count: number
+  average_rating: number
+  category: {
+    id: number
+    name: string
+  }
+  user: Pick<IUser, 'id' | 'name' | 'avatar' | 'code'>
 }
 
 export interface ICourseOtherResponse {
   message?: string
-  get_other_courses: ICourse[]
+  get_other_courses: OtherCourse[]
   profile_instructor: IInstructorProfile
+}
+
+export interface OtherCourse
+  extends Pick<
+    ICourse,
+    'code' | 'name' | 'slug' | 'price' | 'price_sale' | 'thumbnail' | 'is_free'
+  > {
+  name_instructor: string
+  code_instructor: string
+  avatar_instructor: string
+  total_lesson: number
+  total_duration: string
+  avg_rating: string | null
+  total_rating: number
 }
 
 export interface ICourseRatingsResponse {
@@ -226,8 +304,15 @@ export interface IPracticeExerciseRating {
   average: number
 }
 
-export interface IPracticeExercise extends ICourse {
+export interface IPracticeExercise
+  extends Pick<
+    ICourse,
+    'id' | 'name' | 'slug' | 'thumbnail' | 'is_free' | 'price' | 'price_sale'
+  > {
   ratings: IPracticeExerciseRating
+  lessons_count: number
+  category: Pick<ICategory, 'id' | 'name' | 'slug'>
+  user: Pick<IUser, 'id' | 'name' | 'avatar' | 'code'>
 }
 
 export interface IPracticeExerciseResponse {

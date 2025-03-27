@@ -12,13 +12,15 @@ type Props = {
 }
 
 const DocumentLesson = ({ lesson, isCompleted }: Props) => {
-  const { mutate } = useCompleteLesson(lesson.id!)
+  const { mutate } = useCompleteLesson()
 
   useEffect(() => {
     if (isCompleted) return
 
     const timer = setTimeout(() => {
-      mutate({})
+      mutate({
+        lessonId: lesson.id,
+      })
     }, 10000)
 
     return () => clearTimeout(timer)

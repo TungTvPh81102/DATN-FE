@@ -71,6 +71,7 @@ export const CouponsTable = () => {
         toggleStatus,
         isTogglingStatus,
       }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 

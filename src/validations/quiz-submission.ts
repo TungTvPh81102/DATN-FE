@@ -15,3 +15,24 @@ export const quizSubmissionSchema = z.object({
 })
 
 export type QuizSubmissionPayload = z.infer<typeof quizSubmissionSchema>
+
+const practiceExerciseAnswersSchema = z.array(
+  z.object({
+    question_id: z.number(),
+    answer_id: z.union([
+      z.array(z.number()).min(1, 'Vui lòng chọn đáp án'),
+      z.number({
+        message: 'Vui lòng chọn đáp án',
+      }),
+    ]),
+  })
+)
+
+export const practiceExerciseSubmissionSchema = z.object({
+  quiz_id: z.number(),
+  answers: practiceExerciseAnswersSchema,
+})
+
+export type PracticeExerciseSubmissionPayload = z.infer<
+  typeof practiceExerciseSubmissionSchema
+>

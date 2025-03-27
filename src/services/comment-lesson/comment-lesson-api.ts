@@ -7,7 +7,7 @@ import api from '@/configs/api'
 const prefix = 'lessons/comments'
 
 export const commentLessonApi = {
-  getCommentLessons: async (lessonId: string) => {
+  getCommentLessons: async (lessonId: number) => {
     return await api.get(`${prefix}/${lessonId}/lesson-comment`)
   },
   getCommentReplyLesson: async (commentId: string) => {

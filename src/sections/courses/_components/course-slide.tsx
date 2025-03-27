@@ -1,21 +1,19 @@
 'use client'
 
+import Image from 'next/image'
+import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { formatCurrency } from '@/lib/common'
+import { OtherCourse } from '@/types'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/scrollbar'
-
-import Image from 'next/image'
-import { formatCurrency } from '@/lib/common'
-import { ICourse } from '@/types'
-import Link from 'next/link'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import React from 'react'
-
 type Props = {
-  courses: ICourse[]
+  courses: OtherCourse[]
 }
 
 const CourseSlide = ({ courses }: Props) => {
@@ -47,7 +45,7 @@ const CourseSlide = ({ courses }: Props) => {
                   <Link href="#" className="item free best-seller">
                     Miễn phí
                   </Link>
-                ) : course?.price_sale && course.price_sale > 0 ? (
+                ) : +course.price_sale > 0 ? (
                   <Link href="#" className="item sale best-seller">
                     Đang giảm giá
                   </Link>

@@ -15,6 +15,7 @@ import {
   quizSubmissionSchema,
 } from '@/validations/quiz-submission'
 
+import HtmlRenderer from '@/components/shared/html-renderer'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -26,8 +27,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { toast } from 'react-toastify'
-import HtmlRenderer from '@/components/shared/html-renderer'
 import Image from 'next/image'
 
 type Props = {
@@ -64,7 +63,7 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
     },
   })
 
-  const { mutate: completeLesson, isPending } = useCompleteLesson(lesson.id!)
+  const { mutate: completeLesson, isPending } = useCompleteLesson()
 
   const handleAnswerChange = () => {
     setIsCorrect({
@@ -121,9 +120,9 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
   }, [isCorrect, questions.length])
 
   const onSubmit = (values: QuizSubmissionPayload) => {
-    completeLesson(values, {
-      onSuccess: (res) => toast.success(res.message),
-      onError: (error) => toast.error(error.message),
+    completeLesson({
+      lessonId: lesson.id!,
+      ...values,
     })
   }
 
@@ -164,7 +163,7 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
                       Câu hỏi {currentQuestion + 1}:{' '}
                     </span>
                     {question.question}
-                    {question.answer_type === AnswerType.MultipleChoice && (
+                    {question.answer_type === AnswerType.MULTIPLE_CHOICE && (
                       <span className="text-sm text-muted-foreground">
                         (Chọn nhiều đáp án)
                       </span>
@@ -193,7 +192,7 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
                 )}
 
                 <div className="mt-4">
-                  {question.answer_type === AnswerType.SingleChoice ? (
+                  {question.answer_type === AnswerType.SINGLE_CHOICE ? (
                     <FormField
                       control={form.control}
                       name={`answers.${questionIndex}.answer_id`}

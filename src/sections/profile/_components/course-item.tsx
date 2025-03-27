@@ -1,18 +1,18 @@
-import { ICourse } from '@/types'
-import Image from 'next/image'
-import Link from 'next/link'
-import { Clock, FileText, Star, UserPen, Bookmark } from 'lucide-react'
-import { formatStringToCurrency } from '@/lib/common'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { formatStringToCurrency } from '@/lib/common'
+import { InstructorCourse } from '@/types'
+import { Bookmark, Clock, FileText, Star, UserPen } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useState } from 'react'
 
 type Props = {
-  course: ICourse
+  course: InstructorCourse
 }
 
 export const CourseItem = ({ course }: Props) => {
@@ -26,8 +26,7 @@ export const CourseItem = ({ course }: Props) => {
             Miễn phí
           </div>
         ) : (
-          course?.price_sale &&
-          course.price_sale > 0 &&
+          +course.price_sale > 0 &&
           !course?.is_free && (
             <div className="rounded-full bg-gradient-to-r from-red-500 to-orange-500 px-4 py-1 text-xs font-medium text-white shadow-lg">
               Giảm{' '}
@@ -124,7 +123,7 @@ export const CourseItem = ({ course }: Props) => {
               <span className="bg-gradient-to-r from-green-500 to-teal-500 bg-clip-text text-xl font-bold text-transparent">
                 Miễn phí
               </span>
-            ) : course?.price_sale && course.price_sale > 0 ? (
+            ) : +course.price_sale > 0 ? (
               <div className="flex items-center gap-2">
                 <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-xl font-bold text-transparent">
                   {formatStringToCurrency(course?.price_sale ?? 0)}

@@ -1,16 +1,16 @@
 import { BadgeProps } from '@/components/ui/badge'
 
 export enum DiscountType {
-  Fixed = 'fixed',
-  Percentage = 'percentage',
+  FIXED = 'fixed',
+  PERCENTAGE = 'percentage',
 }
 
 export const DiscountTypeMap: Record<
   DiscountType,
   { label: string; badge: BadgeProps['variant'] }
 > = {
-  [DiscountType.Fixed]: { label: 'Cố định', badge: 'info' },
-  [DiscountType.Percentage]: { label: 'Phần trăm', badge: 'success' },
+  [DiscountType.FIXED]: { label: 'Cố định', badge: 'info' },
+  [DiscountType.PERCENTAGE]: { label: 'Phần trăm', badge: 'success' },
 }
 
 export interface Coupon {
@@ -52,8 +52,8 @@ export interface ICoupon {
 }
 
 export enum CouponUseStatus {
-  Used = 'used',
-  Unused = 'unused',
+  USED = 'used',
+  UNUSED = 'unused',
 }
 
 export interface ICouponUse {

@@ -97,7 +97,7 @@ const CourseListItem = ({
                 {course?.name}
               </Link>
               <div className="ratings pb-30">
-                {(course?.ratings_count ?? 0) > 0 ? (
+                {course?.total_rating ? (
                   <>
                     <div className="stars flex items-center">
                       {Array.from({ length: 5 }, (_, index) => (
@@ -105,15 +105,12 @@ const CourseListItem = ({
                           key={index}
                           className={`icon-star-1 ${
                             index <
-                            Math.round(Number(course?.ratings_count ?? 0))
+                            Math.round(Number(course?.total_rating ?? 0))
                               ? 'text-yellow-500'
                               : 'text-gray-300'
                           }`}
                         ></i>
                       ))}
-                    </div>
-                    <div className="total text-sm text-gray-500">
-                      ({course?.ratings_count} lượt đánh giá)
                     </div>
                   </>
                 ) : (

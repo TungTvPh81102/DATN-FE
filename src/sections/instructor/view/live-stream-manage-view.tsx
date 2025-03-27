@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import ModalLoading from '@/components/common/ModalLoading'
 import { DataTable } from '@/components/shared/data-table'
 import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
-import DialogLiveStreamCreate from '@/sections/instructor/components/course-detail/_components/dialog-live-stream-create'
+import DialogLiveStreamCreate from '@/components/live-stream/dialog-live-stream-create'
 
 const LiveStreamManageView = () => {
   const [searchTerm, setSearchTerm] = useState('')

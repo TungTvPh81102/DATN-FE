@@ -53,7 +53,7 @@ const VideoLesson = ({ lesson, isCompleted, lastTimeVideo = 0 }: Props) => {
   const [openWarningMultiTab, setOpenWarningMultiTab] = useState(false)
   const currentTabId = useRef<string>(generateRandomCode(10))
 
-  const { mutate: completeLesson } = useCompleteLesson(lesson.id!)
+  const { mutate: completeLesson } = useCompleteLesson()
   const { mutate: updateLastTime, isPending: isLastTimeUpdating } =
     useUpdateLastTime()
 
@@ -208,7 +208,8 @@ const VideoLesson = ({ lesson, isCompleted, lastTimeVideo = 0 }: Props) => {
       isCalled.current = true
       completeLesson(
         {
-          current_time: roundedCurrentTime,
+          lessonId: lesson.id,
+          payload: { current_time: roundedCurrentTime },
         },
         {
           onError: () => {

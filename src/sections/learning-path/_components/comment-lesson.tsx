@@ -1,7 +1,4 @@
 'use client'
-import React, { useState } from 'react'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { MessageCircleMore } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -13,9 +10,10 @@ import {
 } from '@/components/ui/sheet'
 import { CommentForm } from '@/sections/learning-path/_components/comment/comment-form'
 import { CommentList } from '@/sections/learning-path/_components/comment/comment-list'
+import { MessageCircleMore } from 'lucide-react'
+import { useState } from 'react'
 
-const CommentLesson = ({ lessonId }: { lessonId: string }) => {
-  const { user } = useAuthStore()
+const CommentLesson = ({ lessonId }: { lessonId: number }) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
   return (
@@ -39,8 +37,8 @@ const CommentLesson = ({ lessonId }: { lessonId: string }) => {
         </div>
 
         <div className="mt-6 flex max-h-[75vh] flex-col gap-2 overflow-y-auto pr-2">
-          <CommentForm lessonId={lessonId} user={user} />
-          <CommentList lessonId={lessonId} user={user} />
+          <CommentForm lessonId={lessonId} />
+          <CommentList lessonId={lessonId} />
         </div>
       </SheetContent>
     </Sheet>

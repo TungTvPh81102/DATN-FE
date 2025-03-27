@@ -1,16 +1,10 @@
-import React, { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { Loader2, Send } from 'lucide-react'
-import { toast } from 'react-toastify'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'react-toastify'
 
-import {
-  LessonCommentPayload,
-  lessonCommentSchema,
-} from '@/validations/comment'
-import QueryKey from '@/constants/query-key'
-import { useStoreCommentLesson } from '@/hooks/comment-lesson/useComment'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,14 +15,17 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
+import QueryKey from '@/constants/query-key'
+import { useStoreCommentLesson } from '@/hooks/comment-lesson/useComment'
+import { useAuthStore } from '@/stores/useAuthStore'
+import {
+  LessonCommentPayload,
+  lessonCommentSchema,
+} from '@/validations/comment'
 
-export const CommentForm = ({
-  lessonId,
-  user,
-}: {
-  lessonId: string
-  user: any
-}) => {
+export const CommentForm = ({ lessonId }: { lessonId: number }) => {
+  const { user } = useAuthStore()
+
   const queryClient = useQueryClient()
   const [isAdding, setIsAdding] = useState(false)
   const { mutate: storeLessonComment, isPending } = useStoreCommentLesson()

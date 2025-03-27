@@ -327,6 +327,7 @@ import { Textarea } from '@/components/ui/textarea'
 import HtmlRenderer from '@/components/shared/html-renderer'
 import { ReactionPicker } from '@/sections/learning-path/_components/comment/reaction-picker'
 import { ReplyList } from '@/sections/learning-path/_components/comment/reply-list'
+import { useAuthStore } from '@/stores/useAuthStore'
 
 const reactionEmojis = [
   { emoji: '👍', name: 'Thích', type: 'like' },
@@ -339,13 +340,13 @@ const reactionEmojis = [
 
 export const CommentItem = ({
   comment,
-  user,
   lessonId,
 }: {
   comment: any
-  user: any
-  lessonId: string
+  lessonId: number
 }) => {
+  const { user } = useAuthStore()
+
   const queryClient = useQueryClient()
   const reactionPickerRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)

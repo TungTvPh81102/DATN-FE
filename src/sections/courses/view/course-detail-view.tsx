@@ -664,7 +664,7 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
                         <div className="price">
                           <h3 className="fw-5">Miễn phí</h3>
                         </div>
-                      ) : (courseDetails?.price_sale ?? 0) > 0 ? (
+                      ) : Number(courseDetails?.price_sale) > 0 ? (
                         <>
                           <div className="price">
                             <h3 className="fw-5">
@@ -677,15 +677,15 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
                           <p className="sale-off">
                             {courseDetails?.price &&
                               Math.round(
-                                ((courseDetails.price -
-                                  (courseDetails.price_sale ?? 0)) /
-                                  courseDetails.price) *
+                                ((Number(courseDetails.price) -
+                                  Number(courseDetails.price_sale)) /
+                                  Number(courseDetails.price)) *
                                   100
                               )}
                             % OFF
                           </p>
                         </>
-                      ) : (courseDetails?.price ?? 0) > 0 ? (
+                      ) : Number(courseDetails?.price) > 0 ? (
                         <div className="price">
                           <h3 className="fw-5">
                             {formatCurrency(courseDetails?.price ?? 0)}

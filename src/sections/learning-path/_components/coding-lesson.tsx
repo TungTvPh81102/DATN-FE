@@ -3,20 +3,21 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
 
+import { Language, LANGUAGE_CONFIG } from '@/constants/language'
+import {
+  useCompleteLesson,
+  useGetCodeSubmission,
+} from '@/hooks/learning-path/useLearningPath'
+import { formatDate } from '@/lib/common'
 import { ILesson } from '@/types'
 import {
   CodeSubmissionPayLoad,
   codeSubmissionSchema,
 } from '@/validations/code-submission'
-import { Language, LANGUAGE_CONFIG } from '@/constants/language'
-import { formatDate } from '@/lib/common'
-import {
-  useCompleteLesson,
-  useGetCodeSubmission,
-} from '@/hooks/learning-path/useLearningPath'
 
+import HtmlRenderer from '@/components/shared/html-renderer'
+import MonacoEditor from '@/components/shared/monaco-editor'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -32,8 +33,6 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import HtmlRenderer from '@/components/shared/html-renderer'
-import MonacoEditor from '@/components/shared/monaco-editor'
 
 type Props = {
   lesson: ILesson
@@ -59,7 +58,7 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
       : undefined,
   })
 
-  const { mutate: completeLesson, isPending } = useCompleteLesson(lesson.id!)
+  const { mutate: completeLesson, isPending } = useCompleteLesson()
 
   const language = codeData?.language as Language
 
@@ -75,13 +74,9 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
   }
 
   const onSubmit = (values: CodeSubmissionPayLoad) => {
-    completeLesson(values, {
-      onSuccess: (res: any) => {
-        toast.success(res.message)
-      },
-      onError: (error) => {
-        toast.error(error.message)
-      },
+    completeLesson({
+      lessonId: lesson.id,
+      payload: values,
     })
   }
 

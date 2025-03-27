@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const lessonCommentSchema = z.object({
   chapter_id: z.string().optional(),
-  lesson_id: z.string().optional(),
+  lesson_id: z.number().optional(),
   content: z
     .string()
     .min(1, { message: 'Nội dung bình luận không được để trống' }),

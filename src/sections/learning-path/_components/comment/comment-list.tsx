@@ -3,13 +3,7 @@ import { Loader2, MessageCircleMore } from 'lucide-react'
 import { useGetLessonComments } from '@/hooks/comment-lesson/useComment'
 import { CommentItem } from '@/sections/learning-path/_components/comment/comment-item'
 
-export const CommentList = ({
-  lessonId,
-  user,
-}: {
-  lessonId: string
-  user: any
-}) => {
+export const CommentList = ({ lessonId }: { lessonId: number }) => {
   const { data: lessonCommentData, isLoading: isLoadingLessonCommentData } =
     useGetLessonComments(lessonId)
 
@@ -37,7 +31,6 @@ export const CommentList = ({
               <CommentItem
                 key={comment?.id || index.toString()}
                 comment={comment}
-                user={user}
                 lessonId={lessonId}
               />
             ))

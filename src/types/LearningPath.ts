@@ -1,13 +1,20 @@
 import { CodeSubmissionPayLoad } from '@/validations/code-submission'
-import { ILesson, ILessonProcess, Lessonable, LessonType } from './Course'
 import { QuizSubmissionPayload } from '@/validations/quiz-submission'
+import {
+  ILesson,
+  ILessonProcess,
+  Lessonable,
+  LessonType,
+  Level,
+} from './Course'
 
 export interface GetLessonsResponse {
   course_name: string
   course_status: string
   total_lesson: number
   chapter_lessons: LearningPathChapterLesson[]
-  access_status: string
+  is_practical_course: 0 | 1
+  level: `${Level}`
 }
 
 export interface LearningPathChapterLesson {
@@ -26,6 +33,7 @@ export interface LearningPathLesson {
   is_unlocked: boolean
   order: number
   lessonable: Lessonable
+  total_questions?: number
 }
 
 export interface GetLessonDetailResponse {

@@ -1,20 +1,20 @@
 import { BadgeProps } from '@/components/ui/badge'
 
 export enum MembershipStatus {
-  Draft = 'draft',
-  Pending = 'pending',
-  Active = 'active',
-  Inactive = 'inactive',
+  DRAFT = 'draft',
+  PENDING = 'pending',
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
 }
 
 export const MembershipStatusMap: Record<
   MembershipStatus,
   { label: string; badge: BadgeProps['variant'] }
 > = {
-  [MembershipStatus.Draft]: { label: 'Bản nháp', badge: 'secondary' },
-  [MembershipStatus.Pending]: { label: 'Chờ duyệt', badge: 'info' },
-  [MembershipStatus.Active]: { label: 'Hoạt động', badge: 'success' },
-  [MembershipStatus.Inactive]: { label: 'Không hoạt động', badge: 'error' },
+  [MembershipStatus.DRAFT]: { label: 'Bản nháp', badge: 'secondary' },
+  [MembershipStatus.PENDING]: { label: 'Chờ duyệt', badge: 'info' },
+  [MembershipStatus.ACTIVE]: { label: 'Hoạt động', badge: 'success' },
+  [MembershipStatus.INACTIVE]: { label: 'Không hoạt động', badge: 'error' },
 }
 
 export interface Membership {
