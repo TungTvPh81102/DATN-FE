@@ -3,7 +3,6 @@
 import React, { useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  Calendar,
   Check,
   ChevronDown,
   Ghost,
@@ -11,7 +10,6 @@ import {
   Loader2,
   Tag,
 } from 'lucide-react'
-import DatePicker from 'react-datepicker'
 import { useForm } from 'react-hook-form'
 import CreatableSelect from 'react-select/creatable'
 
@@ -26,7 +24,6 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { parseISO } from 'date-fns'
 
 import { useCreatePost } from '@/hooks/instructor/post/usePost'
 
@@ -48,7 +45,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Popover,
   PopoverContent,
@@ -302,62 +298,6 @@ const PostAddView = () => {
               </Card>
             </div>
             <div className="space-y-4">
-              <Card>
-                <CardHeader
-                  className="pb-3"
-                  style={{ background: primaryLightColor }}
-                >
-                  <CardTitle
-                    className="flex items-center text-lg font-medium"
-                    style={{ color: primaryColor }}
-                  >
-                    <Calendar className="mr-2 size-5" />
-                    Thời gian xuất bản
-                  </CardTitle>
-                </CardHeader>
-                <Separator style={{ background: primaryColor, opacity: 0.2 }} />
-                <CardContent className="p-4">
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="published_at"
-                      render={({ field }) => {
-                        let selectedDate: Date | null = null
-
-                        const fieldValue = field.value as any
-
-                        if (typeof fieldValue === 'string') {
-                          selectedDate = parseISO(fieldValue)
-                        } else if (fieldValue instanceof Date) {
-                          selectedDate = fieldValue
-                        } else {
-                          selectedDate = new Date()
-                        }
-
-                        return (
-                          <FormItem>
-                            <Label>Ngày xuất bản</Label>
-                            <FormControl>
-                              <DatePicker
-                                selected={selectedDate}
-                                onChange={(date) => field.onChange(date)}
-                                showTimeSelect
-                                timeFormat="HH:mm"
-                                timeIntervals={15}
-                                dateFormat="dd/MM/yyyy HH:mm"
-                                placeholderText="Chọn ngày giờ"
-                                className="w-[240px] rounded-md border p-2"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )
-                      }}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
               <Card className="border-0 shadow-sm">
                 <CardHeader
                   className="pb-3"
