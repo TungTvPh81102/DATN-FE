@@ -42,22 +42,20 @@ export const updateCourseOverViewSchema = z
           message: 'Mô tả phải có không được vượt quá 150 từ',
         }
       ),
-    thumbnail: z
-      .union([
-        z
-          .instanceof(File)
-          .refine((file) => file.size <= 5 * 1024 * 1024, {
-            message: 'Ảnh không được lớn hơn 5MB',
-          })
-          .refine(
-            (file) =>
-              ['image/jpeg', 'image/png', 'image/webp'].includes(file.type),
-            { message: 'Chỉ chấp nhận định dạng ảnh JPG, PNG, hoặc WEBP' }
-          ),
-        z.string(),
-        z.undefined(),
-      ])
-      .optional(),
+    thumbnail: z.union([
+      z
+        .instanceof(File)
+        .refine((file) => file.size <= 5 * 1024 * 1024, {
+          message: 'Ảnh không được lớn hơn 5MB',
+        })
+        .refine(
+          (file) =>
+            ['image/jpeg', 'image/png', 'image/webp'].includes(file.type),
+          { message: 'Chỉ chấp nhận định dạng ảnh JPG, PNG, hoặc WEBP' }
+        ),
+      z.string(),
+      z.null(),
+    ]),
     price: z.coerce
       .number({
         message: 'Vui lòng nhập giá khoá học',
