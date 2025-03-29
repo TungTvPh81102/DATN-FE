@@ -102,6 +102,18 @@ export interface IMembershipCourse {
   pivots: IPivot
 }
 
+export interface IParticipatedMembership {
+  id: number
+  membership_plan_name: string
+  student_name: string
+  student_avatar?: string | null
+  duration_months: number
+  amount_paid: string
+  invoice_code: string
+  invoice_created_at: string
+  status: string
+}
+
 export interface IMembership {
   id: number
   code: string
@@ -122,4 +134,9 @@ export interface IMembershipPlansResponse {
 export interface ITopInstructorResponse {
   message: string
   data: IInstructorProfile[]
+}
+
+export interface IParticipatedMembershipResponse {
+  message: string
+  data: IParticipatedMembership[]
 }

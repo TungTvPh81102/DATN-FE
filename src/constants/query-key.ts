@@ -26,6 +26,7 @@ enum QueryKey {
   INSTRUCTOR_CHAPTER_DETAIL = 'instructor-chapter-detail',
   INSTRUCTOR_LESSON_CODING = 'instructor-lesson-coding',
   INSTRUCTOR_GET_PARTICIPATED_COURSE = 'instructor-get-participated-courses',
+  INSTRUCTOR_GET_PARTICIPATED_MEMBERSHIP = 'instructor-get-participated-membership',
   INSTRUCTOR_LIVE_SESSIONS = 'instructor-live-sessions',
   INSTRUCTOR_WALLET = 'instructor-wallet',
   INSTRUCTOR_LEARNER = 'instructor-learner',

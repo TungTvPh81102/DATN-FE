@@ -1,4 +1,5 @@
 import api from '@/configs/api'
+import { IParticipatedMembershipResponse } from '@/types'
 
 const prefix = 'instructor/transactions'
 
@@ -11,4 +12,8 @@ export const instructorTransationApi = {
       params,
     })
   },
+  getParticipatedMembership:
+    async (): Promise<IParticipatedMembershipResponse> => {
+      return await api.get(`${prefix}/participated-membership`)
+    },
 }
