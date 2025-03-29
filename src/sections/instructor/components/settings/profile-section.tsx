@@ -1,9 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Camera, Edit, Loader2, Mail, MapPin, Phone, User } from 'lucide-react'
+import {
+  Camera,
+  Crop,
+  Edit,
+  Loader2,
+  Mail,
+  MapPin,
+  Phone,
+  User,
+} from 'lucide-react'
 import React, { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
+import { ImageCropper } from '@/components/shared/image-cropper'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -19,9 +29,12 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { useUpdateProfile } from '@/hooks/profile/useProfile'
+import { cn, getAvatarText } from '@/lib/utils'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { FileWithPreview } from '@/types/file'
 import { updateProfile, UpdateProfilePayload } from '@/validations/profile'
-import { ChangePwDialog } from './change-pw-dialog'
 import BanksSheet from './banks-sheet'
+import { ChangePwDialog } from './change-pw-dialog'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -36,10 +49,12 @@ interface Props {
 }
 
 export function ProfileSection({ userData }: Props) {
+  const { setUser } = useAuthStore()
   const [isEditing, setIsEditing] = useState(false)
-  const [previewImage, setPreviewImage] = useState<string | null>(
-    userData?.user.avatar || null
-  )
+
+  const [selectedFile, setSelectedFile] = useState<FileWithPreview | null>(null)
+  const [isDialogOpen, setDialogOpen] = useState(false)
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { mutate, isPending } = useUpdateProfile()
 
@@ -56,7 +71,9 @@ export function ProfileSection({ userData }: Props) {
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (!file) return
+    if (!file) {
+      return
+    }
 
     if (!file.type || !ACCEPTED_IMAGE_TYPES.includes(file.type)) {
       toast.error('File must be an image (JPEG, PNG, or WebP)')
@@ -68,8 +85,12 @@ export function ProfileSection({ userData }: Props) {
       return
     }
 
-    form.setValue('avatar', file)
-    setPreviewImage(URL.createObjectURL(file))
+    const fileWithPreview = Object.assign(file, {
+      preview: URL.createObjectURL(file),
+    })
+
+    setSelectedFile(fileWithPreview)
+    setDialogOpen(true)
   }
 
   function onSubmit(data: UpdateProfilePayload) {
@@ -78,8 +99,14 @@ export function ProfileSection({ userData }: Props) {
     }
 
     mutate(data, {
-      onSuccess: () => {
+      onSuccess: (res) => {
+        const user = res?.data?.user
+        if (user) {
+          delete user.profile
+          setUser(user)
+        }
         setIsEditing(false)
+        setSelectedFile(null)
       },
     })
   }
@@ -87,39 +114,92 @@ export function ProfileSection({ userData }: Props) {
   return (
     <Card className="bg-background/50 backdrop-blur-sm">
       <CardHeader className="relative flex flex-col items-center pb-0">
-        <div className="relative">
-          <Avatar className="size-32 border-4 border-white bg-white shadow-xl">
-            <AvatarImage
-              src={previewImage || userData?.user.avatar}
-              alt="Profile picture"
-              className="object-cover"
-            />
-            <AvatarFallback className="text-3xl">
-              {userData?.user.name
-                .split(' ')
-                .map((n: string) => n[0])
-                .join('')}
-            </AvatarFallback>
-          </Avatar>
-          {isEditing && (
-            <Button
-              type="button"
-              size="icon"
-              variant="secondary"
-              className="absolute -bottom-1 right-3 size-8 rounded-full bg-orange-500 text-white shadow-lg transition-all hover:bg-orange-600 hover:shadow-orange-500/25"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Camera className="size-4" />
-            </Button>
-          )}
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept={ACCEPTED_IMAGE_TYPES.join(',')}
-            className="hidden"
-            onChange={handleFileUpload}
-          />
-        </div>
+        {selectedFile ? (
+          (() => {
+            const avatar = form.getValues('avatar')
+            return (
+              <>
+                {avatar && (
+                  <div
+                    className="relative cursor-pointer"
+                    onClick={() => setDialogOpen(true)}
+                  >
+                    <Avatar className="size-32 shadow-xl ring-4 ring-white">
+                      <AvatarImage
+                        src={
+                          avatar instanceof File
+                            ? URL.createObjectURL(avatar)
+                            : avatar
+                        }
+                        alt="Profile picture"
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="text-3xl">
+                        {getAvatarText(userData?.user.name || 'L')}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <Button
+                      size="icon"
+                      className="absolute -bottom-2 right-2 rounded-full"
+                      onClick={() => setDialogOpen(true)}
+                    >
+                      <Crop className="size-4" />
+                    </Button>
+                  </div>
+                )}
+
+                <ImageCropper
+                  open={isDialogOpen && isEditing}
+                  onOpenChange={setDialogOpen}
+                  selectedFile={selectedFile}
+                  setSelectedFile={setSelectedFile}
+                  croppedImage={avatar || null}
+                  setCroppedImage={(image) => form.setValue('avatar', image)}
+                  aspect={1}
+                />
+              </>
+            )
+          })()
+        ) : (
+          <div
+            className={cn('relative', isEditing && 'cursor-pointer')}
+            onClick={() => {
+              if (isEditing) {
+                fileInputRef.current?.click()
+              }
+            }}
+          >
+            <Avatar className="size-32 shadow-xl ring-4 ring-white">
+              <AvatarImage
+                src={userData?.user.avatar}
+                alt="Profile picture"
+                className="object-cover"
+              />
+              <AvatarFallback className="text-3xl">
+                {getAvatarText(userData?.user.name || 'L')}
+              </AvatarFallback>
+            </Avatar>
+            {isEditing && (
+              <Button
+                size="icon"
+                className="absolute -bottom-2 right-2 rounded-full"
+              >
+                <Camera />
+              </Button>
+            )}
+          </div>
+        )}
+        <Input
+          type="file"
+          ref={fileInputRef}
+          accept={ACCEPTED_IMAGE_TYPES.join(',')}
+          className="hidden"
+          onChange={(event) => {
+            handleFileUpload(event)
+            event.target.value = ''
+          }}
+        />
 
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">
@@ -288,7 +368,7 @@ export function ProfileSection({ userData }: Props) {
                   className="border-gray-200"
                   onClick={() => {
                     setIsEditing(false)
-                    setPreviewImage(userData?.user.avatar || null)
+                    setSelectedFile(null)
                     form.reset()
                   }}
                 >

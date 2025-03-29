@@ -1,11 +1,9 @@
 'use client'
 
 import { CreditCard } from 'lucide-react'
+import { useState } from 'react'
 
-import {
-  BankCarousel,
-  BankCarouselSkeleton,
-} from '@/components/shared/bank-carousel'
+import { BankCard, BankCardSkeleton } from '@/components/shared/bank-card'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -21,7 +19,6 @@ import {
   useSetDefaultBank,
 } from '@/hooks/user/use-bank'
 import { BankInfo } from '@/validations/bank'
-import { useState } from 'react'
 import UpsertBankSheet from './upsert-bank-sheet'
 
 interface Props extends React.ComponentPropsWithoutRef<typeof Sheet> {
@@ -47,23 +44,36 @@ const BanksSheet = ({ showTrigger = true, ...props }: Props) => {
             </Button>
           </SheetTrigger>
         )}
-        <SheetContent side={'top'} className="pb-8">
+        <SheetContent className="max-w-lg">
           <SheetHeader>
             <SheetTitle>Tài khoản ngân hàng</SheetTitle>
             <SheetDescription>
               Quản lý tài khoản ngân hàng của bạn
             </SheetDescription>
           </SheetHeader>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-col items-center justify-center gap-y-4">
             {!isLoading ? (
-              <BankCarousel
-                banks={data}
-                setSelectedBank={setSelectedBank}
-                onSetDefault={!isSetDefaultPending ? setDefault : undefined}
-                onDelete={!isDeletePending ? deleteBank : undefined}
-              />
+              data
+                ?.sort(
+                  (a, b) => (b.is_default ? 1 : 0) - (a.is_default ? 1 : 0)
+                )
+                .map((bank) => (
+                  <BankCard
+                    key={bank.id}
+                    bank={bank}
+                    setSelectedBank={setSelectedBank}
+                    onSetDefault={
+                      !isSetDefaultPending
+                        ? () => setDefault(bank.id)
+                        : undefined
+                    }
+                    onDelete={
+                      !isDeletePending ? () => deleteBank(bank.id) : undefined
+                    }
+                  />
+                ))
             ) : (
-              <BankCarouselSkeleton />
+              <BankCardSkeleton />
             )}
           </div>
           <div

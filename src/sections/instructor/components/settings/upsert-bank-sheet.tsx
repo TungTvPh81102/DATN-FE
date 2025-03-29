@@ -117,8 +117,14 @@ const UpsertBankSheet = ({ showTrigger = true, bank, ...props }: Props) => {
 
       <SheetContent className="max-w-lg">
         <SheetHeader>
-          <SheetTitle>Thêm tài khoản ngân hàng</SheetTitle>
-          <SheetDescription>Tối đa 3 tài khoản ngân hàng</SheetDescription>
+          <SheetTitle>
+            {bank ? `Cập nhật` : 'Thêm'} tài khoản ngân hàng
+          </SheetTitle>
+          <SheetDescription>
+            {bank
+              ? 'Cập nhật thông tin tài khoản ngân hàng'
+              : 'Thêm tối đa 3 tài khoản ngân hàng'}
+          </SheetDescription>
         </SheetHeader>
         <Form {...form}>
           <form

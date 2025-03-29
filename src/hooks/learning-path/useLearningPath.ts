@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import QueryKey from '@/constants/query-key'
 import { learningPathApi } from '@/services/learning-path/learning-path-api'
-import { useToastMutation } from '../use-toast-mutation'
 
 export const useGetLessons = (course: string) => {
   return useQuery({
@@ -98,11 +97,20 @@ export const useCompleteLesson = () => {
   })
 }
 
-export const useCompletePracticeExercise = () =>
-  useToastMutation({
+export const useCompletePracticeExercise = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
     mutationFn: learningPathApi.completePracticeExercise,
-    queryKeys: [[QueryKey.LEARNING_PATH_LESSON], [QueryKey.COURSE_PROGRESS]],
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QueryKey.LEARNING_PATH_LESSON],
+      })
+      queryClient.invalidateQueries({
+        queryKey: [QueryKey.COURSE_PROGRESS],
+      })
+    },
   })
+}
 
 export const useUpdateLastTime = () => {
   return useMutation({
