@@ -1,26 +1,29 @@
-import React, { useEffect, useRef } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Check,
   ChevronDown,
+  FileImage,
+  FileVideo,
   Loader2,
   Trash2,
-  Upload,
-  Video,
 } from 'lucide-react'
+import React, { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import ReactQuill from 'react-quill'
 
+import { useGetCategories } from '@/hooks/category/useCategory'
+import { useUpdateCourseOverView } from '@/hooks/instructor/course/useCourse'
+import { cn } from '@/lib/utils'
 import { ICategory } from '@/types/Category'
 import {
   UpdateCourseOverViewPayload,
   updateCourseOverViewSchema,
 } from '@/validations/course'
-import { formatNumber } from '@/lib/common'
-import { cn } from '@/lib/utils'
-import { useGetCategories } from '@/hooks/category/useCategory'
-import { useUpdateCourseOverView } from '@/hooks/instructor/course/useCourse'
 
+import ModalLoading from '@/components/common/ModalLoading'
+import { CurrencyInput } from '@/components/shared/currency-input'
+import { ImageCropper } from '@/components/shared/image-cropper'
+import QuillEditor from '@/components/shared/quill-editor'
+import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -53,12 +56,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import ModalLoading from '@/components/common/ModalLoading'
+import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import { ICourse, LevelMap } from '@/types'
+import { FileWithPreview } from '@/types/file'
+import Image from 'next/image'
+import { useDropzone } from 'react-dropzone'
+import { toast } from 'react-toastify'
 
 const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
-  const avatarCourseRef = useRef<HTMLInputElement | null>(null)
-  const trailerCourseRef = useRef<HTMLInputElement | null>(null)
+  const { isDraftOrRejected } = useCourseStatusStore()
 
   const { data: categoryData } = useGetCategories()
   const {
@@ -68,11 +74,65 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
 
   const form = useForm<UpdateCourseOverViewPayload>({
     resolver: zodResolver(updateCourseOverViewSchema),
+    disabled: !isDraftOrRejected || updateCourseOverViewPending,
   })
 
-  const isReadOnly = !(
-    courseOverView?.status === 'draft' || courseOverView?.status === 'rejected'
-  )
+  const [selectedThumbnailFile, setSelectedThumbnailFile] =
+    React.useState<FileWithPreview | null>(null)
+  const [isDialogOpen, setDialogOpen] = React.useState(false)
+
+  const onThumbnailDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0]
+    if (!file) {
+      toast.error('Không thể tải tệp lên')
+      return
+    }
+
+    const fileWithPreview = Object.assign(file, {
+      preview: URL.createObjectURL(file),
+    })
+
+    setSelectedThumbnailFile(fileWithPreview)
+    setDialogOpen(true)
+  }, [])
+
+  const {
+    getRootProps: getThumbnailRootProps,
+    getInputProps: getThumbnailInputProps,
+    isDragActive: isThumbnailDragActive,
+  } = useDropzone({
+    onDrop: onThumbnailDrop,
+    disabled: form.formState.disabled,
+    accept: {
+      'image/jpeg': [],
+      'image/png': [],
+      'image/webp': [],
+    },
+  })
+
+  const onIntroDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0]
+    if (!file) {
+      toast.error('Không thể tải tệp lên')
+      return
+    }
+    form.setValue('intro', file)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const {
+    getRootProps: getIntroRootProps,
+    getInputProps: getIntroInputProps,
+    isDragActive: isIntroDragActive,
+  } = useDropzone({
+    onDrop: onIntroDrop,
+    disabled: form.formState.disabled,
+    accept: {
+      'video/mp4': [],
+      'video/webm': [],
+      'video/ogg': [],
+    },
+  })
 
   useEffect(() => {
     if (courseOverView) {
@@ -99,7 +159,12 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
 
   const onSubmit = (data: UpdateCourseOverViewPayload) => {
     if (courseOverView)
-      updateCourseOverView({ slug: courseOverView.slug, data })
+      updateCourseOverView(
+        { slug: courseOverView.slug, data },
+        {
+          onSuccess: () => setSelectedThumbnailFile(null),
+        }
+      )
   }
 
   if (updateCourseOverViewPending) {
@@ -127,11 +192,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                   Tiêu đề
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Nhập tiêu đề "
-                    {...field}
-                    readOnly={isReadOnly}
-                  />
+                  <Input placeholder="Nhập tiêu đề " {...field} />
                 </FormControl>
                 <FormDescription>
                   Tiêu đề của bạn không những phải thu hút sự chú ý, chứa nhiều
@@ -149,14 +210,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
               <FormItem>
                 <FormLabel className="text-base font-semibold">Mô tả</FormLabel>
                 <FormControl>
-                  <ReactQuill
-                    {...field}
-                    value={field.value || ''}
-                    onChange={field.onChange}
-                    className="custom-quill mt-2"
-                    theme="snow"
-                    readOnly={isReadOnly}
-                  />
+                  <QuillEditor {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -166,53 +220,41 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
           <div className="grid grid-cols-2 gap-2">
             <FormField
               control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-semibold">
-                    Giá gốc
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="Nhập giá "
-                      {...field}
-                      value={formatNumber(field.value || 0)}
-                      onChange={(e) => {
-                        const rawValue = e.target.value.replace(/\D/g, '')
-                        field.onChange(rawValue ? parseInt(rawValue, 10) : 0)
-                      }}
-                      readOnly={isReadOnly}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              name={'price'}
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold">
+                      Giá gốc
+                    </FormLabel>
+                    <FormControl>
+                      <CurrencyInput placeholder="Nhập giá gốc" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
+
             <FormField
               control={form.control}
-              name="price_sale"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-semibold">
-                    Giá khuyến mãi
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="Giá khuyến mãi"
-                      {...field}
-                      value={formatNumber(field.value || 0)}
-                      onChange={(e) => {
-                        const rawValue = e.target.value.replace(/\D/g, '')
-                        field.onChange(rawValue ? parseInt(rawValue, 10) : 0)
-                      }}
-                      readOnly={isReadOnly}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              name={'price_sale'}
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold">
+                      Giá khuyến mãi
+                    </FormLabel>
+                    <FormControl>
+                      <CurrencyInput
+                        placeholder="Nhập giá khuyến mãi"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
           </div>
 
@@ -231,10 +273,10 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                             variant="outline"
                             role="combobox"
                             className={cn(
-                              'justify-between',
+                              'justify-between hover:bg-transparent',
                               !field.value && 'text-muted-foreground'
                             )}
-                            disabled={isReadOnly}
+                            disabled={field.disabled}
                           >
                             {field.value
                               ? (categoryData?.data.find(
@@ -262,7 +304,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                                   value={category.name}
                                   key={category.id}
                                   onSelect={() => field.onChange(category.id)}
-                                  disabled={isReadOnly}
+                                  disabled={!isDraftOrRejected}
                                 >
                                   {category.name}
                                   <Check
@@ -284,6 +326,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="level"
@@ -294,7 +337,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                         key={field.value}
                         onValueChange={field.onChange}
                         value={field.value}
-                        disabled={isReadOnly}
+                        disabled={field.disabled}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Chọn cấp độ" />
@@ -322,7 +365,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                         key={field.value}
                         value={field.value}
                         onValueChange={field.onChange}
-                        disabled={isReadOnly}
+                        disabled={field.disabled}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Trạng thái khóa học" />
@@ -346,93 +389,96 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base font-semibold">
-                  Ảnh đại diện
+                  Ảnh khóa học
                 </FormLabel>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="relative">
-                    <div
-                      className={cn(
-                        'flex h-[200px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all duration-200',
-                        field.value
-                          ? 'border-transparent'
-                          : 'border-gray-300 bg-gray-50 hover:border-primary hover:bg-orange-50'
-                      )}
-                      style={{
-                        backgroundImage: field.value
-                          ? field.value instanceof File
-                            ? `url(${URL.createObjectURL(field.value)})`
-                            : `url(${field.value})`
-                          : 'none',
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                      }}
-                      onClick={() =>
-                        !isReadOnly && avatarCourseRef.current?.click()
-                      }
-                    >
-                      {!field.value && (
-                        <div className="flex flex-col items-center justify-center text-center">
-                          <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-orange-100">
-                            <Upload className="size-6 text-primary" />
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <AspectRatio
+                    ratio={16 / 9}
+                    className={cn(!field.disabled && 'cursor-pointer')}
+                  >
+                    {selectedThumbnailFile ? (
+                      <>
+                        {field.value && (
+                          <Image
+                            src={
+                              field.value instanceof File
+                                ? URL.createObjectURL(field.value)
+                                : field.value
+                            }
+                            fill
+                            alt="course-thumbnail"
+                            onClick={() => {
+                              if (!field.disabled) setDialogOpen(true)
+                            }}
+                            className="rounded-md"
+                          />
+                        )}
+
+                        <ImageCropper
+                          open={isDialogOpen && !field.disabled}
+                          onOpenChange={setDialogOpen}
+                          selectedFile={selectedThumbnailFile}
+                          setSelectedFile={setSelectedThumbnailFile}
+                          croppedImage={
+                            field.value instanceof File ? field.value : null
+                          }
+                          onCroppedImageChange={(croppedImage) => {
+                            field.onChange(croppedImage)
+                          }}
+                        />
+                      </>
+                    ) : (
+                      <div
+                        {...getThumbnailRootProps()}
+                        className={cn(
+                          'group relative grid size-full cursor-pointer place-items-center rounded-lg border-dashed border-muted-foreground/25 px-5 py-2.5 text-center transition hover:border-primary/70 hover:bg-orange-50',
+                          'ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                          !field.value && 'border-2',
+                          isThumbnailDragActive &&
+                            'border-2 border-primary/70 bg-orange-50',
+                          field.disabled && 'pointer-events-none opacity-60'
+                        )}
+                        style={{
+                          backgroundImage: !isThumbnailDragActive
+                            ? `url(${field.value})`
+                            : 'none',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}
+                      >
+                        <input {...getThumbnailInputProps()} />
+
+                        {isThumbnailDragActive ? (
+                          <div className="flex flex-col items-center justify-center gap-4">
+                            <div className="rounded-full bg-orange-100 p-3">
+                              <FileImage
+                                className="size-7 text-primary"
+                                aria-hidden="true"
+                              />
+                            </div>
+                            <p className="text-sm font-medium text-muted-foreground">
+                              Thả tệp vào đây
+                            </p>
                           </div>
-                          <p className="font-medium text-gray-700">
-                            Tải ảnh đại diện
-                          </p>
-                          <p className="mt-1 text-xs text-gray-500">
-                            Kéo thả ảnh hoặc nhấp để chọn
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    {field.value && (
-                      <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/30 opacity-0 transition-opacity hover:opacity-100">
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              avatarCourseRef.current?.click()
-                            }}
-                            disabled={isReadOnly}
-                            className="flex size-10 items-center justify-center rounded-full bg-white text-gray-700 transition-colors hover:bg-gray-100"
-                            title="Thay đổi ảnh"
-                          >
-                            <Upload className="size-5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (avatarCourseRef.current) {
-                                avatarCourseRef.current.value = ''
-                              }
-                              field.onChange(null)
-                            }}
-                            disabled={isReadOnly}
-                            className="flex size-10 items-center justify-center rounded-full bg-white text-red-500 transition-colors hover:bg-red-50"
-                            title="Xóa ảnh"
-                          >
-                            <Trash2 className="size-5" />
-                          </button>
-                        </div>
+                        ) : (
+                          !field.value && (
+                            <div className="flex flex-col items-center justify-center gap-4">
+                              <div className="rounded-full bg-orange-100 p-3">
+                                <FileImage
+                                  className="size-7 text-primary"
+                                  aria-hidden="true"
+                                />
+                              </div>
+                              <p className="text-sm font-medium text-muted-foreground">
+                                Kéo và thả tệp vào đây, hoặc nhấp để chọn tệp
+                              </p>
+                            </div>
+                          )
+                        )}
                       </div>
                     )}
-                    <div className="hidden">
-                      <Input
-                        disabled={isReadOnly}
-                        ref={avatarCourseRef}
-                        id="thumbnail"
-                        type="file"
-                        onChange={(e) => {
-                          if (e.target.files?.length) {
-                            const file = e.target.files[0]
-                            field.onChange(file)
-                          }
-                        }}
-                        accept="image/png, image/jpeg, image/jpg, image/webp"
-                      />
-                    </div>
-                  </div>
+                  </AspectRatio>
+
                   <div>
                     <p className="font-medium text-gray-700">Tải hình ảnh</p>
                     <p className="my-2 text-sm text-gray-500">
@@ -440,22 +486,6 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                       hiện trên trang danh sách khóa học và trang chi tiết khóa
                       học. Chấp nhận định dạng .jpg, .jpeg, .png, .webp.
                     </p>
-                    <div className="mt-3 cursor-pointer">
-                      <Input
-                        ref={avatarCourseRef}
-                        id="thumbnail"
-                        type="file"
-                        onChange={(e) => {
-                          if (e.target.files?.length) {
-                            const file = e.target.files[0]
-                            field.onChange(file)
-                          }
-                        }}
-                        disabled={isReadOnly}
-                        accept="image/png, image/jpeg, image/jpg, image/webp"
-                        className="h-8 cursor-pointer border-gray-300 file:rounded file:bg-primary file:text-white hover:border-primary"
-                      />
-                    </div>
                   </div>
                 </div>
                 <FormMessage />
@@ -471,22 +501,15 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                 <FormLabel className="text-base font-semibold">
                   Video giới thiệu
                 </FormLabel>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="relative">
-                    <div
-                      className={cn(
-                        'flex h-[200px] w-full flex-col items-center justify-center rounded-lg border-2 border-dashed transition-all duration-200',
-                        field.value
-                          ? 'border-transparent bg-gray-900'
-                          : 'border-gray-300 bg-gray-50 hover:border-primary hover:bg-orange-50'
-                      )}
-                      onClick={() =>
-                        !isReadOnly && trailerCourseRef.current?.click()
-                      }
-                    >
-                      {field.value ? (
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <AspectRatio
+                    ratio={16 / 9}
+                    className={cn(!field.disabled && 'cursor-pointer')}
+                  >
+                    {field.value ? (
+                      <div className="group/video relative overflow-hidden rounded-md">
                         <video
-                          className="size-full rounded-lg object-cover"
+                          className="size-full"
                           controls
                           src={
                             field.value instanceof File
@@ -494,51 +517,48 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                               : field.value
                           }
                         />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center text-center">
-                          <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-orange-100">
-                            <Video className="size-6 text-primary" />
+
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          onClick={() => field.onChange(null)}
+                          disabled={field.disabled}
+                          className="absolute right-2 top-2 hidden size-8 rounded-full text-destructive group-hover/video:inline-flex"
+                        >
+                          <Trash2 className="!size-3.5" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div
+                        {...getIntroRootProps()}
+                        className={cn(
+                          'group relative grid size-full cursor-pointer place-items-center rounded-lg border-dashed border-muted-foreground/25 px-5 py-2.5 text-center transition hover:border-primary/70 hover:bg-orange-50',
+                          'ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                          !field.value && 'border-2',
+                          isIntroDragActive &&
+                            'border-2 border-primary/70 bg-orange-50',
+                          field.disabled && 'pointer-events-none opacity-60'
+                        )}
+                      >
+                        <input {...getIntroInputProps()} />
+
+                        <div className="flex flex-col items-center justify-center gap-4">
+                          <div className="rounded-full bg-orange-100 p-3">
+                            <FileVideo
+                              className="size-7 text-primary"
+                              aria-hidden="true"
+                            />
                           </div>
-                          <p className="font-medium text-gray-700">
-                            Tải video giới thiệu
-                          </p>
-                          <p className="mt-1 text-xs text-gray-500">
-                            Kéo thả video hoặc nhấp để chọn
+                          <p className="text-sm font-medium text-muted-foreground">
+                            {isIntroDragActive
+                              ? 'Thả tệp vào đây'
+                              : 'Kéo và thả tệp vào đây, hoặc nhấp để chọn tệp'}
                           </p>
                         </div>
-                      )}
-                    </div>
-                    {field.value && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (trailerCourseRef.current) {
-                            trailerCourseRef.current.value = ''
-                          }
-                          field.onChange(null)
-                        }}
-                        disabled={isReadOnly}
-                        className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white/70 text-red-500 backdrop-blur-sm transition-colors hover:bg-white"
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
+                      </div>
                     )}
-                    <div className="hidden">
-                      <Input
-                        ref={trailerCourseRef}
-                        id="intro"
-                        type="file"
-                        onChange={(e) => {
-                          if (e.target.files?.length) {
-                            const file = e.target.files[0]
-                            field.onChange(file)
-                          }
-                        }}
-                        disabled={isReadOnly}
-                        accept="video/mp4, video/webm, video/ogg"
-                      />
-                    </div>
-                  </div>
+                  </AspectRatio>
+
                   <div>
                     <p className="font-medium text-gray-700">
                       Tải video giới thiệu khóa học
@@ -548,22 +568,6 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                       dung khóa học. Một video chất lượng sẽ làm tăng tỷ lệ đăng
                       ký của học viên. Chấp nhận định dạng .mp4, .webm, .ogg.
                     </p>
-                    <div className="mt-3">
-                      <Input
-                        ref={trailerCourseRef}
-                        id="intro"
-                        type="file"
-                        onChange={(e) => {
-                          if (e.target.files?.length) {
-                            const file = e.target.files[0]
-                            field.onChange(file)
-                          }
-                        }}
-                        disabled={isReadOnly}
-                        accept="video/mp4, video/webm, video/ogg"
-                        className="h-8 cursor-pointer border-gray-300 file:rounded file:bg-primary file:text-white hover:border-primary"
-                      />
-                    </div>
                   </div>
                 </div>
                 <FormMessage />
@@ -585,7 +589,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                       key={field.value}
                       onValueChange={(value) => field.onChange(Number(value))}
                       value={String(field.value)}
-                      disabled={isReadOnly}
+                      disabled={!isDraftOrRejected}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Miễn phí hay không?" />

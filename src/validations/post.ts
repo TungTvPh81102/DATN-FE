@@ -21,7 +21,7 @@ export const createPostSchema = z.object({
       (file) => ['image/jpeg', 'image/png', 'image/webp'].includes(file.type),
       { message: 'Chỉ chấp nhận định dạng ảnh JPG, PNG, hoặc WEBP' }
     ),
-  tags: z.array(z.string()),
+  tags: z.array(z.string()).optional(),
   published_at: z.preprocess(
     (val) => (val instanceof Date ? val.toISOString() : val),
     z.string().optional()
