@@ -4,9 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { format, parseISO } from 'date-fns'
 import { Check, ChevronDown, Flame, Loader2 } from 'lucide-react'
-import DatePicker from 'react-datepicker'
 import { useForm } from 'react-hook-form'
 import CreatableSelect from 'react-select/creatable'
 
@@ -47,10 +45,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import QuillEditor from '@/components/shared/quill-editor'
 import Container from '@/components/shared/container'
-
+type PostStatus = 'draft' | 'pending' | 'published' | 'private'
 const PostUpdateView = ({ slug }: { slug: string }) => {
   const [preview, setPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -66,8 +63,7 @@ const PostUpdateView = ({ slug }: { slug: string }) => {
       content: '',
       category_id: undefined,
       tags: [],
-      published_at: new Date() as any,
-      status: 'draft',
+      status: 'pending' as PostStatus,
     },
   })
 
@@ -78,9 +74,6 @@ const PostUpdateView = ({ slug }: { slug: string }) => {
         title: postData.title,
         category_id: postData.category_id,
         tags: postData.tags.map((tag: any) => tag.name),
-        published_at: postData.published_at
-          ? parseISO(postData.published_at)
-          : (new Date() as any),
         status: postData.status,
         description: postData.description || '',
         content: postData.content || '',
@@ -124,10 +117,7 @@ const PostUpdateView = ({ slug }: { slug: string }) => {
       content: form.getValues('content') || postData.content,
       thumbnail: form.getValues('thumbnail') || postData.thumbnail,
       tags: (values.tags ?? []).length > 0 ? values.tags : postData.tags,
-      published_at: values.published_at
-        ? format(new Date(values.published_at), 'yyyy-MM-dd HH:mm:ss')
-        : postData.published_at,
-      status: values.status || postData.status,
+      status: 'pending' as PostStatus, //values.status || postData.status,
     }
 
     updatePost(
@@ -297,84 +287,6 @@ const PostUpdateView = ({ slug }: { slug: string }) => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-4">
-                  <h2 className="mb-2 text-lg font-medium">Tuỳ chỉnh</h2>
-                  <div className="mb-2 border-t"></div>
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Trạng thái</FormLabel>
-                          <FormControl>
-                            <RadioGroup
-                              value={field.value}
-                              onValueChange={field.onChange}
-                              className="mt-2 space-y-2"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="draft" id="draft" />
-                                <Label htmlFor="draft">Draft</Label>
-                                <RadioGroupItem value="pending" id="pending" />
-                                <Label htmlFor="pending">Pending</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem
-                                  value="published"
-                                  id="published"
-                                />
-                                <Label htmlFor="published">Published</Label>
-                                <RadioGroupItem value="private" id="private" />
-                                <Label htmlFor="private">Private</Label>
-                              </div>
-                            </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div>
-                      <FormField
-                        control={form.control}
-                        name="published_at"
-                        render={({ field }) => {
-                          let selectedDate: Date | null = null
-
-                          if (field.value) {
-                            selectedDate =
-                              typeof field.value === 'string'
-                                ? parseISO(field.value)
-                                : field.value
-                          } else {
-                            selectedDate = new Date()
-                          }
-
-                          return (
-                            <FormItem>
-                              <Label>Ngày xuất bản</Label>
-                              <FormControl>
-                                <DatePicker
-                                  selected={selectedDate}
-                                  onChange={(date) => field.onChange(date)}
-                                  showTimeSelect
-                                  timeFormat="HH:mm"
-                                  timeIntervals={15}
-                                  dateFormat="dd/MM/yyyy HH:mm"
-                                  placeholderText="Chọn ngày giờ"
-                                  className="w-[240px] rounded-md border p-2"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )
-                        }}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
               <Card>
                 <CardContent className="p-4">
                   <FormField

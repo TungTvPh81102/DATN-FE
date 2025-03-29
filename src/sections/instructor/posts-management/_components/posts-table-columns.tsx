@@ -1,7 +1,7 @@
 'use client'
 
 import type { ColumnDef } from '@tanstack/react-table'
-import { EllipsisVertical, SquarePen } from 'lucide-react'
+import { EllipsisVertical, Eye, SquarePen } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -152,7 +152,10 @@ export function getColumns(): ColumnDef<IPost>[] {
     {
       id: 'actions',
       cell: function Cell({ row }) {
-        const course = row.original
+        const post = row.original
+        const isPublishedOrPending =
+          post.status === 'published' || post.status === 'pending'
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -167,9 +170,22 @@ export function getColumns(): ColumnDef<IPost>[] {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="max-w-40">
               <DropdownMenuItem asChild>
-                <Link href={`/instructor/posts/update/${course.slug}`}>
-                  <SquarePen /> Sửa
-                </Link>
+                {/*<Link href={`/instructor/posts/update/${post.slug}`}>*/}
+                {/*  <SquarePen /> Sửa*/}
+                {/*</Link>*/}
+                {isPublishedOrPending ? (
+                  <DropdownMenuItem asChild>
+                    <Link href={`/instructor/posts/detail/${post.slug}`}>
+                      <Eye className="mr-2 size-4" /> Xem chi tiết
+                    </Link>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem asChild>
+                    <Link href={`/instructor/posts/update/${post.slug}`}>
+                      <SquarePen className="mr-2 size-4" /> Sửa
+                    </Link>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
