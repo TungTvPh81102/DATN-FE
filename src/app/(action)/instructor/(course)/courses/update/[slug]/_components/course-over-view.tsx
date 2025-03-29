@@ -422,7 +422,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                           croppedImage={
                             field.value instanceof File ? field.value : null
                           }
-                          onCroppedImageChange={(croppedImage) => {
+                          setCroppedImage={(croppedImage) => {
                             field.onChange(croppedImage)
                           }}
                         />

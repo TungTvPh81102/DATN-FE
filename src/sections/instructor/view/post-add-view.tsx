@@ -205,7 +205,7 @@ const PostAddView = () => {
                                       ? field.value
                                       : null
                                   }
-                                  onCroppedImageChange={field.onChange}
+                                  setCroppedImage={field.onChange}
                                 />
                               </>
                             ) : (

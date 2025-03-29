@@ -75,7 +75,7 @@ export const learningPathApi = {
     message: string
     data: {
       correct_answer: number
-      total_question: string
+      total_question: number
     }
   }> => {
     return api.patch(

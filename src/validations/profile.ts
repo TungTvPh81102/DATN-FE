@@ -16,11 +16,8 @@ export const updateProfile = z.object({
   address: z.string().min(1, 'Nhập địa chỉ của bạn'),
   about_me: z.string().optional(),
   avatar: z
-    .any()
-    .refine((file) => file instanceof File || file === undefined, {
-      message: 'Avatar phải là một file ảnh!',
-    })
-    .optional(),
+    .instanceof(File, { message: 'Avatar phải là một file hợp lệ' })
+    .nullish(),
 })
 
 export const profileBioSchema = z.object({

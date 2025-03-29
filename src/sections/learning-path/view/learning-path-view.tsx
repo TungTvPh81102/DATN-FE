@@ -232,6 +232,8 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
                 <PracticeExercise
                   lesson={lessonDetail.lesson}
                   isCompleted={isCompleted}
+                  courseSlug={courseSlug}
+                  nextLessonId={lessonDetail?.next_lesson?.id}
                 />
               ))}
           </div>

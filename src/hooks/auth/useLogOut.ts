@@ -7,7 +7,6 @@ import { toast } from 'react-toastify'
 
 import { authApi } from '@/services/auth/authApi'
 import { useWishListStore } from '@/stores/useWishListStore'
-import QueryKey from '@/constants/query-key'
 
 export const useLogOut = () => {
   const router = useRouter()
@@ -22,13 +21,11 @@ export const useLogOut = () => {
 
       localStorage.clear()
 
-      router.push('/')
-
-      queryClient.removeQueries({ queryKey: [QueryKey.USER_NOTIFICATION] })
-      queryClient.removeQueries({ queryKey: [QueryKey.WISH_LIST] })
+      queryClient.clear()
 
       setWishList([])
 
+      router.push('/sign-in')
       toast.success(res?.message)
     },
     onError: (error) => {
