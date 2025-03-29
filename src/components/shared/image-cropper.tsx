@@ -136,22 +136,26 @@ export function ImageCropper({
     const scaleX = image.naturalWidth / image.width
     const scaleY = image.naturalHeight / image.height
 
-    canvas.width = pixelCrop.width * scaleX
-    canvas.height = pixelCrop.height * scaleY
+    // Giảm kích thước ảnh đầu ra
+    const outputWidth = pixelCrop.width * scaleX * 0.8 // Giảm 20% kích thước
+    const outputHeight = pixelCrop.height * scaleY * 0.8
+
+    canvas.width = outputWidth
+    canvas.height = outputHeight
 
     if (ctx && tempCtx) {
-      ctx.imageSmoothingEnabled = false
+      ctx.imageSmoothingEnabled = true
 
       ctx.drawImage(
         tempCanvas,
         pixelCrop.x * scaleX,
         pixelCrop.y * scaleY,
-        canvas.width,
-        canvas.height,
+        pixelCrop.width * scaleX,
+        pixelCrop.height * scaleY,
         0,
         0,
-        canvas.width,
-        canvas.height
+        outputWidth,
+        outputHeight
       )
     }
 
@@ -159,8 +163,8 @@ export function ImageCropper({
       canvas.toBlob(
         (blob) => {
           if (blob) {
-            const file = new File([blob], 'cropped-image.png', {
-              type: 'image/png',
+            const file = new File([blob], 'cropped-image.jpg', {
+              type: 'image/jpeg',
             })
             resolve(file)
           } else {
@@ -169,8 +173,8 @@ export function ImageCropper({
             )
           }
         },
-        'image/png',
-        1
+        'image/jpeg', // Chuyển sang định dạng JPEG
+        0.7 // Giảm chất lượng ảnh xuống 70%
       )
     })
   }

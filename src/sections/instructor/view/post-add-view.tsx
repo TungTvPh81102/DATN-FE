@@ -1,22 +1,22 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Check,
   ChevronDown,
+  FileImage,
   Ghost,
-  ImagePlus,
   Loader2,
   Tag,
 } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import CreatableSelect from 'react-select/creatable'
 
+import { useGetCategories } from '@/hooks/category/useCategory'
+import { cn } from '@/lib/utils'
 import { ICategory } from '@/types/Category'
 import { CreatePostPayload, createPostSchema } from '@/validations/post'
-import { cn } from '@/lib/utils'
-import { useGetCategories } from '@/hooks/category/useCategory'
 
 import { Button } from '@/components/ui/button'
 
@@ -27,6 +27,10 @@ import { useRouter } from 'next/navigation'
 
 import { useCreatePost } from '@/hooks/instructor/post/usePost'
 
+import Container from '@/components/shared/container'
+import { ImageCropper } from '@/components/shared/image-cropper'
+import QuillEditor from '@/components/shared/quill-editor'
+import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Command,
@@ -50,18 +54,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import QuillEditor from '@/components/shared/quill-editor'
 import { Separator } from '@/components/ui/separator'
-import Container from '@/components/shared/container'
+import { FileWithPreview } from '@/types/file'
+import { useDropzone } from 'react-dropzone'
+import { toast } from 'react-toastify'
 
 const PostAddView = () => {
   const router = useRouter()
 
   const { data: categoryData } = useGetCategories()
   const { mutate: createPost, isPending } = useCreatePost()
-
-  const [preview, setPreview] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const form = useForm<CreatePostPayload>({
     resolver: zodResolver(createPostSchema),
@@ -72,45 +74,42 @@ const PostAddView = () => {
     },
   })
 
-  const handleFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    field: any
-  ) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      field.onChange(file)
-      setPreview(URL.createObjectURL(file))
-    }
-  }
+  const [selectedFile, setSelectedFile] = useState<FileWithPreview | null>(null)
+  const [isDialogOpen, setDialogOpen] = useState(false)
 
-  const handleReset = (field?: { onChange?: (value: any) => void }) => {
-    setPreview(null)
-
-    if (field?.onChange) {
-      field.onChange(null)
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0]
+    if (!file) {
+      toast.error('Không thể tải tệp lên')
+      return
     }
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-  }
+    const fileWithPreview = Object.assign(file, {
+      preview: URL.createObjectURL(file),
+    })
+
+    setSelectedFile(fileWithPreview)
+    setDialogOpen(true)
+  }, [])
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: onDrop,
+    disabled: form.formState.disabled,
+    accept: {
+      'image/*': [],
+    },
+  })
 
   const onSubmit = (values: CreatePostPayload) => {
     if (isPending) return
 
-    createPost(
-      {
-        ...values,
-        thumbnail: form.getValues('thumbnail'),
+    createPost(values, {
+      onSuccess: () => {
+        form.reset()
+        setSelectedFile(null)
+        router.push('/instructor/posts')
       },
-      {
-        onSuccess: () => {
-          form.reset()
-          setPreview(null)
-          router.push('/instructor/posts')
-        },
-      }
-    )
+    })
   }
   const primaryColor = '#E27447'
   const primaryLightColor = '#FAF0ED'
@@ -157,7 +156,6 @@ const PostAddView = () => {
                         <FormControl>
                           <Input
                             placeholder="Nhập tiêu đề bài viết"
-                            className="h-10 focus:ring-2 focus:ring-opacity-50"
                             {...field}
                           />
                         </FormControl>
@@ -166,94 +164,110 @@ const PostAddView = () => {
                     )}
                   />
 
-                  <div className="space-y-3">
-                    <FormLabel className="text-base font-medium">
-                      Hình ảnh
-                    </FormLabel>
-                    <FormField
-                      control={form.control}
-                      name="thumbnail"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            {!preview ? (
-                              <div
-                                className="flex h-64 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors hover:bg-orange-50"
-                                style={{ borderColor: `${primaryColor}40` }}
-                                onClick={() => fileInputRef.current?.click()}
-                              >
-                                <ImagePlus
-                                  className="mb-2 size-10"
-                                  style={{ color: primaryColor }}
-                                />
-                                <p className="text-center text-gray-600">
-                                  Kéo thả hoặc nhấn vào đây để tải lên hình ảnh
-                                </p>
-                                <p className="mt-1 text-xs text-gray-400">
-                                  PNG, JPG, GIF lên đến 10MB
-                                </p>
-                                <Input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  onChange={(event) =>
-                                    handleFileChange(event, field)
+                  <FormField
+                    control={form.control}
+                    name="thumbnail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-medium">
+                          Hình ảnh
+                        </FormLabel>
+                        <div className="mx-auto max-w-md">
+                          <AspectRatio
+                            ratio={16 / 9}
+                            className={cn(!field.disabled && 'cursor-pointer')}
+                          >
+                            {selectedFile ? (
+                              <>
+                                {field.value && (
+                                  <Image
+                                    src={
+                                      field.value instanceof File
+                                        ? URL.createObjectURL(field.value)
+                                        : field.value
+                                    }
+                                    fill
+                                    alt="post-thumbnail"
+                                    onClick={() => {
+                                      if (!field.disabled) setDialogOpen(true)
+                                    }}
+                                    className="rounded-md"
+                                  />
+                                )}
+
+                                <ImageCropper
+                                  open={isDialogOpen && !field.disabled}
+                                  onOpenChange={setDialogOpen}
+                                  selectedFile={selectedFile}
+                                  setSelectedFile={setSelectedFile}
+                                  croppedImage={
+                                    field.value instanceof File
+                                      ? field.value
+                                      : null
                                   }
-                                  ref={fileInputRef}
+                                  onCroppedImageChange={field.onChange}
                                 />
-                              </div>
+                              </>
                             ) : (
                               <div
-                                className="relative overflow-hidden rounded-lg border"
-                                style={{ borderColor: `${primaryColor}40` }}
+                                {...getRootProps()}
+                                className={cn(
+                                  'group relative grid size-full cursor-pointer place-items-center rounded-lg border-dashed border-muted-foreground/25 px-5 py-2.5 text-center transition hover:border-primary/70 hover:bg-orange-50',
+                                  'ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                                  !field.value && 'border-2',
+                                  isDragActive &&
+                                    'border-2 border-primary/70 bg-orange-50',
+                                  field.disabled &&
+                                    'pointer-events-none opacity-60'
+                                )}
+                                style={{
+                                  backgroundImage: !isDragActive
+                                    ? `url(${field.value})`
+                                    : 'none',
+                                  backgroundSize: 'cover',
+                                  backgroundPosition: 'center',
+                                }}
                               >
-                                <Image
-                                  src={preview}
-                                  alt="Preview"
-                                  width={800}
-                                  height={400}
-                                  className="h-64 w-full object-cover"
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100">
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    onClick={() => handleReset(field)}
-                                    className="mx-2"
-                                  >
-                                    Xóa ảnh
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    onClick={() =>
-                                      fileInputRef.current?.click()
-                                    }
-                                    className="mx-2"
-                                    style={{
-                                      backgroundColor: primaryColor,
-                                      borderColor: primaryColor,
-                                    }}
-                                  >
-                                    Thay đổi
-                                  </Button>
-                                  <Input
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={(event) =>
-                                      handleFileChange(event, field)
-                                    }
-                                    ref={fileInputRef}
-                                  />
-                                </div>
+                                <FormControl>
+                                  <input {...getInputProps()} />
+                                </FormControl>
+
+                                {isDragActive ? (
+                                  <div className="flex flex-col items-center justify-center gap-4">
+                                    <div className="rounded-full bg-orange-100 p-3">
+                                      <FileImage
+                                        className="size-7 text-primary"
+                                        aria-hidden="true"
+                                      />
+                                    </div>
+                                    <p className="text-sm font-medium text-muted-foreground">
+                                      Thả tệp vào đây
+                                    </p>
+                                  </div>
+                                ) : (
+                                  !field.value && (
+                                    <div className="flex flex-col items-center justify-center gap-4">
+                                      <div className="rounded-full bg-orange-100 p-3">
+                                        <FileImage
+                                          className="size-7 text-primary"
+                                          aria-hidden="true"
+                                        />
+                                      </div>
+                                      <p className="font-medium text-muted-foreground">
+                                        Kéo và thả tệp vào đây, hoặc nhấp để
+                                        chọn tệp
+                                      </p>
+                                    </div>
+                                  )
+                                )}
                               </div>
                             )}
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                          </AspectRatio>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <div className="space-y-3">
                     <FormLabel className="text-base font-medium">
