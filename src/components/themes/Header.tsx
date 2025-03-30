@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Slot } from '@radix-ui/react-slot'
 import { NotificationPopover } from '../notification/notification-popover'
+import { updateCourseFilters } from '@/lib/utils'
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
   ssr: false,
@@ -48,10 +49,7 @@ const Header = () => {
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const handleCategorySelect = (categorySlug: string) => {
-    const updatedFilters = { categories: [categorySlug] }
-    localStorage.setItem('courseFilters', JSON.stringify(updatedFilters))
-
-    window.dispatchEvent(new Event('courseFiltersUpdated'))
+    updateCourseFilters('categories', [categorySlug])
 
     router.push('/courses')
   }

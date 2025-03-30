@@ -17,6 +17,8 @@ import { formatCurrency } from '@/lib/common'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CourseItemRating } from '@/components/common/CourseItemRating'
 import SwiperCore from 'swiper'
+import { useRouter } from 'next/navigation'
+import { updateCourseFilters } from '@/lib/utils'
 
 SwiperCore.use([Navigation, Pagination, Autoplay])
 
@@ -29,6 +31,14 @@ export const PracticeExercise = ({ title, description }: Props) => {
   const { data, isLoading } = useGetPracticeExercises()
   const { mutate: createWishList, isPending: isWishListPending } =
     useCreateWishList()
+
+  const router = useRouter()
+
+  const handleUpdateFilter = () => {
+    updateCourseFilters('features', ['quiz'])
+
+    router.push('/courses')
+  }
 
   const handleAddToWishList = (values: CreateWishListPayload) => {
     if (isWishListPending) return
@@ -66,6 +76,10 @@ export const PracticeExercise = ({ title, description }: Props) => {
                   href="/courses"
                   className="tf-btn-arrow wow fadeInUp"
                   data-wow-delay="0.2s"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleUpdateFilter()
+                  }}
                 >
                   Xem thêm <i className="icon-arrow-top-right" />
                 </Link>
