@@ -10,12 +10,20 @@ export const useGetRewards = () => {
   })
 }
 
+export const useGetStatus = () => {
+  return useQuery({
+    queryKey: [QueryKey.STATUS],
+    queryFn: () => luckyWheelApi.getSpinStatus(),
+  })
+}
+
 export const useGetSpinTurn = () => {
   return useQuery({
     queryKey: [QueryKey.WHEEL_TURN],
     queryFn: () => luckyWheelApi.getSpinTurn(),
   })
 }
+
 export const useGetSpinHistory = () => {
   return useQuery({
     queryKey: [QueryKey.WHEEL_SPIN_HISTORY],

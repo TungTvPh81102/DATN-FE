@@ -15,10 +15,16 @@ import {
   useGetRewards,
   useGetSpinHistory,
   useGetSpinTurn,
+  useGetStatus,
   useSpinRun,
 } from '@/hooks/lucky-wheel/useLuckyWheel'
 import '../../../styles/lucky-wheel.css'
 import Link from 'next/link'
+
+interface StatusData {
+  status: 'active' | 'inactive'
+  message: string
+}
 
 const getPrizeStyle = (type: string) => {
   switch (type) {
@@ -60,11 +66,14 @@ export default function LuckyWheel() {
   const [showScrollTop, setShowScrollTop] = useState(false)
   const historyRef = useRef<HTMLDivElement>(null)
   const wheelRef = useRef<SVGSVGElement | null>(null)
+  const { data: statusData } = useGetStatus() as {
+    data: StatusData | undefined
+  }
+  console.log('statusData', statusData)
   const { data: rewardsData } = useGetRewards()
   const { data: spinTurn } = useGetSpinTurn()
   const { mutate: spinRun, isPending: loadingSpinRun } = useSpinRun()
   const { data: spinHistoryData } = useGetSpinHistory()
-  // console.log('spinHistoryData', spinHistoryData)
 
   const spinsLeft = (spinTurn as Record<string, any>)
     ? parseInt((spinTurn as Record<string, any>)['Số lượt quay còn lại'])
@@ -297,6 +306,27 @@ export default function LuckyWheel() {
     return (
       <div>
         <Loader2 className="animate-spin text-orange-600" />
+      </div>
+    )
+  }
+  if (!rewardsData || !spinTurn) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="animate-spin text-orange-600" size={32} />
+      </div>
+    )
+  }
+
+  if (statusData?.status === 'inactive') {
+    return (
+      <div className="flex items-center justify-center">
+        <div className="rounded-lg bg-orange-50 p-8 text-center shadow-lg">
+          <div className="mb-4 text-5xl">🔧</div>
+          <h2 className="mb-2 text-2xl font-bold text-orange-600">
+            Thông báo bảo trì
+          </h2>
+          <p className="text-orange-700">{statusData?.message}</p>
+        </div>
       </div>
     )
   }
