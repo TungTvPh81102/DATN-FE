@@ -13,9 +13,12 @@ export const useGetParticipatedCourses = (filters?: {
   })
 }
 
-export const useGetParticipatedMembership = () => {
+export const useGetParticipatedMembership = (filters?: {
+  fromDate?: string | undefined
+  toDate?: string | undefined
+}) => {
   return useQuery({
-    queryKey: [QueryKey.INSTRUCTOR_GET_PARTICIPATED_MEMBERSHIP],
-    queryFn: () => instructorTransationApi.getParticipatedMembership(),
+    queryKey: [QueryKey.INSTRUCTOR_GET_PARTICIPATED_MEMBERSHIP, filters],
+    queryFn: () => instructorTransationApi.getParticipatedMembership(filters),
   })
 }

@@ -12,8 +12,10 @@ export const instructorTransationApi = {
       params,
     })
   },
-  getParticipatedMembership:
-    async (): Promise<IParticipatedMembershipResponse> => {
-      return await api.get(`${prefix}/participated-membership`)
-    },
+  getParticipatedMembership: async (params?: {
+    fromDate?: string | undefined
+    toDate?: string | undefined
+  }): Promise<IParticipatedMembershipResponse> => {
+    return await api.get(`${prefix}/participated-membership`, { params })
+  },
 }

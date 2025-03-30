@@ -28,7 +28,22 @@ const TransactionManageMembershipView = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [openDialog, setOpenDialog] = useState(false)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
-  const { data, isLoading } = useGetParticipatedMembership()
+  const [filters, setFilters] = useState<{
+    fromDate: Date | null
+    toDate: Date | null
+  }>({
+    fromDate: null,
+    toDate: null,
+  })
+
+  const formattedFilters = {
+    fromDate: filters.fromDate
+      ? format(filters.fromDate, 'yyyy-MM-dd')
+      : undefined,
+    toDate: filters.toDate ? format(filters.toDate, 'yyyy-MM-dd') : undefined,
+  }
+
+  const { data, isLoading } = useGetParticipatedMembership(formattedFilters)
 
   const searchTermLower = searchTerm.toLowerCase().trim()
 
@@ -225,6 +240,7 @@ const TransactionManageMembershipView = () => {
           isLoading={isLoading}
           onSearchChange={setSearchTerm}
           enableDateFilter={true}
+          onDateFilterChange={(filter) => setFilters(filter)}
         />
       </div>
 
