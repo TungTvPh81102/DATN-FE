@@ -21,4 +21,9 @@ export const luckyWheelApi = {
   spinRun: async () => {
     return await api.post(`${prefix}/spin`)
   },
+
+  //trang thai vong quay
+  getSpinStatus: async () => {
+    return await api.get(`${prefix}/status`)
+  },
 }
