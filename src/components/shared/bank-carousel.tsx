@@ -1,3 +1,5 @@
+//  XÓA FILE
+
 'use client'
 
 import { BankCard, BankCardSkeleton } from '@/components/shared/bank-card'

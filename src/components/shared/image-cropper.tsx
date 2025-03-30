@@ -39,12 +39,14 @@ import { FileWithPreview } from '@/types/file'
 import 'react-image-crop/dist/ReactCrop.css'
 import { toast } from 'react-toastify'
 
+const QUANTITY = 0.7
+
 interface ImageCropperProps
   extends React.ComponentPropsWithoutRef<typeof Dialog> {
   selectedFile: FileWithPreview | null
   setSelectedFile: React.Dispatch<React.SetStateAction<FileWithPreview | null>>
   croppedImage: File | null
-  onCroppedImageChange?: (image: File | null) => void
+  setCroppedImage?: (image: File | null) => void
   aspect?: number
 }
 
@@ -52,7 +54,7 @@ export function ImageCropper({
   selectedFile,
   setSelectedFile,
   croppedImage,
-  onCroppedImageChange,
+  setCroppedImage,
   aspect = 16 / 9,
   ...props
 }: ImageCropperProps) {
@@ -107,13 +109,6 @@ export function ImageCropper({
     }
   }
 
-  async function onCropComplete(crop: PixelCrop) {
-    if (imgRef.current && crop.width && crop.height) {
-      const croppedImage = await getCroppedImg(imgRef.current, crop)
-      onCroppedImageChange?.(croppedImage)
-    }
-  }
-
   async function getCroppedImg(image: HTMLImageElement, pixelCrop: PixelCrop) {
     const tempCanvas = document.createElement('canvas')
     const tempCtx = tempCanvas.getContext('2d')
@@ -136,9 +131,8 @@ export function ImageCropper({
     const scaleX = image.naturalWidth / image.width
     const scaleY = image.naturalHeight / image.height
 
-    // Giảm kích thước ảnh đầu ra
-    const outputWidth = pixelCrop.width * scaleX * 0.8 // Giảm 20% kích thước
-    const outputHeight = pixelCrop.height * scaleY * 0.8
+    const outputWidth = pixelCrop.width * scaleX * QUANTITY
+    const outputHeight = pixelCrop.height * scaleY * QUANTITY
 
     canvas.width = outputWidth
     canvas.height = outputHeight
@@ -173,21 +167,23 @@ export function ImageCropper({
             )
           }
         },
-        'image/jpeg', // Chuyển sang định dạng JPEG
-        0.7 // Giảm chất lượng ảnh xuống 70%
+        'image/jpeg',
+        QUANTITY
       )
     })
   }
 
   async function onCrop() {
     try {
-      if (pixelCrop) await onCropComplete(pixelCrop)
+      if (imgRef.current && pixelCrop && pixelCrop.width && pixelCrop.height) {
+        const croppedImage = await getCroppedImg(imgRef.current, pixelCrop)
+        setCroppedImage?.(croppedImage)
+      }
       props.onOpenChange?.(false)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      props.onOpenChange?.(false)
       setSelectedFile(null)
-      onCroppedImageChange?.(null)
+      setCroppedImage?.(null)
+      props.onOpenChange?.(false)
       toast.error((error as Error).message)
     }
   }
@@ -247,7 +243,7 @@ export function ImageCropper({
                     className="text-destructive hover:text-destructive"
                     onClick={() => {
                       setSelectedFile(null)
-                      onCroppedImageChange?.(null)
+                      setCroppedImage?.(null)
                     }}
                   >
                     <Trash2Icon />
