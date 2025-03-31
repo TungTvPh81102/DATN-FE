@@ -57,6 +57,7 @@ export const lessonDocumentSchema = z
   .object({
     title: z
       .string()
+      .trim()
       .min(3, 'Tiêu đề phải có ít nhất 3 ký tự')
       .max(255, 'Tiêu đề không được vượt quá 255 ký tự'),
     file_type: z.enum(['document_file', 'document_url']).optional(),
@@ -67,7 +68,7 @@ export const lessonDocumentSchema = z
       })
       .optional(),
     document_url: z.string().optional(),
-    content: z.string().min(1, 'Nội dung là bắt buộc').optional(),
+    content: z.string().trim().min(1, 'Nội dung là bắt buộc').optional(),
     isEdit: z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
@@ -123,10 +124,12 @@ export const lessonDocumentSchema = z
 export const lessonQuizSchema = z.object({
   title: z
     .string()
+    .trim()
     .min(3, 'Tiêu đề phải có ít nhất 3 ký tự')
     .max(255, 'Tiêu đề không được vượt quá 255 ký tự'),
   content: z
     .string()
+    .trim()
     .min(1, 'Nội dung là bắt buộc')
     .max(255, 'Nội dung không được vượt quá 255 ký tự'),
 })

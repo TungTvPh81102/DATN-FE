@@ -1,29 +1,28 @@
-import * as React from 'react'
-import type { Editor } from '@tiptap/react'
-import type { Content, UseEditorOptions } from '@tiptap/react'
-import { StarterKit } from '@tiptap/starter-kit'
-import { useEditor } from '@tiptap/react'
-import { Typography } from '@tiptap/extension-typography'
-import { Placeholder } from '@tiptap/extension-placeholder'
-import { Underline } from '@tiptap/extension-underline'
-import { TextStyle } from '@tiptap/extension-text-style'
-import { TextAlign } from '@tiptap/extension-text-align'
-import {
-  Link,
-  Image,
-  HorizontalRule,
-  CodeBlockLowlight,
-  Selection,
-  Color,
-  UnsetAllMarks,
-  ResetMarksOnEnter,
-  FileHandler,
-} from '../extensions'
 import { cn } from '@/lib/utils'
-import { fileToBase64, getOutput, randomId } from '../utils'
-import { useThrottle } from './use-throttle'
-import { toast } from 'react-toastify'
 import { uploadApi } from '@/services/upload'
+import { Placeholder } from '@tiptap/extension-placeholder'
+import { TextAlign } from '@tiptap/extension-text-align'
+import { TextStyle } from '@tiptap/extension-text-style'
+import { Typography } from '@tiptap/extension-typography'
+import { Underline } from '@tiptap/extension-underline'
+import type { Content, Editor, UseEditorOptions } from '@tiptap/react'
+import { useEditor } from '@tiptap/react'
+import { StarterKit } from '@tiptap/starter-kit'
+import * as React from 'react'
+import { toast } from 'react-toastify'
+import {
+  CodeBlockLowlight,
+  Color,
+  FileHandler,
+  HorizontalRule,
+  Image,
+  Link,
+  ResetMarksOnEnter,
+  Selection,
+  UnsetAllMarks,
+} from '../extensions'
+import { checkContentEmpty, fileToBase64, getOutput, randomId } from '../utils'
+import { useThrottle } from './use-throttle'
 
 export interface UseMinimalTiptapEditorProps extends UseEditorOptions {
   value?: Content
@@ -157,7 +156,7 @@ export const useMinimalTiptapEditor = ({
   ...props
 }: UseMinimalTiptapEditorProps) => {
   const throttledSetValue = useThrottle(
-    (value: Content) => onUpdate?.(value),
+    (value: Content) => onUpdate?.(!checkContentEmpty(value) ? value : ''),
     throttleDelay
   )
 

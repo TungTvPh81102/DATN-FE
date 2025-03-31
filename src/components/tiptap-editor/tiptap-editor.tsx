@@ -10,6 +10,7 @@ import { DefaultToolbar } from './components/toolbar/default-toolbar'
 import { FullToolbar } from './components/toolbar/full-toolbar'
 import type { UseMinimalTiptapEditorProps } from './hooks/use-minimal-tiptap'
 import { useMinimalTiptapEditor } from './hooks/use-minimal-tiptap'
+import { ScrollArea } from '../ui/scroll-area'
 
 import './styles/index.css'
 
@@ -19,9 +20,9 @@ export interface TiptapProps
   onChange?: (value: Content) => void
   className?: string
   editorContentClassName?: string
+  scrollAreaClassName?: string
   disabled?: boolean
   toolbar?: 'default' | 'full'
-  onEmptyStatusChange?: (empty: boolean) => void
 }
 
 export const TiptapEditor = React.forwardRef<HTMLDivElement, TiptapProps>(
@@ -31,10 +32,11 @@ export const TiptapEditor = React.forwardRef<HTMLDivElement, TiptapProps>(
       onChange,
       className,
       editorContentClassName,
+      scrollAreaClassName,
       disabled = false,
       editable = true,
       toolbar = 'default',
-      onEmptyStatusChange,
+      placeholder = 'Nhập nội dung',
       ...props
     },
     ref
@@ -43,6 +45,7 @@ export const TiptapEditor = React.forwardRef<HTMLDivElement, TiptapProps>(
       value,
       onUpdate: onChange,
       editable: editable && !disabled,
+      placeholder,
       ...props,
     })
 
@@ -59,12 +62,10 @@ export const TiptapEditor = React.forwardRef<HTMLDivElement, TiptapProps>(
       }
     }, [toolbar, editor])
 
-    const isEmpty = !editor?.state.doc.textContent.trim().length
-
     React.useEffect(() => {
-      onEmptyStatusChange?.(isEmpty)
+      editor?.setOptions({ editable: editable && !disabled })
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isEmpty])
+    }, [disabled, editable])
 
     if (!editor) {
       return null
@@ -77,15 +78,29 @@ export const TiptapEditor = React.forwardRef<HTMLDivElement, TiptapProps>(
           name="editor"
           ref={ref}
           className={cn(
-            'flex h-auto min-h-44 w-full flex-col rounded-md border border-input shadow-sm',
+            'flex h-auto w-full flex-col overflow-y-auto rounded-md border border-input shadow-sm',
             className
           )}
         >
           {ToolbarComp && <ToolbarComp editor={editor} />}
-          <EditorContent
-            editor={editor}
-            className={cn('minimal-tiptap-editor p-5', editorContentClassName)}
-          />
+          <ScrollArea
+            className={cn(
+              'min-h-24 px-3 py-2',
+              {
+                'h-24': toolbar === 'default',
+                'h-[600px]': toolbar === 'full',
+              },
+              scrollAreaClassName
+            )}
+          >
+            <EditorContent
+              editor={editor}
+              className={cn('minimal-tiptap-editor', editorContentClassName)}
+              onKeyDown={(e) => {
+                if (e.ctrlKey && e.key === 'b') e.stopPropagation()
+              }}
+            />
+          </ScrollArea>
           <LinkBubbleMenu editor={editor} />
         </MeasuredContainer>
       </TooltipProvider>

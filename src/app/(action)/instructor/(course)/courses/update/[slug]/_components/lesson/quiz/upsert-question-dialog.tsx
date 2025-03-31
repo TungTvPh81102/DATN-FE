@@ -10,7 +10,7 @@ import {
 import { StoreQuestionPayload, storeQuestionSchema } from '@/validations/lesson'
 
 import FileCard from '@/components/shared/file-card'
-import QuillEditor from '@/components/shared/quill-editor'
+import { TiptapEditor } from '@/components/tiptap-editor'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -216,7 +216,7 @@ export const UpsertQuestionDialog = ({
                       <FormItem>
                         <FormLabel>Mô tả</FormLabel>
                         <FormControl>
-                          <QuillEditor {...field} value={field.value || ''} />
+                          <TiptapEditor {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

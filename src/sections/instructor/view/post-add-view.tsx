@@ -29,7 +29,7 @@ import { useCreatePost } from '@/hooks/instructor/post/usePost'
 
 import Container from '@/components/shared/container'
 import { ImageCropper } from '@/components/shared/image-cropper'
-import QuillEditor from '@/components/shared/quill-editor'
+import { TiptapEditor } from '@/components/tiptap-editor'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -129,8 +129,8 @@ const PostAddView = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,350px]">
-            <div className="space-y-6">
+          <div className="gap-6 xl:grid xl:grid-cols-4">
+            <div className="space-y-6 xl:col-span-3">
               <Card className="border-0 shadow-sm">
                 <CardHeader
                   className="pb-3"
@@ -279,9 +279,7 @@ const PostAddView = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <div className="overflow-hidden rounded-md border">
-                              <QuillEditor {...field} />
-                            </div>
+                            <TiptapEditor {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -299,9 +297,7 @@ const PostAddView = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <div className="overflow-hidden rounded-md border">
-                              <QuillEditor fullToolbar {...field} />
-                            </div>
+                            <TiptapEditor {...field} toolbar="full" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

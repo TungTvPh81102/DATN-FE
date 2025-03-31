@@ -1,24 +1,26 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, ChevronDown, Flame, Loader2 } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import React, { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import CreatableSelect from 'react-select/creatable'
 
 import 'react-datepicker/dist/react-datepicker.css'
 
-import { ICategory } from '@/types/Category'
-import { UpdatePostPayload, updatePostSchema } from '@/validations/post'
-import { cn } from '@/lib/utils'
 import { useGetCategories } from '@/hooks/category/useCategory'
 import {
   useGetPostBySlug,
   useUpdatePost,
 } from '@/hooks/instructor/post/usePost'
+import { cn } from '@/lib/utils'
+import { ICategory } from '@/types/Category'
+import { UpdatePostPayload, updatePostSchema } from '@/validations/post'
 
+import Container from '@/components/shared/container'
+import { TiptapEditor } from '@/components/tiptap-editor'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -45,8 +47,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import QuillEditor from '@/components/shared/quill-editor'
-import Container from '@/components/shared/container'
 type PostStatus = 'draft' | 'pending' | 'published' | 'private'
 const PostUpdateView = ({ slug }: { slug: string }) => {
   const [preview, setPreview] = useState<string | null>(null)
@@ -149,8 +149,8 @@ const PostUpdateView = ({ slug }: { slug: string }) => {
       </h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="mt-4 grid grid-cols-[1fr,300px] gap-6">
-            <div className="space-y-6">
+          <div className="mt-4 gap-6 xl:grid xl:grid-cols-4">
+            <div className="space-y-6 xl:col-span-3">
               <Card>
                 <CardContent className="space-y-4 p-6">
                   <div className="flex items-center justify-between">
@@ -241,7 +241,7 @@ const PostUpdateView = ({ slug }: { slug: string }) => {
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <QuillEditor {...field} />
+                                <TiptapEditor {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -258,7 +258,7 @@ const PostUpdateView = ({ slug }: { slug: string }) => {
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <QuillEditor {...field} />
+                                <TiptapEditor {...field} toolbar="full" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>

@@ -1,4 +1,4 @@
-import QuillEditor from '@/components/shared/quill-editor'
+import { TiptapEditor } from '@/components/tiptap-editor'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -222,7 +222,7 @@ const LessonDocument = ({ chapterId, lessonId, onHide }: Props) => {
               <FormItem>
                 <FormLabel>Nội dung bài giảng</FormLabel>
                 <FormControl>
-                  <QuillEditor {...field} value={field.value || ''} />
+                  <TiptapEditor {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -271,9 +271,7 @@ const LessonDocument = ({ chapterId, lessonId, onHide }: Props) => {
               {fileType === 'document_file' && (
                 <div>
                   <div className="flex flex-col items-center justify-center gap-4 rounded-md border-2 border-dashed border-gray-300 p-5">
-                    <span className="text-xs">
-                      Tải dữ liệu video hoặc kéo thả vào đây
-                    </span>
+                    <span className="text-xs">Tải dữ liệu video</span>
                     <button
                       type="button"
                       className="rounded-lg border border-black p-4 font-medium transition-all duration-300 ease-in-out hover:bg-[#404040] hover:text-white"

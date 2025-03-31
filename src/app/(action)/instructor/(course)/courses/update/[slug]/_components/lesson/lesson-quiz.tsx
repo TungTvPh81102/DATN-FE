@@ -12,7 +12,7 @@ import {
 import { useGetQuiz } from '@/hooks/instructor/quiz/useQuiz'
 import { LessonQuizPayload, lessonQuizSchema } from '@/validations/lesson'
 
-import QuillEditor from '@/components/shared/quill-editor'
+import { TiptapEditor } from '@/components/tiptap-editor'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -60,7 +60,7 @@ const LessonQuiz = ({ chapterId, onHide, isEdit, quizId }: Props) => {
         content: questionData.content || '',
       })
     }
-  }, [isEdit, questionData, form])
+  }, [isEdit, questionData])
 
   const onSubmit = (data: LessonQuizPayload) => {
     const onSuccess = () => {
@@ -134,7 +134,7 @@ const LessonQuiz = ({ chapterId, onHide, isEdit, quizId }: Props) => {
               <FormItem>
                 <FormLabel>Nội dung bài giảng</FormLabel>
                 <FormControl>
-                  <QuillEditor {...field} value={field.value || ''} />
+                  <TiptapEditor {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

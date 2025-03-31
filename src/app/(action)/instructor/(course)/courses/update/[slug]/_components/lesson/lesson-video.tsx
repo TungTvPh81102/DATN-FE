@@ -11,7 +11,7 @@ import {
 } from '@/hooks/instructor/lesson/useLesson'
 import { LessonVideoPayload, lessonVideoSchema } from '@/validations/lesson'
 
-import QuillEditor from '@/components/shared/quill-editor'
+import { TiptapEditor } from '@/components/tiptap-editor'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -209,7 +209,7 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
               <FormItem>
                 <FormLabel>Nội dung bài giảng</FormLabel>
                 <FormControl>
-                  <QuillEditor placeholder="Nhập nội dung" {...field} />
+                  <TiptapEditor {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

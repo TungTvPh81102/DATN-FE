@@ -1,4 +1,4 @@
-import type { Editor } from '@tiptap/react'
+import type { Content, Editor } from '@tiptap/react'
 import type { TiptapProps } from './tiptap-editor'
 
 type ShortcutKeyResult = {
@@ -235,4 +235,36 @@ export const filterFiles = <T extends FileInput>(
   })
 
   return [validFiles, errors]
+}
+
+export const checkContentEmpty = (content: Content): boolean => {
+  if (!content) return true
+
+  // Nếu content là chuỗi HTML
+  if (typeof content === 'string') {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(content, 'text/html')
+    // Lấy toàn bộ text và loại bỏ khoảng trắng, dấu cách không ngắt
+    const text = doc.body.textContent?.replace(/\u00A0/g, '').trim()
+    return !text
+  }
+
+  // Nếu content là JSON (object) theo cấu trúc của Tiptap,
+  // duyệt đệ quy qua các node để kiểm tra có text hợp lệ hay không.
+  const hasMeaningfulText = (node: any): boolean => {
+    // Nếu là node text, kiểm tra text
+    if (node.type === 'text') {
+      const text = (node.text || '').replace(/\u00A0/g, '').trim()
+      return !!text
+    }
+
+    // Nếu node có mảng content, duyệt qua từng node con
+    if (node.content && Array.isArray(node.content)) {
+      return node.content.some(hasMeaningfulText)
+    }
+
+    return false
+  }
+
+  return !hasMeaningfulText(content)
 }
