@@ -1,4 +1,4 @@
-import { AlertTriangle, Loader2 } from 'lucide-react'
+import { AlertTriangle, Crown, Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -86,7 +86,7 @@ const MyCourseView = () => {
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {course?.map((course: any) => (
                 <div key={course.id} className="mb-4">
-                  <div className="course-item hover-img wow fadeInUp relative">
+                  <div className="course-item hover-img wow fadeInUp relative overflow-hidden rounded-lg border shadow-md">
                     <div className="absolute left-0 top-0 h-1 w-full bg-gray-200">
                       <div
                         className={`h-full ${getProgressStyle(course.progress_percent)}`}
@@ -119,12 +119,15 @@ const MyCourseView = () => {
 
                       {course.source === 'membership' && (
                         <div className="absolute left-2 top-2 rounded-md bg-[#E27447] px-2 py-1 text-xs font-medium text-white">
-                          Hội viên
+                          <div className="flex items-center justify-center">
+                            <Crown className="mr-1 size-4" />
+                            Hội viên
+                          </div>
                         </div>
                       )}
                     </div>
 
-                    <div className="content">
+                    <div className="content p-4">
                       <div className="meta">
                         <div className="meta-item">
                           <i className="flaticon-calendar"></i>

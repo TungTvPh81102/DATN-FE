@@ -35,7 +35,6 @@ import { LessonPreviewModal } from '@/sections/courses/_components/course-list-s
 import { IChapter } from '@/types'
 import CourseSlideRelated from '@/sections/courses/_components/course-slide-related'
 import { CourseItemSkeleton } from '@/components/shared/course-item-skeletion'
-import { RatingForm } from '@/sections/courses/_components/rating-form'
 import { RatingsList } from '@/sections/courses/_components/ratings-list'
 
 const lessonTypeIcons = {
@@ -593,8 +592,6 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
                       />
                     )}
                   </div>
-
-                  <RatingForm />
                 </div>
               </div>
               <div className="col-lg-4">
@@ -731,7 +728,7 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
                                 if (result.isConfirmed) {
                                   enrollFreeCourse(String(courseDetails?.id), {
                                     onSuccess: (res: any) => {
-                                      toast.info(res.message)
+                                      toast.success(res.message)
                                       router.push('/my-courses')
                                     },
                                   })

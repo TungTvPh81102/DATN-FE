@@ -239,7 +239,7 @@ export function ProfileSection({ userData }: Props) {
                         Số điện thoại
                       </dt>
                       <dd className="mt-1 text-sm text-gray-900">
-                        {userData?.user.profile.phone || 'Chưa cập nhật'}
+                        {userData?.user.profile?.phone || 'Chưa cập nhật'}
                       </dd>
                     </div>
                     <div>

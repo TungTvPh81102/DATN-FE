@@ -127,12 +127,12 @@ const InstructorTop = ({
                         <ul className="entry-meta">
                           <li>
                             <i className="flaticon-user" />
-                            {instructor?.total_followers} Followers
+                            {instructor?.total_followers} Theo dõi
                           </li>
 
                           <li>
                             <i className="flaticon-play" />
-                            {instructor?.total_courses} Courses
+                            {instructor?.total_courses} Khoá học
                           </li>
                         </ul>
 
