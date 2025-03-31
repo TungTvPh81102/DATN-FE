@@ -73,11 +73,10 @@ const BecomeAnInstructor = () => {
   useEffect(() => {
     if (!user) return
 
-    const privateChannel = echo.private(`member.${user?.id}`)
+    const privateChannel = echo.private(`App.Models.User.${user?.id}`)
     privateChannel.listen('InstructorApproved', (data: any) => {
       const { new_role } = data
       setRole(new_role)
-      console.log(new_role)
 
       if (isWaitingForRealtime) {
         Swal.fire({

@@ -122,7 +122,7 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
   const onSubmit = (values: QuizSubmissionPayload) => {
     completeLesson({
       lessonId: lesson.id!,
-      ...values,
+      payload: values,
     })
   }
 

@@ -76,16 +76,6 @@ export const RatingItem = ({ rating }: Props) => {
           <div className="total">{timeAgo(rating?.created_at ?? '')}</div>
         </div>
         <p className="comment">{rating?.content}</p>
-        <ul className="reaction">
-          <li className="btn-like">
-            <i className="icon-like" />
-            Helpful
-          </li>
-          <li className="btn-dislike">
-            <i className="icon-dislike" />
-            Not helpful
-          </li>
-        </ul>
       </div>
     </div>
   )

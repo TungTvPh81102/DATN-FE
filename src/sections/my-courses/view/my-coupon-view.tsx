@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Loader2, Gift, Calendar, Clock, Tag, Ticket } from 'lucide-react'
+import { Loader2, Gift, Clock, Tag, Ticket } from 'lucide-react'
 
 import { formatCurrency, formatPercentage } from '@/lib/common'
 import { useGetCouponUser } from '@/hooks/user/useUser'
@@ -134,17 +134,6 @@ const MyCouponView = () => {
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Calendar
-                      className="size-4"
-                      style={{ color: `${PRIMARY_COLOR}90` }}
-                    />
-                    <span>Ngày áp dụng:</span>
-                    <span className="font-medium text-gray-900">
-                      {coupon.applied_at}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Clock
                       className="size-4"
                       style={{ color: `${PRIMARY_COLOR}90` }}
@@ -160,7 +149,7 @@ const MyCouponView = () => {
               </div>
 
               <div
-                className="mt-2 border-t px-6 py-4"
+                className="border-t px-6 py-4"
                 style={{
                   borderColor: `${PRIMARY_COLOR}15`,
                   backgroundColor: `${PRIMARY_COLOR}08`,

@@ -55,6 +55,8 @@ export const ChatSidebar = ({
   const { data: directChatData, isLoading: isLoadingDirectChatData } =
     useGetDirectChats()
 
+  console.log(groupChatData)
+
   const systemMessageReasons = [
     'Technical Support',
     'Billing Inquiry',

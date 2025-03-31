@@ -16,7 +16,7 @@ import { useGetCategories } from '@/hooks/category/useCategory'
 import { useDebounce } from '@/hooks/debounce/useDebounce'
 import { useSearch } from '@/hooks/search/userSearch'
 import { useGetWishLists } from '@/hooks/wish-list/useWishList'
-import { ICourse, IInstructorProfile } from '@/types'
+import { IInstructorProfile } from '@/types'
 import { ICategory } from '@/types/Category'
 
 import WishListIcon from '@/components/common/WishListIcon'
@@ -25,7 +25,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Slot } from '@radix-ui/react-slot'
 import { NotificationPopover } from '../notification/notification-popover'
-import { updateCourseFilters } from '@/lib/utils'
+import { formatStringToCurrency } from '../../lib/common'
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
   ssr: false,
@@ -49,7 +49,10 @@ const Header = () => {
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const handleCategorySelect = (categorySlug: string) => {
-    updateCourseFilters('categories', [categorySlug])
+    const updatedFilters = { categories: [categorySlug] }
+    localStorage.setItem('courseFilters', JSON.stringify(updatedFilters))
+
+    window.dispatchEvent(new Event('courseFiltersUpdated'))
 
     router.push('/courses')
   }
@@ -116,6 +119,18 @@ const Header = () => {
     {
       content: 'Học tập',
       href: '/my-courses?tab=all',
+    },
+    {
+      content: 'Hội viên',
+      href: '/my-courses?tab=membership',
+    },
+    {
+      content: 'Mã giảm giá',
+      href: '/my-courses?tab=coupon',
+    },
+    {
+      content: 'Chứng chỉ',
+      href: '/my-courses?tab=certificate',
     },
     {
       content: 'Khóa học yêu thích',
@@ -362,86 +377,185 @@ const Header = () => {
                 </form>
                 {debouncedQuery.trim() !== '' && (
                   <div
-                    className="popover-content mt-2 px-6 py-3"
+                    className="popover-content mt-2 max-h-96 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4"
                     style={{ width: inputWidth }}
                   >
-                    <div className="flex items-center space-x-2">
-                      {searchLoading ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : (
-                        <Search size={16} />
-                      )}
-                      <p className="text-base">
-                        {searchLoading || searchResults
-                          ? `Kết quả cho "${debouncedQuery}"`
-                          : `Không có kết quả cho "${debouncedQuery}"`}
-                      </p>
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        {searchLoading ? (
+                          <Loader2 className="size-4 animate-spin text-primary" />
+                        ) : (
+                          <Search size={16} className="text-primary" />
+                        )}
+                        <p className="text-base font-medium">
+                          {searchLoading
+                            ? 'Đang tìm kiếm...'
+                            : searchResults
+                              ? `Kết quả cho "${debouncedQuery}"`
+                              : `Không có kết quả cho "${debouncedQuery}"`}
+                        </p>
+                      </div>
+                      <button
+                        className="rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                        onClick={() => setQuery('')}
+                        data-bs-dismiss="offcanvas"
+                      >
+                        <i className="flaticon-close-1 text-sm"></i>
+                      </button>
                     </div>
 
-                    {searchResults?.courses?.length > 0 && (
-                      <>
-                        <div className="flex items-center justify-between border-b border-solid border-gray-200 pb-3 pt-6">
-                          <h3 className="text-xl uppercase">Khoá học</h3>
+                    {searchResults?.courses?.length === 0 &&
+                      searchResults?.instructors?.length === 0 &&
+                      !searchLoading && (
+                        <div className="my-8 flex flex-col items-center justify-center text-center">
+                          <i className="icon-search fs-24 mb-2 text-gray-400"></i>
+                          <p className="text-base text-gray-500">
+                            Không tìm thấy kết quả phù hợp
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            Vui lòng thử với từ khóa khác
+                          </p>
                         </div>
-                        <ul>
-                          {searchResults?.courses?.map((course: ICourse) => (
-                            <li key={course?.id} className="py-2">
-                              <Link href={`/courses/${course?.slug}`}>
-                                <div
-                                  className="flex w-fit items-center space-x-3"
+                      )}
+
+                    {searchResults?.courses?.length > 0 && (
+                      <div className="mb-4">
+                        <div className="mb-3 flex items-center justify-between border-b border-gray-200 pb-2">
+                          <h3 className="text-lg font-semibold text-primary">
+                            Khoá học
+                          </h3>
+                          {searchResults.courses.length > 3 && (
+                            <Link
+                              href={`/courses?query=${encodeURIComponent(debouncedQuery)}`}
+                              className="text-sm font-medium text-primary hover:underline"
+                              data-bs-dismiss="offcanvas"
+                              onClick={() => setQuery('')}
+                            >
+                              Xem tất cả
+                            </Link>
+                          )}
+                        </div>
+                        <ul className="space-y-3">
+                          {searchResults?.courses
+                            ?.slice(0, 3)
+                            .map((course: any) => (
+                              <li key={course?.id}>
+                                <Link
+                                  href={`/courses/${course?.slug}`}
                                   data-bs-dismiss="offcanvas"
                                   onClick={() => setQuery('')}
+                                  className="block rounded-lg p-2 transition-all hover:bg-gray-50"
                                 >
-                                  <Image
-                                    src={course?.thumbnail}
-                                    alt={course?.name}
-                                    width={128}
-                                    height={128}
-                                    className="size-12 rounded-full object-cover"
-                                  />
-                                  <p className="text-base">{course?.name}</p>
-                                </div>
-                              </Link>
-                            </li>
-                          ))}
+                                  <div className="flex items-center space-x-3">
+                                    <div className="shrink-0">
+                                      <Image
+                                        src={
+                                          course?.thumbnail ||
+                                          '/images/course-placeholder.jpg'
+                                        }
+                                        alt={course?.name}
+                                        width={80}
+                                        height={60}
+                                        className="h-16 w-20 rounded-md object-cover shadow-sm"
+                                      />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <p className="mb-1 truncate text-base font-medium">
+                                        {course?.name}
+                                      </p>
+                                      <div className="flex items-center text-sm text-gray-500">
+                                        <i className="icon-user mr-1"></i>
+                                        <span className="mr-2">
+                                          {course?.instructor_name ||
+                                            'Người hướng dẫn'}
+                                        </span>
+                                        {course?.price !== undefined && (
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium text-primary">
+                                              {course?.is_free
+                                                ? 'Miễn phí'
+                                                : course?.price_sale &&
+                                                    course?.price_sale !==
+                                                      '0.00'
+                                                  ? formatStringToCurrency(
+                                                      course?.price_sale
+                                                    )
+                                                  : formatStringToCurrency(
+                                                      course?.price
+                                                    )}
+                                            </span>
+                                            {course?.price_sale &&
+                                              course?.price_sale !== '0.00' &&
+                                              !course?.is_free && (
+                                                <span className="ml-2 text-xs text-gray-400 line-through">
+                                                  {formatStringToCurrency(
+                                                    course?.price
+                                                  )}
+                                                </span>
+                                              )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Link>
+                              </li>
+                            ))}
                         </ul>
-                      </>
+                      </div>
                     )}
 
                     {searchResults?.instructors?.length > 0 && (
-                      <>
-                        <div className="flex items-center justify-between border-b border-solid border-gray-200 pb-3 pt-6">
-                          <h3 className="text-xl uppercase">Người hướng dẫn</h3>
+                      <div>
+                        <div className="mb-3 flex items-center justify-between border-b border-gray-200 pb-2">
+                          <h3 className="text-lg font-semibold text-primary">
+                            Người hướng dẫn
+                          </h3>
+                          {searchResults.instructors.length > 3 && (
+                            <Link
+                              href={`/instructors?query=${encodeURIComponent(debouncedQuery)}`}
+                              className="text-sm font-medium text-primary hover:underline"
+                              data-bs-dismiss="offcanvas"
+                              onClick={() => setQuery('')}
+                            >
+                              Xem tất cả
+                            </Link>
+                          )}
                         </div>
-                        <ul>
-                          {searchResults?.instructors?.map(
-                            (instructor: IInstructorProfile) => (
+                        <ul className="space-y-3">
+                          {searchResults?.instructors
+                            ?.slice(0, 3)
+                            .map((instructor: IInstructorProfile) => (
                               <li key={instructor?.id}>
-                                <div
-                                  className="flex w-fit items-center space-x-3"
+                                <Link
+                                  href={`/instructors/${instructor?.code || instructor?.id}`}
                                   data-bs-dismiss="offcanvas"
                                   onClick={() => setQuery('')}
+                                  className="block rounded-lg p-2 transition-all hover:bg-gray-50"
                                 >
-                                  <Avatar>
-                                    <AvatarImage
-                                      src={instructor?.avatar ?? ''}
-                                      alt={instructor?.name}
-                                    />
-                                    <AvatarFallback>
-                                      {instructor?.name
-                                        ?.charAt(0)
-                                        .toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <p className="text-base">
-                                    {instructor?.name}
-                                  </p>
-                                </div>
+                                  <div className="flex items-center space-x-3">
+                                    <Avatar className="size-12 ring-2 ring-gray-100">
+                                      <AvatarImage
+                                        src={instructor?.avatar ?? ''}
+                                        alt={instructor?.name}
+                                      />
+                                      <AvatarFallback className="bg-primary/10 text-primary">
+                                        {instructor?.name
+                                          ?.charAt(0)
+                                          .toUpperCase()}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="min-w-0 flex-1">
+                                      <p className="mb-1 truncate text-base font-medium">
+                                        {instructor?.name}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </Link>
                               </li>
-                            )
-                          )}
+                            ))}
                         </ul>
-                      </>
+                      </div>
                     )}
                   </div>
                 )}

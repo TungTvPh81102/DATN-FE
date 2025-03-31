@@ -186,7 +186,7 @@ function WalletView() {
         toast.error(error.message)
 
         await queryClient.invalidateQueries({
-          queryKey: [QUERY_KEY.INSTRUCTOR_WITH_DRAW_REQUEST],
+          queryKey: [QUERY_KEY.INSTRUCTOR_WALLET],
         })
       },
     })

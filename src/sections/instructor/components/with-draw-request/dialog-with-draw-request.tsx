@@ -321,104 +321,108 @@ const DialogWithDrawRequest = ({
 
                     {(withDrawRequestData?.data.status === 'Đã xử lý' ||
                       withDrawRequestData?.data.instructor_confirmation ===
-                        'not_received') && (
-                      <div className="mt-6 border-t border-gray-200 pt-6">
-                        <div className="mb-4 flex items-center">
-                          <div className="flex size-10 items-center justify-center rounded-full bg-[#E27447]/10">
-                            <CheckSquare size={18} className="text-[#E27447]" />
-                          </div>
-                          <h3 className="ml-3 text-lg font-semibold text-gray-800">
-                            Xác nhận thông tin
-                          </h3>
-                        </div>
-
-                        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-                          <div className="flex items-center">
-                            <input
-                              type="radio"
-                              id="receivedConfirm"
-                              name="confirmationType"
-                              className="size-5 border-gray-300 text-[#E27447] focus:ring-[#E27447]"
-                              checked={!isComplaintChecked}
-                              onChange={() => setIsComplaintChecked(false)}
-                            />
-                            <label
-                              htmlFor="receivedConfirm"
-                              className="ml-2 text-sm font-medium text-gray-700"
-                            >
-                              Tôi đã nhận được tiền
-                            </label>
-                          </div>
-
-                          <div className="flex items-center">
-                            <input
-                              type="radio"
-                              id="complaintConfirm"
-                              name="confirmationType"
-                              className="size-5 border-gray-300 text-[#E27447] focus:ring-[#E27447]"
-                              checked={isComplaintChecked}
-                              onChange={() => setIsComplaintChecked(true)}
-                            />
-                            <label
-                              htmlFor="complaintConfirm"
-                              className="ml-2 text-sm font-medium text-gray-700"
-                            >
-                              Tôi muốn gửi khiếu nại
-                            </label>
-                          </div>
-                        </div>
-
-                        <form
-                          onSubmit={(e) => e.preventDefault()}
-                          className="space-y-4"
-                        >
-                          {isComplaintChecked && (
-                            <div>
-                              <label className="block text-sm font-medium text-gray-900">
-                                Nội dung phản hồi
-                              </label>
-                              <textarea
-                                rows={3}
-                                value={responseNote}
-                                onChange={(e) =>
-                                  setResponseNote(e.target.value)
-                                }
-                                className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                placeholder="Nhập nội dung phản hồi tại đây..."
+                        'not_received') &&
+                      withDrawRequestData?.data.status !== 'Từ chối' && (
+                        <div className="mt-6 border-t border-gray-200 pt-6">
+                          <div className="mb-4 flex items-center">
+                            <div className="flex size-10 items-center justify-center rounded-full bg-[#E27447]/10">
+                              <CheckSquare
+                                size={18}
+                                className="text-[#E27447]"
                               />
                             </div>
-                          )}
-                          <div className="flex justify-end space-x-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              disabled={isPending}
-                              onClick={() => {
-                                setIsComplaintChecked(false)
-                                setResponseNote('')
-                                onOpenChange(false)
-                              }}
-                            >
-                              Hủy bỏ
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="default"
-                              onClick={handleRequestSubmission}
-                              disabled={isPending}
-                            >
-                              {isPending ? (
-                                <Loader2 className="mr-2 size-4 animate-spin" />
-                              ) : isComplaintChecked ? (
-                                'Xác nhận khiếu nại'
-                              ) : (
-                                'Đã nhận tiền'
-                              )}
-                            </Button>
+                            <h3 className="ml-3 text-lg font-semibold text-gray-800">
+                              Xác nhận thông tin
+                            </h3>
                           </div>
-                        </form>
-                      </div>
-                    )}
+
+                          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <div className="flex items-center">
+                              <input
+                                type="radio"
+                                id="receivedConfirm"
+                                name="confirmationType"
+                                className="size-5 border-gray-300 text-[#E27447] focus:ring-[#E27447]"
+                                checked={!isComplaintChecked}
+                                onChange={() => setIsComplaintChecked(false)}
+                              />
+                              <label
+                                htmlFor="receivedConfirm"
+                                className="ml-2 text-sm font-medium text-gray-700"
+                              >
+                                Tôi đã nhận được tiền
+                              </label>
+                            </div>
+
+                            <div className="flex items-center">
+                              <input
+                                type="radio"
+                                id="complaintConfirm"
+                                name="confirmationType"
+                                className="size-5 border-gray-300 text-[#E27447] focus:ring-[#E27447]"
+                                checked={isComplaintChecked}
+                                onChange={() => setIsComplaintChecked(true)}
+                              />
+                              <label
+                                htmlFor="complaintConfirm"
+                                className="ml-2 text-sm font-medium text-gray-700"
+                              >
+                                Tôi muốn gửi khiếu nại
+                              </label>
+                            </div>
+                          </div>
+
+                          <form
+                            onSubmit={(e) => e.preventDefault()}
+                            className="space-y-4"
+                          >
+                            {isComplaintChecked && (
+                              <div>
+                                <label className="block text-sm font-medium text-gray-900">
+                                  Nội dung phản hồi
+                                </label>
+                                <textarea
+                                  rows={3}
+                                  value={responseNote}
+                                  onChange={(e) =>
+                                    setResponseNote(e.target.value)
+                                  }
+                                  className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                  placeholder="Nhập nội dung phản hồi tại đây..."
+                                />
+                              </div>
+                            )}
+                            <div className="flex justify-end space-x-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                disabled={isPending}
+                                onClick={() => {
+                                  setIsComplaintChecked(false)
+                                  setResponseNote('')
+                                  onOpenChange(false)
+                                }}
+                              >
+                                Hủy bỏ
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="default"
+                                onClick={handleRequestSubmission}
+                                disabled={isPending}
+                              >
+                                {isPending ? (
+                                  <Loader2 className="mr-2 size-4 animate-spin" />
+                                ) : isComplaintChecked ? (
+                                  'Xác nhận khiếu nại'
+                                ) : (
+                                  'Đã nhận tiền'
+                                )}
+                              </Button>
+                            </div>
+                          </form>
+                        </div>
+                      )}
                   </>
                 )}
               </>
