@@ -1,6 +1,6 @@
 'use client'
 
-import QuillEditor from '@/components/shared/quill-editor'
+import { TiptapEditor } from '@/components/tiptap-editor'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -52,6 +52,7 @@ const AddNoteSheet = ({ open, onOpenChange, currentTime, lessonId }: Props) => {
     storeNote(payload, {
       onSuccess: () => {
         onOpenChange(false)
+        form.reset()
       },
     })
   }
@@ -82,12 +83,7 @@ const AddNoteSheet = ({ open, onOpenChange, currentTime, lessonId }: Props) => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <QuillEditor
-                      theme="snow"
-                      placeholder="Nhập nội dung ghi chú"
-                      value={field.value || ''}
-                      onChange={field.onChange}
-                    />
+                    <TiptapEditor {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

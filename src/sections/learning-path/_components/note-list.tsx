@@ -9,7 +9,7 @@ import { useDeleteNote, useGetNotes, useUpdateNote } from '@/hooks/note/useNote'
 import { formatDuration } from '@/lib/common'
 
 import HtmlRenderer from '@/components/shared/html-renderer'
-import QuillEditor from '@/components/shared/quill-editor'
+import { TiptapEditor } from '@/components/tiptap-editor'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -241,13 +241,12 @@ const NoteList = ({
 
                 {isEditNote && selectNote.id === note.id ? (
                   <div className="mt-4">
-                    <QuillEditor
-                      theme="snow"
+                    <TiptapEditor
                       value={selectNote.content}
                       onChange={(value) =>
                         setSelectNote((prev) => ({
                           ...prev,
-                          content: value,
+                          content: value as string,
                         }))
                       }
                     />

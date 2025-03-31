@@ -1,8 +1,8 @@
+import { ICourseFilter } from '@/types'
 import { clsx, type ClassValue } from 'clsx'
 import { formatDistanceToNow, FormatDistanceToNowOptions } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { twMerge } from 'tailwind-merge'
-import { ICourseFilter } from '@/types'
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))

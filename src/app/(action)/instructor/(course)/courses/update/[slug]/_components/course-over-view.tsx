@@ -12,7 +12,6 @@ import { useForm } from 'react-hook-form'
 
 import { useGetCategories } from '@/hooks/category/useCategory'
 import { useUpdateCourseOverView } from '@/hooks/instructor/course/useCourse'
-import { cn } from '@/lib/utils'
 import { ICategory } from '@/types/Category'
 import {
   UpdateCourseOverViewPayload,
@@ -22,7 +21,7 @@ import {
 import ModalLoading from '@/components/common/ModalLoading'
 import { CurrencyInput } from '@/components/shared/currency-input'
 import { ImageCropper } from '@/components/shared/image-cropper'
-import QuillEditor from '@/components/shared/quill-editor'
+import { TiptapEditor } from '@/components/tiptap-editor'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Button } from '@/components/ui/button'
 import {
@@ -56,6 +55,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import { ICourse, LevelMap } from '@/types'
 import { FileWithPreview } from '@/types/file'
@@ -210,7 +210,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
               <FormItem>
                 <FormLabel className="text-base font-semibold">Mô tả</FormLabel>
                 <FormControl>
-                  <QuillEditor {...field} />
+                  <TiptapEditor {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
