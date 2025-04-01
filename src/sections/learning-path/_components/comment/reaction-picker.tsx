@@ -1,14 +1,6 @@
 import React from 'react'
 import { Smile } from 'lucide-react'
-
-const reactionEmojis = [
-  { emoji: '👍', name: 'Thích', type: 'like' },
-  { emoji: '❤️', name: 'Yêu thích', type: 'love' },
-  { emoji: '😆', name: 'Haha', type: 'haha' },
-  { emoji: '😮', name: 'Wow', type: 'wow' },
-  { emoji: '😢', name: 'Buồn', type: 'sad' },
-  { emoji: '😡', name: 'Phẫn nộ', type: 'angry' },
-]
+import { reactionEmojis } from '@/types/Reaction'
 
 interface ReactionPickerProps {
   showPicker: boolean
@@ -27,6 +19,16 @@ export const ReactionPicker = ({
   reactionPickerRef,
   isLoading,
 }: ReactionPickerProps) => {
+  const handleReactionClick = (emoji: string, type: string) => {
+    // If clicking the same reaction that's currently selected, reset it
+    if (emoji === currentReaction) {
+      onReactionSelect('', type)
+    } else {
+      onReactionSelect(emoji, type)
+    }
+    setShowPicker(false)
+  }
+
   return (
     <div className="relative">
       <button
@@ -50,7 +52,7 @@ export const ReactionPicker = ({
               disabled={isLoading}
               key={reaction.emoji}
               className="rounded-full p-2 transition-transform hover:scale-125"
-              onClick={() => onReactionSelect(reaction.emoji, reaction.type)}
+              onClick={() => handleReactionClick(reaction.emoji, reaction.type)}
               title={reaction.name}
             >
               <span className="text-xl">{reaction.emoji}</span>

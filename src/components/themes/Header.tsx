@@ -3,7 +3,6 @@
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useWishListStore } from '@/stores/useWishListStore'
 import { Bell, Loader2, Search } from 'lucide-react'
-import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -27,9 +26,9 @@ import { Slot } from '@radix-ui/react-slot'
 import { NotificationPopover } from '../notification/notification-popover'
 import { updateCourseFilters } from '@/lib/utils'
 
-const MobileMenu = dynamic(() => import('./MobileMenu'), {
-  ssr: false,
-})
+// const MobileMenu = dynamic(() => import('./MobileMenu'), {
+//   ssr: false,
+// })
 
 const Header = () => {
   const [query, setQuery] = useState('')
@@ -166,10 +165,10 @@ const Header = () => {
         <div className="header-inner">
           <div className="header-inner-wrap">
             <div className="header-left">
-              <a
-                className="mobile-nav-toggler mobile-button d-lg-none flex"
-                href="#menu"
-              />
+              {/*<a*/}
+              {/*  className="mobile-nav-toggler mobile-button d-lg-none flex"*/}
+              {/*  href="#menu"*/}
+              {/*/>*/}
               <div id="site-logo">
                 <Link href="/" rel="home" className="flex items-center gap-2">
                   <Image
@@ -318,7 +317,7 @@ const Header = () => {
             </div>
           </div>
         </div>
-        <MobileMenu />
+        {/*<MobileMenu />*/}
       </header>
 
       <div
