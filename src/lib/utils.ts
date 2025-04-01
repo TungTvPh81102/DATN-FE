@@ -83,3 +83,21 @@ export const getProgressStyle = (percent: number) => {
     return 'bg-gradient-to-r from-green-400 to-emerald-500'
   }
 }
+
+export const handleDownload = async (url: string, fileName: string) => {
+  try {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    const link = document.createElement('a')
+
+    link.href = URL.createObjectURL(blob)
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+
+    document.body.removeChild(link)
+    URL.revokeObjectURL(link.href)
+  } catch (error) {
+    console.error('Lỗi khi tải chứng chỉ:', error)
+  }
+}
