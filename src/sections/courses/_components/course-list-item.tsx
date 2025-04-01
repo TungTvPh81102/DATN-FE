@@ -6,6 +6,9 @@ import { formatCurrency } from '@/lib/common'
 
 import { SortByDropdown } from '@/sections/courses/_components/sort-by-dropdown'
 import { CoursePagination } from '@/components/common/CoursePagination'
+import { useCreateWishList } from '@/hooks/wish-list/useWishList'
+import { CreateWishListPayload } from '@/validations/wish-list'
+import Swal from 'sweetalert2'
 
 type Props = {
   dataFilters: ICourseFilter
@@ -18,6 +21,26 @@ const CourseListItem = ({
   dataFilters,
   setDataFilters,
 }: Props) => {
+  const { mutate: createWishList, isPending: isWishListPending } =
+    useCreateWishList()
+
+  const handleAddToWishList = (values: CreateWishListPayload) => {
+    if (isWishListPending) return
+    Swal.fire({
+      title: 'Thêm khóa học vào danh sách yêu thích?',
+      text: 'Bạn có chắc chắn muốn thêm khóa học này vào danh sách yêu thích?',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        createWishList(values)
+      }
+    })
+  }
+
   const handlePageChange = (pageUrl?: string | null) => {
     if (!pageUrl) return
 
@@ -66,7 +89,10 @@ const CourseListItem = ({
                 }
                 alt={course?.name}
               />
-              <div className="box-wishlist tf-action-btns">
+              <div
+                onClick={() => handleAddToWishList({ course_id: course.id })}
+                className="box-wishlist tf-action-btns"
+              >
                 <i className="flaticon-heart" />
               </div>
             </div>
