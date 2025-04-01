@@ -302,7 +302,7 @@
 // }
 import React, { useEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Loader2, Send, Trash2 } from 'lucide-react'
+import { Loader2, Send, Trash2, X } from 'lucide-react'
 import { FiMoreHorizontal } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 
@@ -312,21 +312,16 @@ import {
   useDeleteComment,
   useStoreReplyCommentLesson,
 } from '@/hooks/comment-lesson/useComment'
-import { useToggleReaction } from '@/hooks/reaction/useReaction'
+import {
+  useGetReactionWithComment,
+  useToggleReaction,
+} from '@/hooks/reaction/useReaction'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import HtmlRenderer from '@/components/shared/html-renderer'
 import { ReactionPicker } from '@/sections/learning-path/_components/comment/reaction-picker'
-
-const reactionEmojis = [
-  { emoji: '👍', name: 'Thích', type: 'like' },
-  { emoji: '❤️', name: 'Yêu thích', type: 'love' },
-  { emoji: '😆', name: 'Haha', type: 'haha' },
-  { emoji: '😮', name: 'Wow', type: 'wow' },
-  { emoji: '😢', name: 'Buồn', type: 'sad' },
-  { emoji: '😡', name: 'Phẫn nộ', type: 'angry' },
-]
+import { ReactionData, reactionEmojis } from '@/types/Reaction'
 
 export const ReplyItem = ({
   reply,
@@ -342,8 +337,12 @@ export const ReplyItem = ({
   const queryClient = useQueryClient()
   const reactionPickerRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const reactionDetailsRef = useRef<HTMLDivElement>(null)
+  const [activeTab, setActiveTab] = useState('all')
 
   const [showReactionPicker, setShowReactionPicker] = useState<boolean>(false)
+  const [showReactionDetails, setShowReactionDetails] = useState<boolean>(false)
+
   const [openDropdown, setOpenDropdown] = useState<boolean>(false)
   const [activeReplyEditor, setActiveReplyEditor] = useState<boolean>(false)
   const [replyContent, setReplyContent] = useState<string>('')
@@ -358,6 +357,11 @@ export const ReplyItem = ({
     useDeleteComment(reply.id)
   const { mutate: toggleReaction, isPending: isToggleReaction } =
     useToggleReaction()
+  const { data: reactionData } = useGetReactionWithComment(
+    reply.id
+  ) as unknown as {
+    data: ReactionData
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -373,6 +377,12 @@ export const ReplyItem = ({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setOpenDropdown(false)
+      }
+      if (
+        reactionDetailsRef.current &&
+        !reactionDetailsRef.current.contains(event.target as Node)
+      ) {
+        setShowReactionDetails(false)
       }
     }
 
@@ -401,8 +411,8 @@ export const ReplyItem = ({
         type: reactionType,
       },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
             queryKey: [QueryKey.LESSON_COMMENT, lessonId],
           })
           setShowReactionPicker(false)
@@ -449,10 +459,10 @@ export const ReplyItem = ({
 
   const handleDeleteReply = () => {
     deleteComment(undefined, {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success('Đã xóa phản hồi thành công')
         setOpenDropdown(false)
-        queryClient.invalidateQueries({
+        await queryClient.invalidateQueries({
           queryKey: [QueryKey.LESSON_COMMENT, lessonId],
         })
       },
@@ -503,7 +513,10 @@ export const ReplyItem = ({
             <span className="text-gray-500">{timeAgo(reply?.created_at)}</span>
 
             <div className="relative ml-auto flex items-center gap-1">
-              <div className="flex items-center">
+              <button
+                className="flex items-center rounded-md px-2 py-1 hover:bg-gray-100"
+                onClick={() => setShowReactionDetails(true)}
+              >
                 {reactionEmojis.map((reaction) => {
                   const count = reply.reaction_counts[reaction.type]
                   if (count > 0) {
@@ -518,7 +531,103 @@ export const ReplyItem = ({
                 <span className="font-bold text-gray-500">
                   {reply.reaction_counts.total || ''}
                 </span>
-              </div>
+              </button>
+              {showReactionDetails && reactionData && (
+                <div
+                  ref={reactionDetailsRef}
+                  className="fixed left-1/2 top-1/2 z-50 flex h-[480px] w-[580px] -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl bg-white shadow-xl"
+                >
+                  <div className="border-b px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-medium text-gray-900">
+                        Tất cả ({reactionData?.totalReactions || 0})
+                      </h3>
+                      <button
+                        onClick={() => setShowReactionDetails(false)}
+                        className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                      >
+                        <X className="size-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Reaction Tabs */}
+                  <div className="border-b">
+                    <div className="custom-scrollbar flex gap-1 overflow-x-auto px-2">
+                      <button
+                        onClick={() => setActiveTab('all')}
+                        className={`flex min-w-fit items-center gap-1 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+                          activeTab === 'all'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:border-gray-200 hover:text-gray-700'
+                        }`}
+                      >
+                        Tất cả ({reactionData?.totalReactions || 0})
+                      </button>
+                      {reactionEmojis.map((reaction) => {
+                        const count = reply.reaction_counts[reaction.type] || 0
+                        if (count > 0) {
+                          return (
+                            <button
+                              key={reaction.type}
+                              onClick={() => setActiveTab(reaction.type)}
+                              className={`flex min-w-fit items-center gap-1 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+                                activeTab === reaction.type
+                                  ? 'border-blue-500 text-blue-600'
+                                  : 'border-transparent text-gray-500 hover:border-gray-200 hover:text-gray-700'
+                              }`}
+                            >
+                              <span className="text-base">
+                                {reaction.emoji}
+                              </span>
+                              <span>({count})</span>
+                            </button>
+                          )
+                        }
+                        return null
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Users List */}
+                  <div className="custom-scrollbar flex-1 overflow-y-auto px-6 py-4">
+                    <div className="space-y-3">
+                      {reactionData?.reactions
+                        ?.filter(
+                          (reaction) =>
+                            activeTab === 'all' ||
+                            reaction.react_type === activeTab
+                        )
+                        .map((reaction, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-gray-50"
+                          >
+                            <Avatar className="size-10 border">
+                              <AvatarImage
+                                src={reaction.avatar}
+                                alt={reaction.user_name}
+                              />
+                              <AvatarFallback className="bg-blue-100 text-blue-800">
+                                {reaction.user_name.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="flex-1 text-sm font-medium text-gray-900">
+                              {reaction.user_name}
+                            </span>
+                            <span className="text-lg">
+                              {
+                                reactionEmojis.find(
+                                  (r) => r.type === reaction.react_type
+                                )?.emoji
+                              }
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {user?.id === reply?.user?.id && (
                 <div className="relative">
