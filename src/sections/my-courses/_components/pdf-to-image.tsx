@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import * as pdfjsLib from 'pdfjs-dist'
+import { getDocument } from 'pdfjs-dist/webpack'
 import 'pdfjs-dist/build/pdf.worker.entry'
 import Image from 'next/image'
 import { Loader2 } from 'lucide-react'
@@ -11,7 +11,7 @@ export const PDFToImage = ({ pdfUrl }: { pdfUrl: string }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument(pdfUrl)
+        const loadingTask = getDocument(pdfUrl)
         const pdf = await loadingTask.promise
         const page = await pdf.getPage(1)
 
