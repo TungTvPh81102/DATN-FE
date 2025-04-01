@@ -7,11 +7,17 @@ import { formatDuration } from '@/lib/common'
 
 import { Button } from '@/components/ui/button'
 import CourseSummary from '@/sections/my-courses/_components/course-summany'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { getProgressStyle } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/stores/useAuthStore'
 
 const MyCourseView = () => {
   const [course, setMyCourse] = useState<any[]>([])
   const [summary, setSummary] = useState(null)
+
+  const router = useRouter()
+  const { user } = useAuthStore()
 
   const { data: myCourseList, isLoading: myCourseListLoading } =
     useGetMyCourses()
@@ -23,16 +29,11 @@ const MyCourseView = () => {
     }
   }, [myCourseList, myCourseListLoading])
 
-  const getProgressStyle = (percent: number) => {
-    if (percent < 25) {
-      return 'bg-gradient-to-r from-red-500 to-orange-500'
-    } else if (percent < 50) {
-      return 'bg-gradient-to-r from-orange-400 to-yellow-400'
-    } else if (percent < 75) {
-      return 'bg-gradient-to-r from-yellow-300 to-green-400'
-    } else {
-      return 'bg-gradient-to-r from-green-400 to-emerald-500'
-    }
+  console.log('myCourseList', myCourseList)
+
+  const handleNavigate = (code: string) => {
+    const targetPath = user?.code === code ? '/me' : `/profile/${code}`
+    router.push(targetPath)
   }
 
   if (myCourseListLoading) {
@@ -131,7 +132,7 @@ const MyCourseView = () => {
                       <div className="meta">
                         <div className="meta-item">
                           <i className="flaticon-calendar"></i>
-                          <p>{course.lessons_count || ''} Bài bài học</p>
+                          <p>{course.lessons_count || ''} bài học</p>
                         </div>
                         <div className="meta-item">
                           <i className="flaticon-clock"></i>
@@ -198,11 +199,17 @@ const MyCourseView = () => {
                           </div>
                         )}
                       </div>
-                      <div className="author">
-                        Người hướng dẫn:
-                        <a href="#" className="author">
+                      <div className="author flex items-center space-x-1">
+                        <p>Người hướng dẫn:</p>
+                        <Link
+                          href={`/profile/${course?.user?.code}`}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleNavigate(course?.user?.code)
+                          }}
+                        >
                           {course.user.name || ''}
-                        </a>
+                        </Link>
                       </div>
                       <div className="mt-4">
                         <Button

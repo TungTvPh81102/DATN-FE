@@ -71,3 +71,33 @@ export const updateCourseFilters = <K extends keyof ICourseFilter>(
   localStorage.setItem('courseFilters', JSON.stringify(updatedFilters))
   window.dispatchEvent(new Event('courseFiltersUpdated'))
 }
+
+export const getProgressStyle = (percent: number) => {
+  if (percent < 25) {
+    return 'bg-gradient-to-r from-red-500 to-orange-500'
+  } else if (percent < 50) {
+    return 'bg-gradient-to-r from-orange-400 to-yellow-400'
+  } else if (percent < 75) {
+    return 'bg-gradient-to-r from-yellow-300 to-green-400'
+  } else {
+    return 'bg-gradient-to-r from-green-400 to-emerald-500'
+  }
+}
+
+export const handleDownload = async (url: string, fileName: string) => {
+  try {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    const link = document.createElement('a')
+
+    link.href = URL.createObjectURL(blob)
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+
+    document.body.removeChild(link)
+    URL.revokeObjectURL(link.href)
+  } catch (error) {
+    console.error('Lỗi khi tải chứng chỉ:', error)
+  }
+}

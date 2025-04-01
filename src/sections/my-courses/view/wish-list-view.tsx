@@ -13,6 +13,9 @@ import {
   useDeleteWishList,
   useGetWishLists,
 } from '@/hooks/wish-list/useWishList'
+import { formatDuration } from '@/lib/common'
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/stores/useAuthStore'
 
 const WishListView = () => {
   const [courseWishList, setCourseWishList] = useState<any[]>([])
@@ -21,12 +24,21 @@ const WishListView = () => {
   const queryClient = useQueryClient()
   const { data: wishListData, isLoading: wishListLoading } = useGetWishLists()
   const { mutate: deleteWishList, isPending } = useDeleteWishList()
+  const router = useRouter()
+  const { user } = useAuthStore()
+
+  console.log('wishListData', wishListData)
 
   useEffect(() => {
     if (!wishListLoading && wishListData) {
       setCourseWishList(wishListData?.data)
     }
   }, [wishListData, wishListLoading])
+
+  const handleNavigate = (code: string) => {
+    const targetPath = user?.code === code ? '/me' : `/profile/${code}`
+    router.push(targetPath)
+  }
 
   const handleRemove = (id: number) => {
     if (isPending) return
@@ -95,8 +107,8 @@ const WishListView = () => {
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {courseWishList?.map((course: any, index: number) => (
-                <div key={index}>
-                  <div className="course-item hover-img wow fadeInUp">
+                <div key={index} className="mb-4">
+                  <div className="course-item hover-img wow fadeInUp overflow-hidden rounded-lg border shadow-md">
                     <div className="features image-wrap">
                       <Image
                         className="lazyload"
@@ -112,15 +124,17 @@ const WishListView = () => {
                         <X className="size-5 text-red-500" />
                       </button>
                     </div>
-                    <div className="content">
+                    <div className="content p-4">
                       <div className="meta">
                         <div className="meta-item">
                           <i className="flaticon-calendar"></i>
-                          <p>{course.lessons_count} Bài bài học</p>
+                          <p>{course.lessons_count} bài học</p>
                         </div>
                         <div className="meta-item">
                           <i className="flaticon-clock"></i>
-                          <p>16 hours</p>
+                          <p>
+                            {formatDuration(course?.total_video_duration ?? 0)}
+                          </p>
                         </div>
                       </div>
                       <h6 className="fw-5 line-clamp-2">
@@ -136,31 +150,44 @@ const WishListView = () => {
                           {course.name || ''}
                         </Link>
                       </h6>
+
                       <div className="ratings pb-30">
-                        <div className="number">4.9</div>
-                        <i className="icon-star-1"></i>
-                        <i className="icon-star-1"></i>
-                        <i className="icon-star-1"></i>
-                        <i className="icon-star-1"></i>
-                        <svg
-                          width="12"
-                          height="11"
-                          viewBox="0 0 12 11"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M3.54831 7.10382L3.58894 6.85477L3.41273 6.67416L1.16841 4.37373L4.24914 3.90314L4.51288 3.86286L4.62625 3.62134L5.99989 0.694982L7.37398 3.62182L7.48735 3.86332L7.75108 3.9036L10.8318 4.37419L8.58749 6.67462L8.41128 6.85523L8.4519 7.10428L8.98079 10.3465L6.24201 8.8325L6.00014 8.69879L5.75826 8.83247L3.01941 10.3461L3.54831 7.10382ZM11.0444 4.15626L11.0442 4.15651L11.0444 4.15626Z"
-                            stroke="#131836"
-                          ></path>
-                        </svg>
-                        <div className="total">(230)</div>
+                        {course.ratings?.count > 0 ? (
+                          <>
+                            <div className="stars flex items-center">
+                              {Array.from({ length: 5 }, (_, index) => (
+                                <i
+                                  key={index}
+                                  className={`icon-star-1 ${
+                                    index < Math.round(course.ratings.average)
+                                      ? 'text-yellow-500'
+                                      : 'text-gray-300'
+                                  }`}
+                                ></i>
+                              ))}
+                            </div>
+                            <div className="total text-sm text-gray-500">
+                              ({course.ratings.count} lượt đánh giá)
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-sm text-gray-500">
+                            Chưa có lượt đánh giá
+                          </div>
+                        )}
                       </div>
-                      <div className="author">
-                        Người hướng dẫn:
-                        <a href="#" className="author">
+
+                      <div className="author flex items-center space-x-1">
+                        <p>Người hướng dẫn:</p>
+                        <Link
+                          href={`/profile/${course?.user?.code}`}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleNavigate(course?.user?.code)
+                          }}
+                        >
                           {course.user.name || ''}
-                        </a>
+                        </Link>
                       </div>
                     </div>
                   </div>
