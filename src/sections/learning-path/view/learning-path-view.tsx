@@ -10,12 +10,6 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { lessonTypeIcons } from '@/configs'
 import {
   useGetLessonDetail,
@@ -26,10 +20,12 @@ import { useCheckCourseRatingState } from '@/hooks/rating/useRating'
 import { useDownloadCertificate, useGetProgress } from '@/hooks/user/useUser'
 import { formatDuration } from '@/lib/common'
 import { cn } from '@/lib/utils'
+import AIChatAssistant from '@/sections/learning-path/_components/ai-chat-assistant'
 import CommentLesson from '@/sections/learning-path/_components/comment-lesson'
 import EvaluationCourse from '@/sections/learning-path/_components/evaluation-course'
 import LessonContent from '@/sections/learning-path/_components/lesson-content'
 import NoteList from '@/sections/learning-path/_components/note-list'
+import { Level } from '@/types'
 import { LearningPathLesson } from '@/types/LearningPath'
 import {
   CheckCircle,
@@ -45,8 +41,6 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import Swal from 'sweetalert2'
 import { PracticeExercise } from '../_components/practice-exercise'
-import { Level } from '@/types'
-import AIChatAssistant from '@/sections/learning-path/_components/ai-chat-assistant'
 
 type Props = {
   courseSlug: string
@@ -83,10 +77,7 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
 
   const { data: progress } = useGetProgress(courseSlug)
   const { data: checkCourseRatingState } = useCheckCourseRatingState(courseSlug)
-  const { data: downloadCertificate } = useDownloadCertificate(
-    courseSlug,
-    progress
-  )
+  const { data: certificateLink } = useDownloadCertificate(courseSlug, progress)
 
   const getLessonDuration = (lesson: LearningPathLesson) => {
     switch (lesson.type) {
@@ -179,30 +170,23 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
               <p className="course-title font-bold">{course_name}</p>
             </div>
             <div className="flex items-center gap-6">
-              <div className="learning-progress flex items-center gap-1">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <LearningProcess value={progress ?? 0} />
-                    </TooltipTrigger>
-                    {progress === 100 && (
-                      <TooltipContent
-                        className="cursor-pointer"
-                        onClick={() => {
-                          window.open(downloadCertificate, '_blank')
-                        }}
-                      >
-                        Nhận chứng chỉ
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
+              <div className="learning-progress flex items-center gap-2">
+                <LearningProcess value={progress ?? 0} />
                 <span className="text-sm">
                   <span className="font-bold">
                     {courseProgress}/{total_lesson}
                   </span>{' '}
                   bài học
                 </span>
+                {progress === 100 && certificateLink && (
+                  <Link
+                    href={certificateLink}
+                    target="_blank"
+                    className="text-sm text-primary hover:text-primary/80"
+                  >
+                    Xem chứng chỉ
+                  </Link>
+                )}
               </div>
               <div
                 onClick={() => setIsSheetOpen(true)}

@@ -19,7 +19,7 @@ const CommentLesson = ({ lessonId }: { lessonId: number }) => {
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <SheetTrigger asChild>
-        <Button className="flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2 text-white transition-colors hover:bg-blue-700">
+        <Button variant="success" size="sm" className="rounded-full">
           <MessageCircleMore className="size-5" />
           <span className="font-medium">Hỏi đáp</span>
         </Button>
