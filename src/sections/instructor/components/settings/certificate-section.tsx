@@ -6,6 +6,7 @@ import {
   FileText,
   Loader2,
   Plus,
+  Trash2,
   Upload,
   X,
 } from 'lucide-react'
@@ -13,7 +14,10 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useUpdateCertificatesProfile } from '@/hooks/profile/useProfile'
+import {
+  useDeleteCertificatesProfile,
+  useUpdateCertificatesProfile,
+} from '@/hooks/profile/useProfile'
 import {
   ACCEPTED_FILE_TYPES,
   certificatesProfileSchema,
@@ -32,6 +36,7 @@ import {
 } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
 import { cn } from '@/lib/utils'
+import Swal from 'sweetalert2'
 
 interface Props {
   certificateData: any
@@ -43,6 +48,32 @@ export function CertificateSection({ certificateData }: Props) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [existingCertificates, setExistingCertificates] = useState<string[]>([])
   const [dragActive, setDragActive] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const { mutate: deleteCertificate } = useDeleteCertificatesProfile()
+
+  const handleDeleteCertificate = async (cert: string) => {
+    Swal.fire({
+      title: 'Bạn có chắc chắn?',
+      text: 'Bạn sẽ không thể khôi phục chứng chỉ này!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setIsDeleting(true)
+        try {
+          await deleteCertificate(cert)
+          setExistingCertificates((prev) => prev.filter((c) => c !== cert))
+          Swal.fire('Đã xóa!', 'Chứng chỉ đã được xóa.', 'success')
+        } finally {
+          setIsDeleting(false)
+        }
+      }
+    })
+  }
 
   const form = useForm<UpdateCertificatesProfilePayload>({
     resolver: zodResolver(certificatesProfileSchema),
@@ -230,6 +261,21 @@ export function CertificateSection({ certificateData }: Props) {
                     Xem chi tiết
                     <ChevronRight className="size-4" />
                   </a>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteCertificate(cert)}
+                    disabled={isDeleting}
+                    className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                  >
+                    {isDeleting ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Trash2 className="size-4" />
+                      </>
+                    )}
+                  </Button>
                 </div>
               </motion.div>
             ))}

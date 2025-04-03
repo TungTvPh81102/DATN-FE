@@ -69,6 +69,13 @@ export const profileApi = {
     })
   },
 
+  deleteCertificatesProfile: async (certificate: string) => {
+    const formData = new FormData()
+    formData.append('certificate', certificate)
+    formData.append('_method', 'DELETE')
+    return await api.post('/users/remove-certificates', formData)
+  },
+
   createCareer: async (data: UpdateCareerProfilePayload) => {
     const formData = new FormData()
     const career = data.careers

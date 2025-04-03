@@ -76,6 +76,22 @@ export const useUpdateCertificatesProfile = () => {
     },
   })
 }
+export const useDeleteCertificatesProfile = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (certificate: string) =>
+      profileApi.deleteCertificatesProfile(certificate),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.PROFILE] })
+    },
+
+    onError: (error: any) => {
+      toast.error(error?.message || 'Có lỗi xảy ra!')
+    },
+  })
+}
 
 export const useCreatCareers = () => {
   const queryClient = useQueryClient()
