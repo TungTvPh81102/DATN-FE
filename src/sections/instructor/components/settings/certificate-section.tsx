@@ -157,7 +157,8 @@ export function CertificateSection({ certificateData }: Props) {
 
   const getFileExtension = (url: string): string => {
     try {
-      const fullUrl = `${process.env.NEXT_PUBLIC_STORAGE}/${url}`
+      const fullUrl = `/${process.env.NEXT_PUBLIC_STORAGE}/${url}`
+      console.log('full 2', fullUrl)
       const fileName = fullUrl.split('/').pop() || ''
       return fileName.split('.').pop()?.toLowerCase() || ''
     } catch {
