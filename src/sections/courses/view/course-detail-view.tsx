@@ -570,13 +570,13 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
                         <div className="course-rating">
                           <i className="icon-star-1" />
                           <div className="fs-15">
-                            {courseRatingsData?.data?.average_rating} course
-                            rating
+                            {courseRatingsData?.data?.average_rating} đánh giá
+                            khóa học
                           </div>
                         </div>
                         <div className="rating relative">
                           <div className="fs-15">
-                            {`${totalRatings || 0} ${totalRatings && totalRatings > 1 ? 'ratings' : 'rating'}`}
+                            {`${totalRatings || 0} ${totalRatings && totalRatings > 1 ? 'đánh giá' : 'đánh giá'}`}
                           </div>
                         </div>
                       </div>

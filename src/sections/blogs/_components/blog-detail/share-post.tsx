@@ -8,7 +8,7 @@ const BlogDetailSharePost = ({ initialBlogDetail }: BlogDetailPostProps) => {
   return (
     <div className="bottom flex flex-wrap items-center justify-between gap-[20px]">
       <div className="share gap-[20px]p flex items-center">
-        <h6 className="fw-5 mr-2">Share this post </h6>
+        <h6 className="fw-5 mr-2">Chia sẻ bài viết </h6>
         <ul className="tf-social-icon flex items-center gap-[10px]">
           <li>
             <a href="#">
@@ -34,11 +34,7 @@ const BlogDetailSharePost = ({ initialBlogDetail }: BlogDetailPostProps) => {
       </div>
       <ul className="tags-list">
         {initialBlogDetail?.tags.map((tag: any, index: number) => (
-          <li key={index}>
-            <a href="#" className="tags-item">
-              {tag.name}
-            </a>
-          </li>
+          <li key={index}>{tag.name}</li>
         ))}
       </ul>
     </div>
