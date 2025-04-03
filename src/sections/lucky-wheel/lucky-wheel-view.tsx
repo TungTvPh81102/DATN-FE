@@ -1,7 +1,11 @@
+'use client'
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 import LuckyWheel from '@/sections/lucky-wheel/_components/lucky-wheel'
 import '../../styles/lucky-wheel.css'
+import { useAuthStore } from '@/stores/useAuthStore'
+import Swal from 'sweetalert2'
+import { useRouter } from 'next/navigation'
 
 const BackgroundMusic = dynamic(
   () => import('@/sections/lucky-wheel/_components/background-music'),
@@ -11,6 +15,21 @@ const BackgroundMusic = dynamic(
 )
 
 export default function LuckyWheelView() {
+  const router = useRouter()
+  const { user } = useAuthStore()
+
+  if (!user) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Truy cập bị hạn chế',
+      text: 'Bạn cần đăng nhập để tiếp tục!',
+      confirmButtonText: 'Đăng nhập ngay',
+    }).then(() => {
+      router.push('/sign-in')
+    })
+
+    return null
+  }
   return (
     <main className="relative min-h-screen overflow-hidden bg-white">
       <div className="absolute inset-0 z-0">

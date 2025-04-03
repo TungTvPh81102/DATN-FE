@@ -25,10 +25,11 @@ import { Separator } from '@/components/ui/separator'
 import { Slot } from '@radix-ui/react-slot'
 import { NotificationPopover } from '../notification/notification-popover'
 import { formatStringToCurrency } from '../../lib/common'
+import dynamic from 'next/dynamic'
 
-// const MobileMenu = dynamic(() => import('./MobileMenu'), {
-//   ssr: false,
-// })
+const MobileMenu = dynamic(() => import('./MobileMenu'), {
+  ssr: false,
+})
 
 const Header = () => {
   const [query, setQuery] = useState('')
@@ -180,10 +181,10 @@ const Header = () => {
         <div className="header-inner">
           <div className="header-inner-wrap">
             <div className="header-left">
-              {/*<a*/}
-              {/*  className="mobile-nav-toggler mobile-button d-lg-none flex"*/}
-              {/*  href="#menu"*/}
-              {/*/>*/}
+              <a
+                className="mobile-nav-toggler mobile-button d-lg-none flex"
+                href="#menu"
+              />
               <div id="site-logo">
                 <Link href="/" rel="home" className="flex items-center gap-2">
                   <Image
@@ -332,7 +333,7 @@ const Header = () => {
             </div>
           </div>
         </div>
-        {/*<MobileMenu />*/}
+        <MobileMenu />
       </header>
 
       <div
