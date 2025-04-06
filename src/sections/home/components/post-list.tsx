@@ -108,14 +108,20 @@ const PostList = ({ title, description }: PostListProps) => {
                       </div>
                       <div className="article-content">
                         <div className="article-label">
-                          <a href={`/blog/${post?.category.slug}`} className="">
+                          <Link
+                            href={`/blogs/${post?.category.slug}`}
+                            className=""
+                          >
                             {post?.category.name}
-                          </a>
+                          </Link>
                         </div>
                         <h5 className="fw-5">
-                          <a href="#" className="block truncate">
+                          <Link
+                            href={`/blogs/${post?.slug}`}
+                            className="block truncate"
+                          >
                             {post?.title}
-                          </a>
+                          </Link>
                         </h5>
                         <div className="meta">
                           <div className="meta-item">

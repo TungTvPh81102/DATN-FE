@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import { CreatePostPayload, UpdatePostPayload } from '@/validations/post'
 import QueryKey from '@/constants/query-key'
 import { instructorPostApi } from '@/services/instructor/post/post-api'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 
 export const useGetPosts = () => {
   return useQuery({
@@ -53,7 +54,7 @@ export const useCreatePost = () => {
     },
     onSuccess: async (res: any) => {
       await queryClient.invalidateQueries({
-        queryKey: [QueryKey.POSTS, res?.data?.slug],
+        queryKey: [QueryKey.POSTS],
       })
 
       toast.success(res?.message || 'Bài viết đã được tạo thành công!')
@@ -111,5 +112,12 @@ export const useUpdatePost = () => {
     onError: (error) => {
       toast.error(error.message)
     },
+  })
+}
+
+export const useSendPostRequest = () => {
+  return useToastMutation({
+    mutationFn: instructorPostApi.sendPostRequest,
+    queryKey: [QueryKey.POSTS],
   })
 }

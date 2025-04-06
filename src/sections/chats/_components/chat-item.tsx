@@ -73,7 +73,7 @@ const GroupChatAvatar = ({
       {/* First user avatar */}
       <div className="absolute bottom-0 left-0 z-10">
         <Avatar className="size-10 ring-2 ring-white">
-          <AvatarImage src={firstUser.avatar} alt={firstUser.name} />
+          <AvatarImage src={firstUser?.avatar} alt={firstUser.name} />
           <AvatarFallback>{getAvatarText(firstUser.name)}</AvatarFallback>
         </Avatar>
       </div>

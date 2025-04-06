@@ -43,13 +43,12 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { PLACEHOLDER_AVATAR } from '@/constants/common'
 import { useGetMessage, useSendMessage } from '@/hooks/chat/useChat'
-import { getLocalStorage, timeAgo } from '@/lib/common'
+import { timeAgo } from '@/lib/common'
 import echo from '@/lib/echo'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { IChannel, IMessage } from '@/types/Chat'
 import { MessagePayload } from '@/validations/chat'
 import Image from 'next/image'
-import StorageKey from '@/constants/storage-key'
 import { ChatSidebar } from '../_components/chat-sidebar'
 
 interface FilePreview {
@@ -65,12 +64,10 @@ const ChatView = () => {
   const [message, setMessage] = useState('')
   const [replyTo, setReplyTo] = useState<IMessage | null>(null)
   const [chats, setChats] = useState<Record<number, IMessage[]>>({})
-  const selectedChannelLocal: IChannel | null = getLocalStorage(
-    StorageKey.CHANNEL
-  )
-  const [selectedChannel, setSelectedChannel] = useState<IChannel | null>(
-    selectedChannelLocal
-  )
+  // const selectedChannelLocal: IChannel | null = getLocalStorage(
+  //   StorageKey.CHANNEL
+  // )
+  const [selectedChannel, setSelectedChannel] = useState<IChannel | null>(null)
   const [activeUsers, setActiveUsers] = useState<any[]>([])
   const [currentUser, setCurrentUser] = useState<number | null>(null)
 
@@ -216,6 +213,7 @@ const ChatView = () => {
   }, [chats, filePreviews])
 
   useEffect(() => {
+    setActiveUsers([])
     if (selectedChannel) {
       const conversationId = selectedChannel.conversation_id
       const channel = echo.join(`conversation.${conversationId}`)
@@ -258,18 +256,18 @@ const ChatView = () => {
       channel
         .listen('.MessageSent', handleNewMessage)
         .here((users: any[]) => {
-          console.log('Current users:', users)
+          console.log('Danh sách người dùng:', users)
           setActiveUsers(users)
         })
         .joining((user: any) => {
-          console.log('User joining:', user)
+          console.log('Người dùng đã tham gia:', user.name)
           setActiveUsers((prev) => {
             const exists = prev.some((u) => u.id === user.id)
             return exists ? prev : [...prev, user]
           })
         })
         .leaving((user: any) => {
-          console.log('User leaving:', user)
+          console.log('Người dùng rời kênh:', user.name)
           setActiveUsers((prev) => prev.filter((u) => u.id !== user.id))
         })
 
@@ -330,7 +328,42 @@ const ChatView = () => {
     else return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
   }
 
-  console.log(activeUsers)
+  const isUserOnline = (userId: number) => {
+    return activeUsers.some((user) => user.id === userId)
+  }
+
+  const StatusIndicator = ({ isOnline }: { isOnline: boolean }) => (
+    <div className="flex items-center gap-1.5">
+      <div
+        className={`size-2 rounded-full ${
+          isOnline ? 'bg-green-500' : 'bg-gray-400'
+        } animate-${isOnline ? 'pulse' : 'none'}`}
+      />
+      <span className="text-xs font-medium text-muted-foreground">
+        {isOnline ? 'Đang hoạt động' : 'Offline'}
+      </span>
+    </div>
+  )
+
+  const GroupActiveUsers = ({
+    activeCount,
+    totalCount,
+  }: {
+    activeCount: number
+    totalCount: number
+  }) => (
+    <div className="flex items-center gap-1.5">
+      <div className="relative">
+        <div className="size-2 animate-pulse rounded-full bg-green-500" />
+      </div>
+      <span className="text-xs text-muted-foreground">
+        {totalCount} thành viên -{' '}
+        <span className="font-medium text-green-600">
+          {activeCount} đang hoạt động
+        </span>
+      </span>
+    </div>
+  )
 
   return (
     <>
@@ -370,13 +403,24 @@ const ChatView = () => {
             <div className="flex h-16 items-center justify-between border-b px-4">
               <div className="flex items-center gap-3">
                 {!openSidebarChatInfo && (
-                  <Avatar className="size-8">
-                    <AvatarImage
-                      src={selectedChannel?.avatar || PLACEHOLDER_AVATAR}
-                      alt={selectedChannel?.name}
-                    />
-                    <AvatarFallback>L</AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    <Avatar className="size-8">
+                      <AvatarImage
+                        src={selectedChannel?.avatar || PLACEHOLDER_AVATAR}
+                        alt={selectedChannel?.name}
+                      />
+                      <AvatarFallback>L</AvatarFallback>
+                    </Avatar>
+                    {selectedChannel?.type !== 'group' && (
+                      <div
+                        className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-white ${
+                          isUserOnline(selectedChannel?.id)
+                            ? 'bg-green-500'
+                            : 'bg-gray-400'
+                        }`}
+                      />
+                    )}
+                  </div>
                 )}
                 <div>
                   <h2 className="text-sm font-semibold">
@@ -384,14 +428,14 @@ const ChatView = () => {
                   </h2>
                   <p className="text-xs text-muted-foreground">
                     {selectedChannel?.type === 'group' ? (
-                      <p className="text-xs text-muted-foreground">
-                        {selectedChannel?.users_count ?? 0} thành viên -{' '}
-                        {selectedChannel?.online_users ?? 0} đang online
-                      </p>
+                      <GroupActiveUsers
+                        activeCount={activeUsers.length}
+                        totalCount={selectedChannel?.users_count ?? 0}
+                      />
                     ) : (
-                      <p className="text-xs text-muted-foreground">
-                        {selectedChannel?.is_online ? 'Online' : 'Offline'}
-                      </p>
+                      <StatusIndicator
+                        isOnline={isUserOnline(selectedChannel?.id)}
+                      />
                     )}
                   </p>
                 </div>

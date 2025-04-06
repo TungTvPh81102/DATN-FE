@@ -3,7 +3,10 @@
 import { DataTable } from '@/components/data-table'
 import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-advanced-toolbar'
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton'
-import { useGetPosts } from '@/hooks/instructor/post/usePost'
+import {
+  useGetPosts,
+  useSendPostRequest,
+} from '@/hooks/instructor/post/usePost'
 import { useDataTable } from '@/hooks/use-data-table'
 import { IPost, PostStatusMap } from '@/types'
 import { DataTableAdvancedFilterField } from '@/types/data-table'
@@ -42,7 +45,15 @@ const advancedFilterFields: DataTableAdvancedFilterField<IPost>[] = [
 export const PostsTable = () => {
   const { data, isLoading } = useGetPosts()
 
-  const columns = useMemo(() => getColumns(), [])
+  const { mutate: sendRequest } = useSendPostRequest()
+  const columns = useMemo(
+    () =>
+      getColumns({
+        sendRequest,
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
 
   const { table } = useDataTable({
     data,

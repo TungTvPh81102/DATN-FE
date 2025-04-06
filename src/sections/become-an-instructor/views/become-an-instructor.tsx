@@ -330,7 +330,7 @@ const BecomeAnInstructor = () => {
                   <FormLabel className="text-lg font-semibold">
                     Thêm chứng chỉ{' '}
                     <span className="text-sm text-muted-foreground">
-                      (* Bắt buộc ít nhất 1 chứng chỉ)
+                      (* Bắt buộc ít nhất 1 chứng chỉ hoặc bằng cấp)
                     </span>
                   </FormLabel>
                   {fields.map((field, index) => (

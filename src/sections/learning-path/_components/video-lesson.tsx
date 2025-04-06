@@ -117,7 +117,7 @@ const VideoLesson = ({ lesson, isCompleted, lastTimeVideo = 0 }: Props) => {
 
       if (isHidden) {
         if (muxPlayerRef.current && !muxPlayerRef.current.paused) {
-          muxPlayerRef.current.pause()
+          // muxPlayerRef.current.pause()
           updateLastTime({
             lesson_id: lesson.id!,
             last_time_video: videoState.currentTime,

@@ -6,7 +6,6 @@ import { Download, Loader2 } from 'lucide-react'
 
 import { useGetCertificates } from '@/hooks/user/useUser'
 import { Button } from '@/components/ui/button'
-import { PDFToImage } from '@/sections/my-courses/_components/pdf-to-image'
 import { handleDownload } from '@/lib/utils'
 
 const MyCertificateView = () => {
@@ -37,8 +36,12 @@ const MyCertificateView = () => {
                   {new Date(certificate.issued_at).toLocaleDateString()}
                 </p>
               </div>
-              <div className="mt-4 overflow-hidden">
-                <PDFToImage pdfUrl={certificate.file_path} />
+              <div className="mt-4">
+                <iframe
+                  src={certificate.file_path}
+                  title={`Certificate-${certificate.certificate_code}`}
+                  className="size-full rounded-md border"
+                ></iframe>
               </div>
               <div className="mt-4 flex justify-center">
                 <Button

@@ -7,9 +7,6 @@ export const CourseItemRating = ({ count, average }: Props) => (
   <div className="ratings pb-30">
     {count > 0 ? (
       <>
-        <div className="number text-lg font-bold text-gray-800">
-          {average || '0.0'}
-        </div>
         <div className="stars flex items-center">
           {[...Array(5)].map((_, index) => (
             <i
