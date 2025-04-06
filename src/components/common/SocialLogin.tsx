@@ -9,7 +9,7 @@ const SocialLogin = () => {
     const left = (window.innerWidth - width) / 2
     const top = (window.innerHeight - height) / 2
 
-    const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`
+    const googleAuthUrl = `http://127.0.0.1:8000/api/auth/google`
     const authWindow = window.open(
       googleAuthUrl,
       '_blank',

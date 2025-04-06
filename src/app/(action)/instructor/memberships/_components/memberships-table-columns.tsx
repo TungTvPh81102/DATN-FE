@@ -1,7 +1,7 @@
 'use client'
 
 import type { ColumnDef } from '@tanstack/react-table'
-import { Check, EllipsisVertical, SquarePen, X } from 'lucide-react'
+import { Check, EllipsisVertical, SquarePen } from 'lucide-react'
 
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
@@ -31,7 +31,6 @@ interface GetColumnsProps {
 
 export function getColumns({
   setRowAction,
-  toggleStatus,
   sendRequest,
 }: GetColumnsProps): ColumnDef<Membership>[] {
   return [
@@ -163,21 +162,6 @@ export function getColumns({
               >
                 <SquarePen /> Sửa
               </DropdownMenuItem>
-              {(status === MembershipStatus.ACTIVE ||
-                status === MembershipStatus.INACTIVE) && (
-                <DropdownMenuItem onClick={() => toggleStatus(code)}>
-                  {status === MembershipStatus.ACTIVE ? (
-                    <>
-                      <X />
-                      Dừng hoạt động
-                    </>
-                  ) : (
-                    <>
-                      <Check /> Kích hoạt
-                    </>
-                  )}
-                </DropdownMenuItem>
-              )}
 
               {status === MembershipStatus.DRAFT && (
                 <DropdownMenuItem onClick={() => sendRequest(code)}>

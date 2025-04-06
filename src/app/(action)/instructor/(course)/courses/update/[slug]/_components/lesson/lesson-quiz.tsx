@@ -60,7 +60,7 @@ const LessonQuiz = ({ chapterId, onHide, isEdit, quizId }: Props) => {
         content: questionData.content || '',
       })
     }
-  }, [isEdit, questionData])
+  }, [form, isEdit, questionData])
 
   const onSubmit = (data: LessonQuizPayload) => {
     const onSuccess = () => {

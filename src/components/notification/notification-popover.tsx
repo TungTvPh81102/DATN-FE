@@ -66,6 +66,18 @@ export const NotificationPopover = ({ trigger }: Props) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.INSTRUCTOR_WALLET],
       })
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.MEMBERSHIPS],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.GROUP_CHAT],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.POSTS],
+      })
     })
 
     return () => {

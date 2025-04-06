@@ -26,4 +26,7 @@ export const instructorPostApi = {
       },
     })
   },
+  sendPostRequest: (slug: string): Promise<{ message: string; data: any }> => {
+    return api.post(`${prefix}/submit-for-approval/${slug}`)
+  },
 }

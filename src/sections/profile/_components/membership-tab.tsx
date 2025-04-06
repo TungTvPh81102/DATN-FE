@@ -1,22 +1,12 @@
 import { IMembership } from '@/types'
 import { MemberShipItem } from '@/sections/profile/_components/member-ship-item'
 import { Award, Clock, CreditCard } from 'lucide-react'
-import { useState } from 'react'
-import DialogPaymentMemberShip from '@/sections/profile/_components/dialog-payment-member-ship'
 
 type Props = {
   data: IMembership[]
 }
 
 export const MembershipTab = ({ data }: Props) => {
-  const [selectedMembership, setSelectedMembership] =
-    useState<IMembership | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-
-  const handleOpenPayment = (membership: IMembership) => {
-    setSelectedMembership(membership)
-    setIsDialogOpen(true)
-  }
   if (data?.length === 0)
     return (
       <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
@@ -56,10 +46,7 @@ export const MembershipTab = ({ data }: Props) => {
 
         <div className="grid gap-5 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {sortedData.map((membership) => (
-            <div
-              key={membership.id}
-              onClick={() => handleOpenPayment(membership)}
-            >
+            <div key={membership.id}>
               <MemberShipItem membership={membership} key={membership?.id} />
             </div>
           ))}
@@ -102,13 +89,6 @@ export const MembershipTab = ({ data }: Props) => {
           </div>
         </div>
       </div>
-      {selectedMembership && (
-        <DialogPaymentMemberShip
-          membership={selectedMembership}
-          isOpen={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-        />
-      )}
     </>
   )
 }

@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react'
 import { getProgressStyle } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const MyCourseView = () => {
   const [course, setMyCourse] = useState<any[]>([])
@@ -199,18 +200,23 @@ const MyCourseView = () => {
                           </div>
                         )}
                       </div>
-                      <div className="author flex items-center space-x-1">
-                        <p>Người hướng dẫn:</p>
-                        <Link
-                          href={`/profile/${course?.user?.code}`}
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleNavigate(course?.user?.code)
-                          }}
-                        >
-                          {course.user.name || ''}
-                        </Link>
-                      </div>
+                      <Link
+                        className="author flex items-center gap-2 space-x-1"
+                        href={`/profile/${course?.user?.code}`}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handleNavigate(course?.user?.code)
+                        }}
+                      >
+                        <Avatar className="size-5">
+                          <AvatarImage
+                            src={course.user.avatar}
+                            alt={course.user.name}
+                          />
+                          <AvatarFallback>{course.user.name}</AvatarFallback>
+                        </Avatar>
+                        {course.user.name || ''}
+                      </Link>
                       <div className="mt-4">
                         <Button
                           asChild

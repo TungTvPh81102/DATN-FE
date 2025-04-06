@@ -51,6 +51,7 @@ export interface ILikePost {
 export interface ITopPost {
   id: number
   title: string
+  slug: string
   thumbnail?: string | null
   created_at: Date | string
   user: {

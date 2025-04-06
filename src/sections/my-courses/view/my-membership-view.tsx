@@ -32,8 +32,6 @@ const MyMembershipView = () => {
   const [isDialogPaymentMembership, setIsDialogPaymentMembership] =
     useState(false)
 
-  console.log(memberships)
-
   const { data, isLoading } = useGetMemberships()
 
   useEffect(() => {
@@ -121,6 +119,7 @@ const MyMembershipView = () => {
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {memberships.map((membership) => {
+                console.log(membership)
                 const daysLeft = calculateDaysLeft(membership.end_date)
                 const expired = isMembershipExpired(membership.end_date)
                 const planType = getPlanType(
@@ -280,15 +279,6 @@ const MyMembershipView = () => {
                             Xem khóa học
                           </Button>
                         )}
-                      </div>
-
-                      <div className="mt-2 text-center">
-                        <Link
-                          href={`/membership/${membership.membership_plan_id}`}
-                          className="text-xs text-gray-500 hover:text-brand"
-                        >
-                          Xem chi tiết gói
-                        </Link>
                       </div>
                     </div>
                   </div>

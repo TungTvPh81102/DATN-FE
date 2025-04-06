@@ -103,7 +103,7 @@ const CourseSlideRelated = ({ isLoading, courses }: Props) => {
                               key={index}
                               className={`icon-star-1 ${
                                 index <
-                                Math.round(Number(course?.ratings_count ?? 0))
+                                Math.round(Number(course?.average_rating ?? 0))
                                   ? 'text-yellow-500'
                                   : 'text-gray-300'
                               }`}

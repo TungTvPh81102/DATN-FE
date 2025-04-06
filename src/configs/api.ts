@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 import StorageKey from '@/constants/storage-key'
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://datn-be.test/api',
   headers: {
     'Content-Type': 'application/json',
   },

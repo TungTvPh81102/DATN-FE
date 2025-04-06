@@ -46,6 +46,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Swal from 'sweetalert2'
 import { PracticeExercise } from '../_components/practice-exercise'
 import { Level } from '@/types'
+import AIChatAssistant from '@/sections/learning-path/_components/ai-chat-assistant'
 
 type Props = {
   courseSlug: string
@@ -158,6 +159,8 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
   return (
     <>
       <LearningTour isRunning={runTour} onClose={() => setRunTour(false)} />
+
+      <AIChatAssistant />
 
       <div className="relative flex min-h-screen flex-col">
         <div className="fixed inset-x-0 top-0 z-10 h-16 bg-[#292f3b] text-primary-foreground">

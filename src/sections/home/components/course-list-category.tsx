@@ -244,7 +244,7 @@ const CourseListCategory = ({
                               </h6>
 
                               <div className="ratings pb-30">
-                                {(course?.total_rating ?? 0) > 0 ? (
+                                {(course?.avg_rating ?? 0) > 0 ? (
                                   <>
                                     <div className="stars flex items-center">
                                       {Array.from({ length: 5 }, (_, index) => (
@@ -253,7 +253,7 @@ const CourseListCategory = ({
                                           className={`icon-star-1 ${
                                             index <
                                             Math.round(
-                                              Number(course?.total_rating ?? 0)
+                                              Number(course?.avg_rating ?? 0)
                                             )
                                               ? 'text-yellow-500'
                                               : 'text-gray-300'

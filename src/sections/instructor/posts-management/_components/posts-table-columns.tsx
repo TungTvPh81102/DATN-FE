@@ -1,7 +1,7 @@
 'use client'
 
 import type { ColumnDef } from '@tanstack/react-table'
-import { EllipsisVertical, Eye, SquarePen } from 'lucide-react'
+import { Check, EllipsisVertical, Eye, SquarePen } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -19,7 +19,13 @@ import { formatDate, formatNumber } from '@/lib/common'
 import { dateRangeFilterFn } from '@/lib/data-table'
 import { IPost, PostStatusMap } from '@/types'
 
-export function getColumns(): ColumnDef<IPost>[] {
+interface GetColumnsProps {
+  sendRequest: (slug: string | undefined) => void
+}
+
+export function getColumns({
+  sendRequest,
+}: GetColumnsProps): ColumnDef<IPost>[] {
   return [
     {
       id: 'select',
@@ -170,9 +176,6 @@ export function getColumns(): ColumnDef<IPost>[] {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="max-w-40">
               <DropdownMenuItem asChild>
-                {/*<Link href={`/instructor/posts/update/${post.slug}`}>*/}
-                {/*  <SquarePen /> Sửa*/}
-                {/*</Link>*/}
                 {isPublishedOrPending ? (
                   <DropdownMenuItem asChild>
                     <Link href={`/instructor/posts/detail/${post.slug}`}>
@@ -180,11 +183,18 @@ export function getColumns(): ColumnDef<IPost>[] {
                     </Link>
                   </DropdownMenuItem>
                 ) : (
-                  <DropdownMenuItem asChild>
-                    <Link href={`/instructor/posts/update/${post.slug}`}>
-                      <SquarePen className="mr-2 size-4" /> Sửa
-                    </Link>
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/instructor/posts/update/${post.slug}`}>
+                        <SquarePen className="mr-2 size-4" /> Sửa
+                      </Link>
+                    </DropdownMenuItem>
+                    {post.status === 'draft' && (
+                      <DropdownMenuItem onClick={() => sendRequest(post?.slug)}>
+                        <Check /> Gửi yêu cầu
+                      </DropdownMenuItem>
+                    )}
+                  </>
                 )}
               </DropdownMenuItem>
             </DropdownMenuContent>
