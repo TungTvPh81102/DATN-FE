@@ -50,7 +50,7 @@ export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
               url: '/instructor/courses',
             },
             {
-              title: 'Khóa học thực hành',
+              title: 'Khóa học trắc nghiệm',
               url: '/instructor/practical-courses',
             },
             {

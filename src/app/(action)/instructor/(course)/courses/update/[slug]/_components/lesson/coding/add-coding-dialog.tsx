@@ -36,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
 
 type Props = {
   open: boolean
@@ -89,7 +90,7 @@ const AddCodingDialog = ({ chapterId, open, onOpenChange }: Props) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Bài tập Coding</DialogTitle>
+          <DialogTitle>Bài tập coding</DialogTitle>
           <DialogDescription>
             Bạn có thể tạo bài tập lập trình tại đây.
           </DialogDescription>
@@ -126,8 +127,17 @@ const AddCodingDialog = ({ chapterId, open, onOpenChange }: Props) => {
                       </SelectTrigger>
                       <SelectContent>
                         {Object.entries(LANGUAGE_CONFIG).map(([key, value]) => (
-                          <SelectItem key={key} value={key}>
+                          <SelectItem
+                            key={key}
+                            value={key}
+                            disabled={!value.isSupported}
+                          >
                             {value.displayName}
+                            {!value.isSupported && (
+                              <Badge variant="info" className="ml-2">
+                                Sắp có
+                              </Badge>
+                            )}
                           </SelectItem>
                         ))}
                       </SelectContent>

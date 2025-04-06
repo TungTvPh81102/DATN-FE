@@ -217,46 +217,79 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
             )}
           />
 
-          <div className="grid grid-cols-2 gap-2">
+          {!courseOverView.is_practical_course && (
             <FormField
               control={form.control}
-              name={'price'}
-              render={({ field }) => {
-                return (
-                  <FormItem>
-                    <FormLabel className="text-base font-semibold">
-                      Giá gốc
-                    </FormLabel>
-                    <FormControl>
-                      <CurrencyInput placeholder="Nhập giá gốc" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )
-              }}
+              name="is_free"
+              render={({ field }) => (
+                <FormItem className="mt-3">
+                  <FormLabel className="text-base font-semibold">
+                    Miễn phí
+                  </FormLabel>
+                  <FormControl>
+                    <Select
+                      key={field.value}
+                      onValueChange={(value) => field.onChange(Number(value))}
+                      value={String(field.value)}
+                      disabled={!isDraftOrRejected}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Miễn phí hay không?" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={String(1)}>Miễn phí</SelectItem>
+                        <SelectItem value={String(0)}>Có phí</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
+          )}
 
-            <FormField
-              control={form.control}
-              name={'price_sale'}
-              render={({ field }) => {
-                return (
-                  <FormItem>
-                    <FormLabel className="text-base font-semibold">
-                      Giá khuyến mãi
-                    </FormLabel>
-                    <FormControl>
-                      <CurrencyInput
-                        placeholder="Nhập giá khuyến mãi"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )
-              }}
-            />
-          </div>
+          {form.watch('is_free') == '0' && (
+            <div className="grid grid-cols-2 gap-2">
+              <FormField
+                control={form.control}
+                name={'price'}
+                render={({ field }) => {
+                  return (
+                    <FormItem>
+                      <FormLabel className="text-base font-semibold">
+                        Giá gốc
+                      </FormLabel>
+                      <FormControl>
+                        <CurrencyInput placeholder="Nhập giá gốc" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
+              />
+
+              <FormField
+                control={form.control}
+                name={'price_sale'}
+                render={({ field }) => {
+                  return (
+                    <FormItem>
+                      <FormLabel className="text-base font-semibold">
+                        Giá khuyến mãi
+                      </FormLabel>
+                      <FormControl>
+                        <CurrencyInput
+                          placeholder="Nhập giá khuyến mãi"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label className="text-base font-semibold">Thông tin cơ bản</Label>
@@ -574,37 +607,6 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
               </FormItem>
             )}
           />
-
-          {!courseOverView.is_practical_course && (
-            <FormField
-              control={form.control}
-              name="is_free"
-              render={({ field }) => (
-                <FormItem className="mt-3">
-                  <FormLabel className="text-base font-semibold">
-                    Miễn phí
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      key={field.value}
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={String(field.value)}
-                      disabled={!isDraftOrRejected}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Miễn phí hay không?" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={String(1)}>Miễn phí</SelectItem>
-                        <SelectItem value={String(0)}>Có phí</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
 
           {(courseOverView?.status === 'draft' ||
             courseOverView?.status === 'rejected') && (

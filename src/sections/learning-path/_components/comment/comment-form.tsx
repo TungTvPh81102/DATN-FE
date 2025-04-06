@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
-import { Loader2, Send } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
@@ -14,6 +13,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form'
+import { LoadingButton } from '@/components/ui/loading-button'
 import { Textarea } from '@/components/ui/textarea'
 import QueryKey from '@/constants/query-key'
 import { useStoreCommentLesson } from '@/hooks/comment-lesson/useComment'
@@ -88,7 +88,7 @@ export const CommentForm = ({ lessonId }: { lessonId: number }) => {
                         {...field}
                         value={field.value || ''}
                         placeholder="Nhập bình luận của bạn..."
-                        className="min-h-[100px] border border-gray-200 focus:border-gray-300 focus:outline-none focus:ring-0 focus-visible:border-gray-300 focus-visible:ring-0"
+                        className="min-h-[100px] resize-none border border-gray-200 focus:border-gray-300 focus:outline-none focus:ring-0 focus-visible:border-gray-300 focus-visible:ring-0"
                         autoFocus
                       />
                     </FormControl>
@@ -100,29 +100,21 @@ export const CommentForm = ({ lessonId }: { lessonId: number }) => {
                 <Button
                   type="reset"
                   variant="outline"
+                  size="sm"
                   onClick={() => setIsAdding(false)}
                   disabled={isPending}
                   className="rounded-full"
                 >
                   Hủy
                 </Button>
-                <Button
+                <LoadingButton
                   type="submit"
-                  disabled={isPending}
-                  className="rounded-full bg-blue-600 hover:bg-blue-700"
+                  size="sm"
+                  loading={isPending}
+                  className="rounded-full"
                 >
-                  {isPending ? (
-                    <>
-                      <Loader2 className="mr-2 size-4 animate-spin" />
-                      Đang gửi...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 size-4" />
-                      Bình luận
-                    </>
-                  )}
-                </Button>
+                  Gửi
+                </LoadingButton>
               </div>
             </form>
           </Form>
