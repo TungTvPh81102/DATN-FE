@@ -33,7 +33,7 @@ import 'react-quill/dist/quill.snow.css'
 const tabs = [
   { id: 'course_overview', label: 'Tổng quan' },
   { id: 'course_objectives', label: 'Mục tiêu' },
-  { id: 'practice_exercise', label: 'Bài thực hành' },
+  { id: 'practice_exercise', label: 'Bài trắc nghiệm' },
 ]
 
 export const PracticalCourseUpdate = ({ slug }: { slug: string }) => {

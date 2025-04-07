@@ -99,7 +99,7 @@ export const PracticeExerciseTab = ({ chapter, slug }: Props) => {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-bold">Bài tập thực hành</h1>
+        <h1 className="text-xl font-bold">Bài tập trắc nghiệm</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Bắt đầu xây dựng khoá học của bạn bằng cách tạo các hoạt động thực
           hành.

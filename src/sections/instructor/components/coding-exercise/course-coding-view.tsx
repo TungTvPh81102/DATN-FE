@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LANGUAGE_CONFIG } from '@/constants/language'
+import { Language, LANGUAGE_CONFIG } from '@/constants/language'
 import {
   useGetLessonCoding,
   useUpdateCodingLesson,
@@ -31,7 +31,8 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, MoveLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useEffect } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
 import GuideTab from './guide-tab'
 import SolutionTab from './solution-tab'
 
@@ -54,23 +55,21 @@ const CourseCodingView = ({
       title: '',
       language: '',
       sample_code: '',
-      result_code: '',
-      solution_code: '',
+      test_case: '',
       hints: [],
       instruct: '',
       content: '',
     },
-    values: {
-      ...lessonCoding?.data,
-      hints: lessonCoding?.data.hints?.map((hint: string) => ({ hint })),
-    },
+
     disabled,
   })
+
+  const language = useWatch({ control: form.control, name: 'language' })
 
   const onSubmit = (values: UpdateCodingLessonPayload) => {
     const data = {
       ...values,
-      hints: values.hints?.map((item) => item.hint),
+      hints: values.hints?.map((item) => item?.hint),
     }
 
     updateCodingLesson.mutate({
@@ -83,6 +82,43 @@ const CourseCodingView = ({
   const handleBack = () => {
     router.back()
   }
+
+  useEffect(() => {
+    form.reset({
+      title: lessonCoding?.data.title || '',
+      language: lessonCoding?.data.language || '',
+      sample_code: lessonCoding?.data.sample_code || '',
+      content: lessonCoding?.data.content || '',
+      hints: lessonCoding?.data.hints?.map((hint: string) => ({ hint })) || [],
+      instruct: lessonCoding?.data.instruct || '',
+      test_case: lessonCoding?.data.test_case || '',
+    })
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lessonCoding?.data])
+
+  useEffect(() => {
+    if (!language || !lessonCoding?.data) return
+
+    const { codeSnippet, testCase } = LANGUAGE_CONFIG[language as Language]
+
+    console.log(lessonCoding?.data.language === language)
+
+    if (
+      !lessonCoding?.data.sample_code ||
+      language !== lessonCoding?.data.language
+    ) {
+      form.setValue('sample_code', codeSnippet)
+    }
+
+    if (
+      !lessonCoding?.data.test_case ||
+      language !== lessonCoding?.data.language
+    ) {
+      form.setValue('test_case', testCase)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language, lessonCoding?.data])
 
   if (isLoading) {
     return <ModalLoading />
@@ -100,11 +136,11 @@ const CourseCodingView = ({
                 size={18}
               />
               <span>Quay lại chương trình giảng dạy</span>
-              <span className="text-xl font-bold">
-                {lessonCoding?.data.title || 'Bài tập Coding'}
+              <span className="text-lg font-semibold">
+                {lessonCoding?.data.title || 'Bài tập coding'}
               </span>
             </div>
-            <Button type="submit" disabled={disabled}>
+            <Button type="submit" disabled={disabled} size="sm">
               {updateCodingLesson.isPending && (
                 <Loader2 className="animate-spin" />
               )}
@@ -115,7 +151,7 @@ const CourseCodingView = ({
           <Tabs defaultValue="plan" className="h-screen py-[68px] [&>*]:mt-0">
             <TabsContent value="plan" className="h-full">
               <div className="container mx-auto max-w-4xl space-y-4 p-8">
-                <h2 className="text-2xl font-bold">Bài tập Coding</h2>
+                <h2 className="text-2xl font-bold">Bài tập coding</h2>
                 <p className="text-muted-foreground">
                   Bài tập mã hóa cho phép người học thực hành một phần công việc
                   thực tế có mục tiêu và nhận được phản hồi ngay lập tức. Chúng
@@ -159,7 +195,11 @@ const CourseCodingView = ({
                         <SelectContent>
                           {Object.entries(LANGUAGE_CONFIG).map(
                             ([key, value]) => (
-                              <SelectItem key={key} value={key}>
+                              <SelectItem
+                                key={key}
+                                value={key}
+                                disabled={!value.isSupported}
+                              >
                                 {value.displayName}
                               </SelectItem>
                             )
@@ -180,9 +220,24 @@ const CourseCodingView = ({
             </TabsContent>
             <footer className="fixed inset-x-0 bottom-0 z-10 flex justify-center border-t bg-white p-4">
               <TabsList className="flex gap-4">
-                <TabsTrigger value="plan">Kế hoạch tập luyện</TabsTrigger>
-                <TabsTrigger value="solution">Giải pháp</TabsTrigger>
-                <TabsTrigger value="guide">Hướng dẫn</TabsTrigger>
+                <TabsTrigger
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  value="plan"
+                >
+                  Kế hoạch tập luyện
+                </TabsTrigger>
+                <TabsTrigger
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  value="solution"
+                >
+                  Giải pháp
+                </TabsTrigger>
+                <TabsTrigger
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  value="guide"
+                >
+                  Hướng dẫn
+                </TabsTrigger>
               </TabsList>
             </footer>
           </Tabs>

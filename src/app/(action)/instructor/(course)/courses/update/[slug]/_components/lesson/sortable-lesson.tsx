@@ -176,7 +176,7 @@ const SortableLesson = ({ chapter, slug }: Props) => {
                               case 'quiz':
                                 return 'Câu hỏi'
                               case 'coding':
-                                return 'Bài tập'
+                                return 'Coding'
                               default:
                                 return 'Bài giảng'
                             }
@@ -314,7 +314,7 @@ const SortableLesson = ({ chapter, slug }: Props) => {
               </Button>
               <Button onClick={() => setSelectedLesson('coding')}>
                 <FileCode2 />
-                Bài tập
+                Coding
               </Button>
             </div>
           ))}

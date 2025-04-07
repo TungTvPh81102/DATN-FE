@@ -14,7 +14,7 @@ export const CompletionStatusMapping: Record<keyof CompletionStatus, string> = {
   course_overview: 'Tổng quan khóa học',
   course_objectives: 'Mục tiêu khóa học',
   course_curriculum: 'Chương trình giảng dạy',
-  practice_exercise: 'Bài tập thực hành',
+  practice_exercise: 'Bài tập trắc nghiệm',
 }
 
 export interface Status {

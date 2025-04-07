@@ -13,7 +13,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { formatCurrency, formatPercentage } from '@/lib/common'
+import {
+  formatCurrency,
+  formatPercentage,
+  formatVietnameseCurrency,
+} from '@/lib/common'
 import { CourseRevenueStatistics } from '@/types/Statistics'
 
 export function getColumns(): ColumnDef<CourseRevenueStatistics>[] {
@@ -84,7 +88,9 @@ export function getColumns(): ColumnDef<CourseRevenueStatistics>[] {
       cell: ({ row }) => {
         const price = Number(row.getValue('total_revenue')) || 0
 
-        return <div className="font-medium">{formatCurrency(price)}</div>
+        return (
+          <div className="font-medium">{formatVietnameseCurrency(price)}</div>
+        )
       },
       sortingFn: 'alphanumeric',
       meta: {

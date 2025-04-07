@@ -1,25 +1,25 @@
-import React, { useState, useRef, useEffect } from 'react'
-import {
-  MessageCircle,
-  Send,
-  X,
-  Bot,
-  Minimize,
-  User,
-  ChevronDown,
-  RotateCcw,
-  Copy,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 import { Avatar } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { motion, AnimatePresence } from 'framer-motion'
+import { cn } from '@/lib/utils'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  Bot,
+  BotMessageSquare,
+  ChevronDown,
+  Copy,
+  Minimize,
+  RotateCcw,
+  Send,
+  User,
+  X,
+} from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -222,7 +222,7 @@ const AIChatAssistant: React.FC = () => {
                   transition={{ type: 'spring', stiffness: 200, damping: 20 }}
                   className="relative flex size-6 items-center justify-center"
                 >
-                  <MessageCircle
+                  <BotMessageSquare
                     size={24}
                     className={cn(
                       'absolute transition-opacity',

@@ -153,6 +153,7 @@ export interface Lessonable {
   sample_code?: string
   result_code?: string
   solution_code?: string
+  test_case?: string
 }
 
 export type LessonType = 'video' | 'quiz' | 'document' | 'coding'

@@ -134,7 +134,7 @@ export const ChatSidebar = ({
               {!isLoadingDirectChatData ? (
                 directChatData?.map((channel) => (
                   <ChatItem
-                    key={channel.id}
+                    key={channel.conversation_id}
                     channel={channel}
                     isSelected={channel.conversation_id === selectedChannel?.id}
                     onClick={() => handleChannelSelect(channel)}
@@ -164,7 +164,7 @@ export const ChatSidebar = ({
                 {!isLoadingGroupChat ? (
                   groupChatData?.map((channel) => (
                     <ChatItem
-                      key={channel.id}
+                      key={channel.conversation_id}
                       channel={channel}
                       isSelected={
                         channel.conversation_id === selectedChannel?.id
