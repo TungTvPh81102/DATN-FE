@@ -196,10 +196,16 @@ export const updateCodingLessonSchema = z.object({
       invalid_type_error: 'Vui lòng chạy mã',
     })
     .trim(),
-  solution_code: z
+  // solution_code: z
+  //   .string({
+  //     required_error: 'Vui lòng nhập giải pháp',
+  //     invalid_type_error: 'Vui lòng nhập giải pháp',
+  //   })
+  //   .trim(),
+  test_case: z
     .string({
-      required_error: 'Vui lòng nhập giải pháp',
-      invalid_type_error: 'Vui lòng nhập giải pháp',
+      required_error: 'Vui lòng nhập test case',
+      invalid_type_error: 'Vui lòng nhập test case',
     })
     .trim(),
 })
