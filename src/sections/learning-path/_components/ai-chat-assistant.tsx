@@ -202,7 +202,7 @@ const AIChatAssistant: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-4 left-6 z-50">
+    <div className="absolute right-14 top-1/2 flex -translate-y-1/2 gap-2">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -254,7 +254,7 @@ const AIChatAssistant: React.FC = () => {
           <motion.div
             ref={chatContainerRef}
             className={cn(
-              'absolute bottom-16 left-0 flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl'
+              'absolute bottom-16 right-0 flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl'
             )}
             style={{
               boxShadow:

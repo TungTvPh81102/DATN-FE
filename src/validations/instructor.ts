@@ -18,6 +18,20 @@ export const registerInstructorSchema = z.object({
         .optional(),
     })
   ),
+  identity_verification: z
+    .instanceof(File, { message: 'Vui lòng chụp ảnh xác minh danh tính' })
+    .refine((file) => file && file.size <= 5000000, {
+      message: 'Kích thước ảnh không được vượt quá 5MB',
+    })
+    .refine(
+      (file) => ['image/jpeg', 'image/jpg', 'image/png'].includes(file?.type),
+      {
+        message: 'Chỉ chấp nhận định dạng JPG, JPEG hoặc PNG',
+      }
+    ),
+  confirmation: z.literal(true, {
+    errorMap: () => ({ message: 'Bạn phải xác nhận cam kết này' }),
+  }),
 })
 
 export type RegisterInstructorPayload = z.infer<typeof registerInstructorSchema>

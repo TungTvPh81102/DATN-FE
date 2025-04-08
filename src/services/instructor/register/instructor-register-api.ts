@@ -7,7 +7,7 @@ export const instructorRegisterApi = {
   register: (payload: RegisterInstructorPayload) => {
     const formData = new FormData()
 
-    const { qa_systems, certificates } = payload
+    const { qa_systems, certificates, identity_verification } = payload
 
     qa_systems.forEach((item, index) => {
       Object.entries(item).forEach(([fieldKey, value]) => {
@@ -30,6 +30,11 @@ export const instructorRegisterApi = {
           formData.append(`certificates[${index}]`, certificate.file)
       })
     }
+
+    if (identity_verification) {
+      formData.append('identity_verification', identity_verification)
+    }
+
     return api.post(prefix, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

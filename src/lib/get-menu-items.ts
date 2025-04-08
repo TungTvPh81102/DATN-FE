@@ -14,6 +14,7 @@ import {
   UsersRound,
   Video,
   Gem,
+  CircleArrowLeft,
 } from 'lucide-react'
 
 import React from 'react'
@@ -112,6 +113,11 @@ export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
           title: 'Luồng trực tuyến',
           url: '/instructor/with-draw-request',
           icon: Video,
+        },
+        {
+          title: 'Trang chủ',
+          url: '/',
+          icon: CircleArrowLeft,
         },
       ]
     case 'settings':

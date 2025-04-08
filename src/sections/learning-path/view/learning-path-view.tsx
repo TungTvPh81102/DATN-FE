@@ -151,7 +151,11 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
     <>
       <LearningTour isRunning={runTour} onClose={() => setRunTour(false)} />
 
-      <AIChatAssistant />
+      <div className="fixed bottom-4 left-6 z-50">
+        {progress === 100 && !checkCourseRatingState && (
+          <EvaluationCourse courseSlug={courseSlug} />
+        )}
+      </div>
 
       <div className="relative flex min-h-screen flex-col">
         <div className="fixed inset-x-0 top-0 z-10 h-16 bg-[#292f3b] text-primary-foreground">
@@ -389,10 +393,8 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
             </Button>
           </div>
 
+          <AIChatAssistant />
           <div className="absolute right-2 top-1/2 flex -translate-y-1/2 gap-2">
-            {progress === 100 && !checkCourseRatingState && (
-              <EvaluationCourse courseSlug={courseSlug} />
-            )}
             <CommentLesson lessonId={lessonId} />
           </div>
         </div>
