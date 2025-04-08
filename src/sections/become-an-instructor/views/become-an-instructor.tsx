@@ -1,10 +1,17 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, Plus, Trash } from 'lucide-react'
+import {
+  Camera,
+  CheckCircle,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Trash,
+} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 
 import { questions } from '@/constants/common'
@@ -38,6 +45,8 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import Swal from 'sweetalert2'
 import { getLocalStorage } from '@/lib/common'
 import echo from '@/lib/echo'
+import { Card, CardContent } from '@/components/ui/card'
+import Webcam from 'react-webcam'
 
 const BecomeAnInstructor = () => {
   const { user, isAuthenticated, role, setRole } = useAuthStore()
@@ -46,10 +55,16 @@ const BecomeAnInstructor = () => {
   const [step, setStep] = useState(1)
   const [isWaitingForRealtime, setIsWaitingForRealtime] = useState(false)
 
+  const webcamRef = useRef<Webcam | null>(null)
+  const [capturedImage, setCapturedImage] = useState<string | null>(null)
+  const [isCameraActive, setIsCameraActive] = useState(false)
+
   const { data: qaSystems, isLoading } = useGetQaSystems()
   const { mutate: registerInstructor, isPending } = useInstructorRegister()
 
   const checkProfile = getLocalStorage('checkProfile')
+
+  const totalSteps = qaSystems?.data?.length ? qaSystems.data.length + 2 : 3
 
   const form = useForm<RegisterInstructorPayload>({
     resolver: zodResolver(registerInstructorSchema),
@@ -61,6 +76,8 @@ const BecomeAnInstructor = () => {
         selected_options: [],
       })),
       certificates: [{ file: undefined }],
+      identity_verification: undefined,
+      confirmation: undefined,
     },
     disabled: isPending,
   })
@@ -75,6 +92,7 @@ const BecomeAnInstructor = () => {
 
     const privateChannel = echo.private(`App.Models.User.${user?.id}`)
     privateChannel.listen('InstructorApproved', (data: any) => {
+      console.log(data)
       const { new_role } = data
       setRole(new_role)
 
@@ -96,7 +114,7 @@ const BecomeAnInstructor = () => {
     })
 
     return () => {
-      echo.leave(`member.${user.id}`)
+      echo.leave(`App.Models.User.${user.id}`)
     }
   }, [isWaitingForRealtime, router, setRole, user])
 
@@ -118,6 +136,32 @@ const BecomeAnInstructor = () => {
       },
     })
   }
+
+  const captureImage = useCallback(() => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot()
+      setCapturedImage(imageSrc)
+
+      if (imageSrc) {
+        fetch(imageSrc)
+          .then((res) => res.blob())
+          .then((blob) => {
+            const file = new File([blob], 'identity-verification.jpg', {
+              type: 'image/jpeg',
+            })
+            form.setValue('identity_verification', file)
+          })
+      }
+    }
+  }, [webcamRef, form])
+
+  useEffect(() => {
+    if (step === totalSteps) {
+      setIsCameraActive(true)
+    } else {
+      setIsCameraActive(false)
+    }
+  }, [step, totalSteps])
 
   const onSubmit = (values: RegisterInstructorPayload) => {
     showReviewingModal()
@@ -144,6 +188,7 @@ const BecomeAnInstructor = () => {
 
   if (!user || !isAuthenticated) {
     router.push('/login')
+    return null
   }
 
   if (role === 'instructor') {
@@ -162,6 +207,7 @@ const BecomeAnInstructor = () => {
         router.push('/me')
       }
     })
+    return null
   }
 
   return (
@@ -180,7 +226,7 @@ const BecomeAnInstructor = () => {
               </Link>
 
               <div className="flex h-full flex-1 items-center border-l border-gray-200 px-6 text-lg">
-                Bước {step}/{qaSystems?.data.length + 1}
+                Bước {step}/{totalSteps}
               </div>
 
               <Link
@@ -193,11 +239,7 @@ const BecomeAnInstructor = () => {
           </div>
 
           <Progress
-            value={
-              step === qaSystems?.data.length + 1
-                ? 100
-                : (step / (qaSystems?.data.length + 1)) * 100
-            }
+            value={(step / totalSteps) * 100}
             className="h-1 bg-gray-300"
           />
         </div>
@@ -390,6 +432,142 @@ const BecomeAnInstructor = () => {
               )}
             />
           </div>
+
+          <div className={cn('max-w-3xl', step !== totalSteps && 'hidden')}>
+            <FormField
+              control={form.control}
+              name="identity_verification"
+              render={({ field }) => (
+                <FormItem className="space-y-4">
+                  <FormLabel className="text-lg font-semibold">
+                    Xác minh danh tính{' '}
+                    <span className="text-sm text-muted-foreground">
+                      (* Vui lòng chụp ảnh mặt của bạn để xác minh danh tính)
+                    </span>
+                  </FormLabel>
+                  <FormControl>
+                    <Card className="overflow-hidden">
+                      <CardContent className="p-6">
+                        {isCameraActive && !capturedImage ? (
+                          <div className="flex flex-col items-center">
+                            <Webcam
+                              audio={false}
+                              ref={webcamRef}
+                              screenshotFormat="image/jpeg"
+                              videoConstraints={{
+                                width: 480,
+                                height: 360,
+                                facingMode: 'user',
+                              }}
+                              className="rounded-md"
+                            />
+                            <Button
+                              type="button"
+                              className="mt-4"
+                              onClick={captureImage}
+                            >
+                              <Camera className="mr-2 size-4" />
+                              Chụp ảnh
+                            </Button>
+                          </div>
+                        ) : capturedImage ? (
+                          <div className="flex flex-col items-center">
+                            <div className="relative">
+                              <Image
+                                src={capturedImage}
+                                alt="Ảnh đã chụp"
+                                width={480}
+                                height={360}
+                                className="h-auto w-full max-w-md rounded-md"
+                                unoptimized
+                              />
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                className="mt-4"
+                                onClick={() => {
+                                  setCapturedImage(null)
+                                  field.onChange(null)
+                                  setIsCameraActive(false)
+                                }}
+                              >
+                                <RefreshCw className="mr-2 size-4" />
+                                Chụp lại
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center">
+                            <p className="mb-4 text-center text-muted-foreground">
+                              Nhấn vào nút bên dưới để bật camera và chụp ảnh
+                              xác minh
+                            </p>
+                            <Button
+                              type="button"
+                              onClick={() => setIsCameraActive(true)}
+                            >
+                              <Camera className="mr-2 size-4" />
+                              Bật camera
+                            </Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </FormControl>
+                  <div className="rounded-md border p-4 text-sm">
+                    <p className="font-medium">Hướng dẫn chụp ảnh xác minh:</p>
+                    <ul className="mt-2 list-disc pl-5">
+                      <li>Đảm bảo ánh sáng đủ rõ và không bị chói.</li>
+                      <li>
+                        Giữ khuôn mặt chính diện, không nghiêng hoặc che khuất.
+                      </li>
+                      <li>Không đội mũ hoặc đeo kính nếu không cần thiết.</li>
+                      <li>
+                        Chụp trong không gian yên tĩnh, tránh nền quá lộn xộn.
+                      </li>
+                      <li>Đảm bảo ảnh rõ nét, không bị mờ hoặc nhòe.</li>
+                    </ul>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="confirmation"
+              render={({ field }) => (
+                <FormItem className="mt-8">
+                  <div className="rounded-md border">
+                    <div className="p-5">
+                      <div className="flex items-start space-x-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value === true}
+                            onCheckedChange={field.onChange}
+                            className="mt-1 size-5"
+                          />
+                        </FormControl>
+                        <div>
+                          <FormLabel className="flex items-center text-base font-semibold">
+                            <CheckCircle className="mr-2 size-5" />
+                            Cam kết thông tin
+                          </FormLabel>
+                          <p className="mt-2 text-sm leading-relaxed text-gray-700">
+                            Tôi cam đoan rằng tất cả thông tin đã cung cấp là
+                            đúng sự thật và chính xác. Tôi hiểu rằng việc cung
+                            cấp thông tin sai lệch có thể dẫn đến việc từ chối
+                            đơn đăng ký hoặc hủy bỏ tư cách giảng viên của tôi.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <FormMessage className="mt-2 text-sm" />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         <div
@@ -412,7 +590,7 @@ const BecomeAnInstructor = () => {
                 </Button>
               )}
 
-              {step !== qaSystems?.data.length + 1 && (
+              {step < totalSteps - 1 && (
                 <Button
                   onClick={() => setStep(step + 1)}
                   disabled={
@@ -424,18 +602,33 @@ const BecomeAnInstructor = () => {
                 </Button>
               )}
 
-              {step === qaSystems?.data.length + 1 && (
+              {step === totalSteps - 1 && (
                 <Button
-                  type="submit"
+                  onClick={() => setStep(step + 1)}
                   disabled={
-                    form.formState.disabled ||
                     !form
                       .getValues('certificates')
                       .some((certificate) => certificate?.file)
                   }
                 >
+                  Tiếp tục
+                </Button>
+              )}
+
+              {step === totalSteps && (
+                <Button
+                  type="submit"
+                  disabled={
+                    form.formState.disabled ||
+                    !form.getValues('identity_verification') ||
+                    !form
+                      .getValues('certificates')
+                      .some((certificate) => certificate?.file) ||
+                    !form.getValues('confirmation')
+                  }
+                >
                   {isPending && <Loader2 className="animate-spin" />}
-                  Đăng ký
+                  Gửi hồ sơ
                 </Button>
               )}
             </div>

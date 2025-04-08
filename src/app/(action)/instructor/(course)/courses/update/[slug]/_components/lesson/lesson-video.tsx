@@ -26,6 +26,7 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import MuxPlayer from '@mux/mux-player-react/lazy'
+import MuxUploader from '@mux/mux-uploader-react'
 
 type Props = {
   chapterId?: string
@@ -72,6 +73,22 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
     disabled:
       !isDraftOrRejected || isLessonVideoCreating || isLessonVideoUpdating,
   })
+
+  const checkMuxAssetStatus = useCallback(async (assetId: string) => {
+    try {
+      const response = await fetch(`/api/mux/asset/${assetId}`)
+      const data = await response.json()
+
+      if (data?.data?.status === 'ready') {
+        console.log(data)
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Error checking Mux asset status:', error)
+      return false
+    }
+  }, [])
 
   useEffect(() => {
     if (isEdit && lessonVideoData?.data) {
@@ -128,6 +145,24 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
 
     setMuxPlaybackId(null)
   }, [form])
+
+  const handleMuxUploadSuccess = useCallback(
+    (event: any) => {
+      console.log('Mux upload successful:', event)
+      const asset = event.detail.asset
+      console.log(asset)
+      if (event.detail && event.detail.playbackId) {
+        setMuxPlaybackId(event.detail.playbackId)
+      }
+      toast.success('Tải lên dữ liệu thành công')
+    },
+    [checkMuxAssetStatus]
+  )
+
+  const handleMuxUploadError = useCallback((event: any) => {
+    console.error('Mux upload error:', event)
+    toast.error('Tải lên dữ liệu thất bại')
+  }, [])
 
   const onsubmit = (data: LessonVideoPayload) => {
     if ((!isEdit && !selectedFile) || !chapterId) return
@@ -254,7 +289,7 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
                         <Button
                           onClick={() => {
                             handleResetClick()
-                            field.onChange(undefined) // Reset field
+                            field.onChange(undefined)
                           }}
                           type="button"
                           variant="destructive"
@@ -296,6 +331,12 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
               </div>
             </div>
           )}
+
+          <MuxUploader
+            endpoint="http://datn-be.test/upload"
+            onSuccess={handleMuxUploadSuccess}
+            onUploadError={handleMuxUploadError}
+          />
 
           <FormField
             control={form.control}
