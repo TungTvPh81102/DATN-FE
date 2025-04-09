@@ -60,7 +60,7 @@ import {
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
-const AMOUNTS = [50000, 100000, 200000, 500000, 1000000, 2000000]
+const AMOUNTS = [200000, 500000, 1000000, 3000000, 5000000, 10000000]
 
 interface Bank {
   id: string
@@ -307,8 +307,8 @@ function WalletView() {
             <Alert variant="default" className="border-blue-200 bg-blue-50">
               <Info className="size-4 text-blue-500" />
               <AlertDescription className="text-blue-700">
-                Số tiền tối thiểu cho mỗi lần rút là 50,000 VNĐ. Số dư trong tài
-                khoản phải lớn hơn số tiền bạn muốn rút.
+                Số tiền tối thiểu cho mỗi lần rút là 200,000 VNĐ. Số dư trong
+                tài khoản sau khi rút phải còn ít nhất 100,000 VNĐ.
               </AlertDescription>
             </Alert>
 

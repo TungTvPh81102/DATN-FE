@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dialog'
 import { DataTable } from '@/components/shared/data-table'
 import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import Container from '@/components/shared/container'
@@ -127,6 +127,10 @@ const EvaluationView = () => {
         return (
           <div className="flex items-center gap-2">
             <Avatar className="size-8 bg-gray-100">
+              <AvatarImage
+                src={feedback.user.avatar || undefined}
+                alt={feedback.user.name}
+              />
               <AvatarFallback className="text-xs text-gray-600">
                 {initials}
               </AvatarFallback>

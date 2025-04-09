@@ -141,7 +141,17 @@ export const updateCourseObjectiveSchema = z.object({
       })
     )
     .min(4, 'Vui lòng thêm ít nhất 4 lợi ích')
-    .max(10, 'Chỉ được phép thêm tối đa 10 lợi ích'),
+    .max(10, 'Chỉ được phép thêm tối đa 10 lợi ích')
+    .refine(
+      (items) => {
+        const values = items.map((item) => item.value.trim().toLowerCase())
+        const uniqueValues = new Set(values.filter((v) => v !== ''))
+        return uniqueValues.size === values.filter((v) => v !== '').length
+      },
+      {
+        message: 'Các lợi ích không được trùng nhau',
+      }
+    ),
   requirements: z
     .array(
       z.object({
@@ -155,7 +165,17 @@ export const updateCourseObjectiveSchema = z.object({
       })
     )
     .min(4, 'Vui lòng thêm ít nhất 4 yêu cầu')
-    .max(10, 'Chỉ được phép thêm tối đa 10 yêu cầu'),
+    .max(10, 'Chỉ được phép thêm tối đa 10 yêu cầu')
+    .refine(
+      (items) => {
+        const values = items.map((item) => item.value.trim().toLowerCase())
+        const uniqueValues = new Set(values.filter((v) => v !== ''))
+        return uniqueValues.size === values.filter((v) => v !== '').length
+      },
+      {
+        message: 'Các yêu cầu không được trùng nhau',
+      }
+    ),
   qa: z
     .array(
       z.object({
@@ -164,6 +184,19 @@ export const updateCourseObjectiveSchema = z.object({
       })
     )
     .max(10, 'Chỉ được phép thêm tối đa 10 câu hỏi')
+    .refine(
+      (items) => {
+        if (!items || items.length <= 1) return true
+        const questions = items.map((item) =>
+          item.question.trim().toLowerCase()
+        )
+        const uniqueQuestions = new Set(questions.filter((q) => q !== ''))
+        return uniqueQuestions.size === questions.filter((q) => q !== '').length
+      },
+      {
+        message: 'Các câu hỏi không được trùng nhau',
+      }
+    )
     .optional(),
 })
 

@@ -30,8 +30,6 @@ const MyCourseView = () => {
     }
   }, [myCourseList, myCourseListLoading])
 
-  console.log('myCourseList', myCourseList)
-
   const handleNavigate = (code: string) => {
     const targetPath = user?.code === code ? '/me' : `/profile/${code}`
     router.push(targetPath)

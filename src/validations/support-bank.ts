@@ -152,6 +152,9 @@ const removeVietnameseDiacritics = (str: string): string => {
     )
 }
 
+const MINIMUM_WITHDRAWAL_AMOUNT = 200000
+const MINIMUM_REMAINING_BALANCE = 100000
+
 const baseSchema = z.object({
   account_no: z
     .string()
@@ -167,17 +170,24 @@ const baseSchema = z.object({
     .regex(/^\d+$/, 'Vui lòng chọn ngân hàng'),
   bank: z.string().min(1, 'Vui lòng chọn ngân hàng'),
   bank_name: z.string().min(1, 'Vui lòng chọn ngân hàng'),
-  amount: z.number().min(50000, 'Số tiền rút tối thiểu là 50,000 VNĐ'),
+  amount: z
+    .number()
+    .min(MINIMUM_WITHDRAWAL_AMOUNT, 'Số tiền rút tối thiểu là 200,000 VNĐ'),
   add_info: z.string().min(1, 'Vui lòng nhập thông tin'),
 })
 
 export const WithdrawalRequestSchema = (walletBalance: number) =>
   baseSchema
     .extend({
-      amount: baseSchema.shape.amount.max(
-        walletBalance,
-        `Số tiền rút vượt quá số dư khả dụng (${formatCurrency(walletBalance)})`
-      ),
+      amount: baseSchema.shape.amount
+        .max(
+          walletBalance,
+          `Số tiền rút vượt quá số dư khả dụng (${formatCurrency(walletBalance)})`
+        )
+        .refine(
+          (amount) => walletBalance - amount >= MINIMUM_REMAINING_BALANCE,
+          `Số dư trong tài khoản sau khi rút phải còn ít nhất ${formatCurrency(MINIMUM_REMAINING_BALANCE)}`
+        ),
     })
     .superRefine((data, ctx) => {
       const normalizedAccountName = removeVietnameseDiacritics(

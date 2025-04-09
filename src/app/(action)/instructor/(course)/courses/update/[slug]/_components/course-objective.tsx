@@ -231,14 +231,18 @@ const CourseObjective = ({ courseObjective }: { courseObjective: any }) => {
                     </li>
                   </SortableItem>
                 ))}
+
+                {errors.benefits && (
+                  <p
+                    className={
+                      'ml-1 text-[0.8rem] font-medium text-destructive'
+                    }
+                  >
+                    {errors.benefits?.message || errors.benefits?.root?.message}
+                  </p>
+                )}
               </ol>
             </Sortable>
-
-            {errors.benefits && (
-              <p className={'text-[0.8rem] font-medium text-destructive'}>
-                {errors.benefits?.message || errors.benefits?.root?.message}
-              </p>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -323,15 +327,18 @@ const CourseObjective = ({ courseObjective }: { courseObjective: any }) => {
                     </li>
                   </SortableItem>
                 ))}
+                {errors.requirements && (
+                  <p
+                    className={
+                      'ml-1 text-[0.8rem] font-medium text-destructive'
+                    }
+                  >
+                    {errors.requirements?.message ||
+                      errors.requirements?.root?.message}
+                  </p>
+                )}
               </ol>
             </Sortable>
-
-            {errors.requirements && (
-              <p className={'text-[0.8rem] font-medium text-destructive'}>
-                {errors.requirements?.message ||
-                  errors.requirements?.root?.message}
-              </p>
-            )}
           </div>
 
           <div className="space-y-3">
@@ -436,14 +443,17 @@ const CourseObjective = ({ courseObjective }: { courseObjective: any }) => {
                     </li>
                   </SortableItem>
                 ))}
+                {errors.qa && (
+                  <p
+                    className={
+                      'ml-1 text-[0.8rem] font-medium text-destructive'
+                    }
+                  >
+                    {errors.qa?.message || errors.qa?.root?.message}
+                  </p>
+                )}
               </ol>
             </Sortable>
-
-            {errors.qa && (
-              <p className={'text-[0.8rem] font-medium text-destructive'}>
-                {errors.qa?.message || errors.qa?.root?.message}
-              </p>
-            )}
           </div>
 
           {(courseObjective?.status === 'draft' ||
