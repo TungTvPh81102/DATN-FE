@@ -1,22 +1,4 @@
-export interface ExecuteRequest {
-  language: string
-  version: string
-  files: File[]
-  stdin?: string
-  args?: string[]
-  run_timeout?: number
-  compile_timeout?: number
-  compile_memory_limit?: number
-  run_memory_limit?: number
-}
-
-interface File {
-  name?: string
-  content: string
-  encoding?: 'base64' | 'hex' | 'utf-8'
-}
-
-export interface ExecuteResponse {
+export interface ExecuteCodeResponse {
   run: Run
   language: string
   version: string
@@ -28,4 +10,21 @@ interface Run {
   code: number
   signal: null
   output: string
+}
+
+export interface ExecuteTestCaseResponse {
+  message: string
+  data: Data
+}
+
+interface Data {
+  passed: boolean
+  testCase: TestCase[]
+}
+
+interface TestCase {
+  input: number[]
+  expected: number
+  received: string
+  passed: boolean
 }

@@ -1,16 +1,17 @@
 'use client'
 
-import { CirclePlay, Loader2, RotateCcw } from 'lucide-react'
+import { CirclePlay, RotateCcw } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
 
-import { useExecuteCode } from '@/hooks/use-execute-code'
+import { useExecuteCode, useExecuteTestCase } from '@/hooks/use-execute'
 import { cn } from '@/lib/utils'
 
-import { runTestCase, TestResult } from '@/lib/run-testcase'
 import { toast } from 'react-toastify'
 import { Button } from '../ui/button'
 import { LoadingButton } from '../ui/loading-button'
+import { TestCase } from '@/validations/execute'
+import { ExecuteTestCaseResponse } from '@/types/execute'
 
 const Editor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
@@ -29,8 +30,8 @@ type Props = {
   onChange?: (value?: string, fileName?: string) => void
   execute?: boolean
   onExecute?: (result: string) => void
-  testCase?: string
-  onRunTest?: (result: TestResult[]) => void
+  testCase?: TestCase
+  onRunTest?: (result: ExecuteTestCaseResponse['data']) => void
   theme?: 'light' | 'vs-dark'
   disabled?: boolean
   readOnly?: boolean
@@ -51,7 +52,11 @@ const MonacoEditor = ({
   ...rest
 }: Props) => {
   const firstFileName = Object.keys(files)[0]
-  const { mutate: executeCode, isPending } = useExecuteCode()
+  const { mutate: executeCode, isPending: isCodePending } = useExecuteCode()
+  const { mutate: executeTestCase, isPending: isTestCasePending } =
+    useExecuteTestCase()
+
+  const isPending = isCodePending || isTestCasePending
 
   const [fileName, setFileName] = useState<string>(firstFileName)
   const file = files[fileName]
@@ -59,10 +64,13 @@ const MonacoEditor = ({
   const [markers, setMarkers] = useState<any>()
   const editorRef = useRef<any>(null)
 
-  const [runTestPending, setRunTestPending] = useState(false)
-
   const handleCompileCode = () => {
     if (markers?.length > 0) return
+
+    if (!value) {
+      toast.error('Vui lòng nhập mã')
+      return
+    }
 
     executeCode(
       {
@@ -84,21 +92,29 @@ const MonacoEditor = ({
   const handleRunTest = async () => {
     if (markers?.length > 0) return
 
-    if (!value || !testCase) {
+    if (!value || !testCase || testCase.some((tc) => !tc.input || !tc.output)) {
       toast.error('Vui lòng nhập mã và bài kiểm tra')
       return
     }
 
-    try {
-      setRunTestPending(true)
-      const result = await runTestCase(value, testCase)
-      if (result) onRunTest?.(result)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast.error('Lỗi khi chạy bài kiểm tra')
-    } finally {
-      setRunTestPending(false)
-    }
+    executeTestCase(
+      {
+        language: file.language,
+        version: file.version,
+        files: [{ content: value! }],
+        testCase: [
+          ...testCase.map((tc) => ({
+            input: `[${tc.input}]`,
+            output: tc.output,
+          })),
+        ],
+      },
+      {
+        onSuccess: (res) => {
+          onRunTest?.(res)
+        },
+      }
+    )
   }
 
   useEffect(() => {
@@ -167,25 +183,22 @@ const MonacoEditor = ({
               variant="secondary"
               onClick={handleRunTest}
               disabled={isPending || markers?.length > 0 || disabled}
-              loading={runTestPending}
+              loading={isTestCasePending}
             >
               Chạy bài kiểm tra
             </LoadingButton>
           )}
 
           {execute && (
-            <Button
+            <LoadingButton
               variant={testCase ? 'ghost' : 'secondary'}
               onClick={handleCompileCode}
               disabled={isPending || markers?.length > 0 || disabled}
+              loading={isCodePending}
             >
-              {isPending ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <CirclePlay />
-              )}
+              <CirclePlay />
               Chạy mã
-            </Button>
+            </LoadingButton>
           )}
         </div>
       )}

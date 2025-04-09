@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { testCaseSchema } from './execute'
 
 export const createCourseSchema = z.object({
   category_id: z.coerce
@@ -200,48 +201,57 @@ export const updateCourseObjectiveSchema = z.object({
     .optional(),
 })
 
-export const updateCodingLessonSchema = z.object({
-  title: z.string().trim().min(3, 'Tiêu đề phải có ít nhất 3 ký tự'),
-  language: z.string({
-    message: 'Vui lòng chọn ngôn ngữ lập trình',
-  }),
-  instruct: z.string().optional(),
-  content: z
-    .string({
-      required_error: 'Vui lòng nhập nội dung bài học',
-      invalid_type_error: 'Vui lòng nhập nội dung bài học',
-    })
-    .trim(),
-  hints: z
-    .array(
-      z.object({
-        hint: z.string().trim().min(3, 'Gợi ý phải có ít nhất 3 ký tự'),
+export const updateCodingLessonSchema = z
+  .object({
+    title: z.string().trim().min(3, 'Tiêu đề phải có ít nhất 3 ký tự'),
+    language: z.string({
+      message: 'Vui lòng chọn ngôn ngữ lập trình',
+    }),
+    instruct: z.string().optional(),
+    content: z
+      .string({
+        required_error: 'Vui lòng nhập nội dung bài học',
+        invalid_type_error: 'Vui lòng nhập nội dung bài học',
       })
-    )
-    .max(10, {
-      message: 'Số lượng gợi ý tối đa là 10',
-    })
-    .optional(),
-  sample_code: z.string().optional(),
-  result_code: z
-    .string({
-      required_error: 'Vui lòng chạy mã',
-      invalid_type_error: 'Vui lòng chạy mã',
-    })
-    .trim(),
-  // solution_code: z
-  //   .string({
-  //     required_error: 'Vui lòng nhập giải pháp',
-  //     invalid_type_error: 'Vui lòng nhập giải pháp',
-  //   })
-  //   .trim(),
-  test_case: z
-    .string({
-      required_error: 'Vui lòng nhập test case',
-      invalid_type_error: 'Vui lòng nhập test case',
-    })
-    .trim(),
-})
+      .trim(),
+    hints: z
+      .array(
+        z.object({
+          hint: z.string().trim().min(3, 'Gợi ý phải có ít nhất 3 ký tự'),
+        })
+      )
+      .max(10, {
+        message: 'Số lượng gợi ý tối đa là 10',
+      })
+      .optional(),
+    sample_code: z.string().optional(),
+    // result_code: z
+    //   .string({
+    //     required_error: 'Vui lòng chạy mã',
+    //     invalid_type_error: 'Vui lòng chạy mã',
+    //   })
+    //   .trim(),
+    // solution_code: z
+    //   .string({
+    //     required_error: 'Vui lòng nhập giải pháp',
+    //     invalid_type_error: 'Vui lòng nhập giải pháp',
+    //   })
+    //   .trim(),
+    test_case: testCaseSchema.nullish(),
+    ignore_test_case: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      !data.ignore_test_case &&
+      (!data.test_case || data.test_case.length < 2)
+    ) {
+      ctx.addIssue({
+        path: ['test_case'],
+        code: z.ZodIssueCode.custom,
+        message: 'Phải có ít nhất 2 test case',
+      })
+    }
+  })
 
 export const requestModifyContentSchema = z.object({
   reason: z.string().min(1, 'Vui lòng nhập lý do cần sửa đổi'),
