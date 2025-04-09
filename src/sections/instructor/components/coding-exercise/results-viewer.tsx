@@ -9,15 +9,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { TestResult } from '@/lib/run-testcase'
 import { cn } from '@/lib/utils'
+import { ExecuteTestCaseResponse } from '@/types/execute'
 import { CheckCircle, FileText, SquareTerminal, XCircle } from 'lucide-react'
 
 interface Props {
   activeTab: 'code-execution' | 'test-results'
   setActiveTab: (tab: 'code-execution' | 'test-results') => void
   executeResult: string
-  testResults: TestResult[]
+  testResults: ExecuteTestCaseResponse['data']['testCase']
 }
 
 export const ResultsViewer = ({
@@ -32,19 +32,6 @@ export const ResultsViewer = ({
         <div className="space-y-2">
           <Button
             variant="ghost"
-            onClick={() => setActiveTab('test-results')}
-            className={cn(
-              'w-full justify-start',
-              activeTab === 'test-results' &&
-                'bg-white/70 text-accent-foreground'
-            )}
-          >
-            <FileText />
-            Kết quả test
-          </Button>
-
-          <Button
-            variant="ghost"
             onClick={() => setActiveTab('code-execution')}
             className={cn(
               'w-full justify-start',
@@ -54,6 +41,19 @@ export const ResultsViewer = ({
           >
             <SquareTerminal />
             Console
+          </Button>
+
+          <Button
+            variant="ghost"
+            onClick={() => setActiveTab('test-results')}
+            className={cn(
+              'w-full justify-start',
+              activeTab === 'test-results' &&
+                'bg-white/70 text-accent-foreground'
+            )}
+          >
+            <FileText />
+            Kết quả test
           </Button>
         </div>
       </ScrollArea>
@@ -65,7 +65,9 @@ export const ResultsViewer = ({
               <TableHeader>
                 <TableRow className="border-gray-500 hover:bg-gray-500/30">
                   <TableHead className="w-[100px]">Trạng thái</TableHead>
-                  <TableHead>Mô tả test</TableHead>
+                  <TableHead>Đầu vào</TableHead>
+                  <TableHead>Kỳ vọng</TableHead>
+                  <TableHead>Kết quả</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -75,7 +77,7 @@ export const ResultsViewer = ({
                     className="border-gray-500 hover:bg-gray-500/30"
                   >
                     <TableCell>
-                      {test.status === 'pass' ? (
+                      {test.passed === true ? (
                         <Badge
                           variant="outline"
                           className="border-green-800 bg-green-950 text-green-400"
@@ -83,7 +85,7 @@ export const ResultsViewer = ({
                           <CheckCircle className="mr-1 size-3" /> Pass
                         </Badge>
                       ) : (
-                        test.status === 'fail' && (
+                        test.passed === false && (
                           <Badge
                             variant="outline"
                             className="border-red-800 bg-red-950 text-red-400"
@@ -93,14 +95,9 @@ export const ResultsViewer = ({
                         )
                       )}
                     </TableCell>
-                    <TableCell>
-                      <div className="font-medium">{test.testPath[1]}</div>
-                      {test.testPath[2] && (
-                        <div className="text-sm text-gray-400">
-                          {test.testPath[2]}
-                        </div>
-                      )}
-                    </TableCell>
+                    <TableCell>{test.input.join(', ')}</TableCell>
+                    <TableCell>{test.expected}</TableCell>
+                    <TableCell>{test.received}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

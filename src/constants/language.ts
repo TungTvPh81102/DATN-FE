@@ -13,7 +13,6 @@ export const LANGUAGE_CONFIG: {
     sampleFileName: string
     version: string
     codeSnippet: string
-    testCase: string
     isSupported: boolean
   }
 } = {
@@ -22,22 +21,7 @@ export const LANGUAGE_CONFIG: {
     fileExtension: 'js',
     sampleFileName: 'script.js',
     version: '18.15.0',
-    codeSnippet: `function sum(a, b) {
-  return a + b
-}`,
-    testCase: `describe('Hàm sum', () => {
-  test('Cộng 1 + 2 phải bằng 3', () => {
-    expect(sum(1, 2)).toBe(3);
-  });
-
-  test('Cộng -1 + 1 phải bằng 0', () => {
-    expect(sum(-1, 1)).toBe(0);
-  });
-
-  test('Cộng 0 + 0 phải bằng 0', () => {
-    expect(sum(0, 0)).toBe(0);
-  });
-});`,
+    codeSnippet: `console.log('Hello world!');`,
     isSupported: true,
   },
   [Language.TYPESCRIPT]: {
@@ -46,15 +30,6 @@ export const LANGUAGE_CONFIG: {
     sampleFileName: 'app.ts',
     version: '5.0.3',
     codeSnippet: `console.log('Hello world!');`,
-    testCase: `describe('Hàm sum', () => {
-  test('Cộng 1 + 2 phải bằng 3', () => {
-    expect(sum(1, 2)).toBe(3);
-  });
-
-  test('Cộng -1 + 1 phải bằng 0', () => {
-    expect(sum(-1, 1)).toBe(0);
-  });
-});`,
     isSupported: false,
   },
   [Language.PYTHON]: {
@@ -63,7 +38,6 @@ export const LANGUAGE_CONFIG: {
     sampleFileName: 'main.py',
     version: '3.10.0',
     codeSnippet: `print('Hello world!')`,
-    testCase: '',
     isSupported: false,
   },
   [Language.JAVA]: {
@@ -72,7 +46,6 @@ export const LANGUAGE_CONFIG: {
     sampleFileName: 'Main.java',
     version: '15.0.2',
     codeSnippet: `public class Main {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello world!");\n\t}\n}`,
-    testCase: '',
     isSupported: false,
   },
   [Language.PHP]: {
@@ -81,7 +54,6 @@ export const LANGUAGE_CONFIG: {
     sampleFileName: 'index.php',
     version: '8.2.3',
     codeSnippet: `<?php echo 'Hello world!';`,
-    testCase: '',
     isSupported: false,
   },
 }

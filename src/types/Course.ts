@@ -151,9 +151,10 @@ export interface Lessonable {
   hints?: string[]
   instruct?: string
   sample_code?: string
-  result_code?: string
-  solution_code?: string
+  // result_code?: string
+  // solution_code?: string
   test_case?: string
+  ignore_test_case?: boolean
 }
 
 export type LessonType = 'video' | 'quiz' | 'document' | 'coding'

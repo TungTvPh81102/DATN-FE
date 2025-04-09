@@ -1,5 +1,12 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2, MoveLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
+import { toast } from 'react-toastify'
+
 import ModalLoading from '@/components/common/ModalLoading'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,11 +35,6 @@ import {
   UpdateCodingLessonPayload,
   updateCodingLessonSchema,
 } from '@/validations/course'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, MoveLeft } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
 import GuideTab from './guide-tab'
 import SolutionTab from './solution-tab'
 
@@ -55,12 +57,12 @@ const CourseCodingView = ({
       title: '',
       language: '',
       sample_code: '',
-      test_case: '',
+      test_case: Array.from({ length: 2 }, () => ({ input: '', output: '' })),
       hints: [],
       instruct: '',
       content: '',
+      ignore_test_case: false,
     },
-
     disabled,
   })
 
@@ -91,7 +93,10 @@ const CourseCodingView = ({
       content: lessonCoding?.data.content || '',
       hints: lessonCoding?.data.hints?.map((hint: string) => ({ hint })) || [],
       instruct: lessonCoding?.data.instruct || '',
-      test_case: lessonCoding?.data.test_case || '',
+      test_case: lessonCoding?.data.test_case
+        ? JSON.parse(lessonCoding?.data.test_case)
+        : Array.from({ length: 2 }, () => ({ input: '', output: '' })),
+      ignore_test_case: lessonCoding?.data.ignore_test_case || false,
     })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -100,9 +105,7 @@ const CourseCodingView = ({
   useEffect(() => {
     if (!language || !lessonCoding?.data) return
 
-    const { codeSnippet, testCase } = LANGUAGE_CONFIG[language as Language]
-
-    console.log(lessonCoding?.data.language === language)
+    const { codeSnippet } = LANGUAGE_CONFIG[language as Language]
 
     if (
       !lessonCoding?.data.sample_code ||
@@ -111,12 +114,6 @@ const CourseCodingView = ({
       form.setValue('sample_code', codeSnippet)
     }
 
-    if (
-      !lessonCoding?.data.test_case ||
-      language !== lessonCoding?.data.language
-    ) {
-      form.setValue('test_case', testCase)
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, lessonCoding?.data])
 
@@ -140,7 +137,17 @@ const CourseCodingView = ({
                 {lessonCoding?.data.title || 'Bài tập coding'}
               </span>
             </div>
-            <Button type="submit" disabled={disabled} size="sm">
+            <Button
+              type="submit"
+              disabled={disabled}
+              size="sm"
+              onClick={async () => {
+                const isValid = await form.trigger()
+                if (!isValid) {
+                  toast.error('Vui lòng kiểm tra lại thông tin')
+                }
+              }}
+            >
               {updateCodingLesson.isPending && (
                 <Loader2 className="animate-spin" />
               )}
