@@ -239,6 +239,9 @@ export const updateCodingLessonSchema = z
     //   .trim(),
     test_case: testCaseSchema.nullish(),
     ignore_test_case: z.boolean(),
+
+    // Check test case
+    checkTestCase: z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
     if (
@@ -249,7 +252,31 @@ export const updateCodingLessonSchema = z
         path: ['test_case'],
         code: z.ZodIssueCode.custom,
         message: 'Phải có ít nhất 2 test case',
+        fatal: true,
       })
+
+      return z.NEVER
+    }
+
+    if (!data.ignore_test_case) {
+      if (data.checkTestCase === undefined) {
+        ctx.addIssue({
+          path: ['test_case'],
+          code: z.ZodIssueCode.custom,
+          message: 'Vui lòng chạy kiểm tra test case',
+          fatal: true,
+        })
+
+        return z.NEVER
+      }
+
+      if (data.checkTestCase === false) {
+        ctx.addIssue({
+          path: ['test_case'],
+          code: z.ZodIssueCode.custom,
+          message: 'Vui lòng kiểm tra lại test case',
+        })
+      }
     }
   })
 

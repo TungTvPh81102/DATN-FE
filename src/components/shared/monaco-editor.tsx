@@ -185,7 +185,7 @@ const MonacoEditor = ({
               disabled={isPending || markers?.length > 0 || disabled}
               loading={isTestCasePending}
             >
-              Chạy bài kiểm tra
+              Kiểm tra
             </LoadingButton>
           )}
 

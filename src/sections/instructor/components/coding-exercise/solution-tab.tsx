@@ -109,14 +109,18 @@ const SolutionTab = () => {
                   onExecute={(value) => {
                     setExecuteResult(value)
                     setActiveTab('code-execution')
+
                     resultPanelRef.current?.resize(70)
                   }}
                   execute
                   testCase={!ignoreTestCase ? testCase : undefined}
                   onRunTest={(value) => {
-                    console.log('>>> value', value)
                     setTestResults(value)
                     setActiveTab('test-results')
+
+                    form.setValue('checkTestCase', value.passed)
+                    form.trigger('test_case')
+
                     resultPanelRef.current?.resize(70)
                   }}
                 />
@@ -149,7 +153,15 @@ const SolutionTab = () => {
                   </PopoverContent>
                 </Popover>
 
-                <FormMessage />
+                {(() => {
+                  const error =
+                    form.getFieldState('test_case').error?.message ||
+                    form.getFieldState('test_case').error?.root?.message
+
+                  if (!error || ignoreTestCase) return null
+
+                  return <p className="text-sm text-destructive">{error}</p>
+                })()}
               </div>
               <div className="h-[calc(100%-3.5rem)] space-y-4 overflow-y-auto px-3 py-4">
                 {fields.map((field, index) => (
