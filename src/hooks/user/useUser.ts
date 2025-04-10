@@ -11,6 +11,14 @@ export const useGetMyCourses = () => {
     gcTime: 30 * 60 * 1000,
   })
 }
+export const useGetRecentCourse = () => {
+  return useQuery({
+    queryFn: () => userApi.getRecentCourse(),
+    queryKey: [QueryKey.RECENTCOURSE],
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  })
+}
 
 export const useGetProgress = (course: string) => {
   return useQuery({
