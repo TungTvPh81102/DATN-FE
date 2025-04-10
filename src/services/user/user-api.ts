@@ -27,4 +27,7 @@ export const userApi = {
     const response = await api.get(`${prefix}/check-profile`)
     return response.data
   },
+  getRecentCourse: async () => {
+    return await api.get(`/users/recentCourse`)
+  },
 }
