@@ -36,3 +36,10 @@ export const useGetCourseRevenueStatistics = () => {
     queryFn: instructorStatisticApi.getCourseRevenueStatistics,
   })
 }
+
+export const useGetMonthlyMembershipRevenueStatistics = () => {
+  return useQuery({
+    queryKey: [QueryKey.INSTRUCTOR_STATISTICS_MEMBERSHIPS_REVENUE],
+    queryFn: instructorStatisticApi.getMonthlyMembershipsRevenue,
+  })
+}

@@ -1,6 +1,7 @@
 import api from '@/configs/api'
 import {
   CourseRevenueStatistics,
+  IMembershipsRevenueStatistics,
   OverviewStatistics,
   RevenueStatistics,
   StudentPurchaseStatistics,
@@ -38,6 +39,13 @@ export const instructorStatisticApi = {
 
   getCourseRevenueStatistics: async (): Promise<CourseRevenueStatistics[]> => {
     const res = await api.get(`${prefix}/get-course-revenue`)
+    return res.data
+  },
+
+  getMonthlyMembershipsRevenue: async (): Promise<
+    IMembershipsRevenueStatistics[]
+  > => {
+    const res = await api.get(`${prefix}/get-monthly-memberships-revenue`)
     return res.data
   },
 }

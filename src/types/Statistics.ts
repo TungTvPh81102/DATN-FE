@@ -30,3 +30,8 @@ export interface CourseRevenueStatistics {
   avg_progress: string | null
   avg_rating: string
 }
+
+export interface IMembershipsRevenueStatistics {
+  month: number
+  membershipRevenue: string
+}
