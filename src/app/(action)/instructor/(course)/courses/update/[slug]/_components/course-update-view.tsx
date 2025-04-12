@@ -70,8 +70,11 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
   const [openDialog, setOpenDialog] = useState(false)
   const { courseStatus, setCourseStatus } = useCourseStatusStore()
 
-  const { data: courseOverviewData, isLoading: isCourseOverviewLoading } =
-    useGetCourseOverview(slug)
+  const {
+    data: courseOverviewData,
+    isLoading: isCourseOverviewLoading,
+    error: courseOverviewError,
+  } = useGetCourseOverview(slug)
 
   const courseStatusBadge = useMemo(() => {
     return courseOverviewData?.status
@@ -129,6 +132,11 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
     courseOverviewData?.is_practical_course === 1
   ) {
     return <ModalLoading />
+  }
+
+  if (courseOverviewError && (courseOverviewError as any).status === 403) {
+    router.replace('/forbidden')
+    return null
   }
 
   return (

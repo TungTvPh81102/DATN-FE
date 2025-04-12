@@ -101,6 +101,20 @@ const LessonDocument = ({ chapterId, lessonId, onHide }: Props) => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
+      const validTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword',
+      ]
+      if (!validTypes.includes(file.type)) {
+        form.setError('document_file', {
+          message:
+            'Định dạng file không hợp lệ. Chỉ chấp nhận định dạng pdf, doc, docx.',
+        })
+        return
+      }
+
+      form.clearErrors('document_file')
       form.setValue('document_file', file)
       setSelectedFile(file)
     }

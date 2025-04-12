@@ -47,6 +47,7 @@ import { getLocalStorage } from '@/lib/common'
 import echo from '@/lib/echo'
 import { Card, CardContent } from '@/components/ui/card'
 import Webcam from 'react-webcam'
+import { toast } from 'react-toastify'
 
 const BecomeAnInstructor = () => {
   const { user, isAuthenticated, role, setRole } = useAuthStore()
@@ -391,12 +392,35 @@ const BecomeAnInstructor = () => {
                                 {...fieldProps}
                                 type="file"
                                 onChange={(e) => {
-                                  onChange(e.target.files && e.target.files[0])
+                                  const file = e.target.files?.[0]
+
+                                  if (!file) {
+                                    onChange(undefined)
+                                    form.trigger('certificates')
+                                    return
+                                  }
+
+                                  if (
+                                    file.type !== 'application/pdf' &&
+                                    !file.type.startsWith('image/')
+                                  ) {
+                                    toast.error(
+                                      'Vui lòng chọn tệp hình ảnh hoặc PDF.'
+                                    )
+
+                                    e.target.value = ''
+                                    onChange(undefined)
+
+                                    return
+                                  }
+
+                                  onChange(file)
                                 }}
                                 accept="image/*, application/pdf"
                                 className="pr-10"
                               />
                             </FormControl>
+                            <FormMessage />
                             {index > 0 && (
                               <Button
                                 variant="ghost"

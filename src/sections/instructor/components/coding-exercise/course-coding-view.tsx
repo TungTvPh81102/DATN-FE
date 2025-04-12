@@ -5,7 +5,6 @@ import { Loader2, MoveLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { FieldErrors, useForm, useWatch } from 'react-hook-form'
-import { toast } from 'react-toastify'
 
 import ModalLoading from '@/components/common/ModalLoading'
 import { Button } from '@/components/ui/button'
@@ -78,6 +77,7 @@ const CourseCodingView = ({
   slug: string
   codingId: string
 }) => {
+  const [tab, setTab] = useState<Tab>(Tab.PLAN)
   const [errorTabs, setErrorTabs] = useState<Tab[]>([])
 
   const router = useRouter()
@@ -128,9 +128,9 @@ const CourseCodingView = ({
       content: lessonCoding?.data.content || '',
       hints: lessonCoding?.data.hints?.map((hint: string) => ({ hint })) || [],
       instruct: lessonCoding?.data.instruct || '',
-      test_case: lessonCoding?.data.test_case
-        ? JSON.parse(lessonCoding?.data.test_case)
-        : Array.from({ length: 2 }, () => ({ input: '', output: '' })),
+      test_case:
+        lessonCoding?.data.test_case ||
+        Array.from({ length: 2 }, () => ({ input: '', output: '' })),
       ignore_test_case: lessonCoding?.data.ignore_test_case || false,
     })
 
@@ -158,6 +158,14 @@ const CourseCodingView = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Object.keys(form.formState.errors).length])
 
+  useEffect(() => {
+    const tabsWithErrors = getTabsWithErrors(form.formState.errors)
+    if (tabsWithErrors.length > 0) {
+      setTab(tabsWithErrors[0])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.formState.submitCount])
+
   if (isLoading) {
     return <ModalLoading />
   }
@@ -178,17 +186,7 @@ const CourseCodingView = ({
                 {lessonCoding?.data.title || 'Bài tập coding'}
               </span>
             </div>
-            <Button
-              type="submit"
-              disabled={disabled}
-              size="sm"
-              onClick={async () => {
-                const isValid = await form.trigger()
-                if (!isValid) {
-                  toast.error('Vui lòng kiểm tra lại thông tin')
-                }
-              }}
-            >
+            <Button type="submit" disabled={disabled} size="sm">
               {updateCodingLesson.isPending && (
                 <Loader2 className="animate-spin" />
               )}
@@ -197,8 +195,10 @@ const CourseCodingView = ({
           </header>
 
           <Tabs
-            defaultValue={Tab.PLAN}
-            value={undefined}
+            value={tab}
+            onValueChange={(value) => {
+              setTab(value as Tab)
+            }}
             className="h-screen py-[68px] [&>*]:mt-0"
           >
             <TabsContent value={Tab.PLAN} className="h-full">
