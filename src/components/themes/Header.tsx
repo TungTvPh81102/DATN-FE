@@ -2,7 +2,7 @@
 
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useWishListStore } from '@/stores/useWishListStore'
-import { Bell, Loader2, Search } from 'lucide-react'
+import { Bell, BookOpen, Loader2, Search } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -26,6 +26,12 @@ import { Slot } from '@radix-ui/react-slot'
 import { NotificationPopover } from '../notification/notification-popover'
 import { formatStringToCurrency } from '../../lib/common'
 import dynamic from 'next/dynamic'
+import { useGetRecentCourse } from '@/hooks/user/useUser'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
   ssr: false,
@@ -44,6 +50,9 @@ const Header = () => {
   const debouncedQuery = useDebounce(query, 300)
   const { data: searchResults, isLoading: searchLoading } =
     useSearch(debouncedQuery)
+  const { data: RecentCoursData } = useGetRecentCourse()
+  console.log('RecentCoursData', RecentCoursData)
+
   const router = useRouter()
 
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -247,6 +256,78 @@ const Header = () => {
               >
                 <i className="icon-search fs-20"></i>
               </a>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-10 hover:bg-transparent hover:text-primary [&_svg]:size-5"
+                  >
+                    <BookOpen className="stroke-[1.6]" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0">
+                  <div className="p-4">
+                    <h3 className="mb-3 text-lg font-semibold text-primary">
+                      Khóa học gần đây
+                    </h3>
+                    {RecentCoursData?.data?.length > 0 ? (
+                      <>
+                        <div className="space-y-3">
+                          {RecentCoursData?.data.map((course: any) => (
+                            <Link
+                              key={course.course_id}
+                              href={`/courses/${course.course_id}`}
+                              className="flex items-center gap-3 rounded-lg p-2 transition-all hover:bg-gray-50"
+                            >
+                              <Image
+                                src={
+                                  course.thumbnail ||
+                                  '/images/course-placeholder.jpg'
+                                }
+                                alt={course.course_name}
+                                width={80}
+                                height={60}
+                                className="h-16 w-20 rounded-md object-cover shadow-sm"
+                              />
+                              <div className="min-w-0 flex-1">
+                                <p className="mb-1 truncate text-sm font-medium">
+                                  {course.course_name}
+                                </p>
+                                <div className="flex items-center text-xs text-gray-500">
+                                  <div className="h-1.5 w-full rounded-full bg-gray-200">
+                                    <div
+                                      className="h-1.5 rounded-full bg-primary"
+                                      style={{
+                                        width: `${course.progress_percent}%`,
+                                      }}
+                                    />
+                                  </div>
+                                  <span className="ml-2">
+                                    {course.progress_percent}%
+                                  </span>
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                        <div className="mt-3 border-t border-gray-100 pt-4">
+                          <Link
+                            href="/my-courses?tab=all"
+                            className="block w-full rounded-lg bg-primary px-4 py-2 text-center text-sm text-white hover:bg-primary/90 hover:text-white"
+                          >
+                            Xem tất cả
+                          </Link>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="py-4 text-center text-gray-500">
+                        Chưa có khóa học nào được xem gần đây
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
               <WishListIcon />
 
               <NotificationPopover

@@ -1,5 +1,12 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2, MoveLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { FieldErrors, useForm, useWatch } from 'react-hook-form'
+import { toast } from 'react-toastify'
+
 import ModalLoading from '@/components/common/ModalLoading'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,17 +31,45 @@ import {
   useGetLessonCoding,
   useUpdateCodingLesson,
 } from '@/hooks/instructor/lesson/useLesson'
+import { cn } from '@/lib/utils'
 import {
   UpdateCodingLessonPayload,
   updateCodingLessonSchema,
 } from '@/validations/course'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, MoveLeft } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
 import GuideTab from './guide-tab'
 import SolutionTab from './solution-tab'
+
+enum Tab {
+  PLAN = 'plan',
+  SOLUTION = 'solution',
+  GUIDE = 'guide',
+}
+
+const tabFields: Record<Tab, (keyof UpdateCodingLessonPayload)[]> = {
+  [Tab.PLAN]: ['title', 'language'],
+  [Tab.SOLUTION]: ['test_case', 'ignore_test_case'],
+  [Tab.GUIDE]: ['content', 'hints', 'instruct', 'sample_code'],
+}
+
+const getTabName = (tab: Tab) => {
+  switch (tab) {
+    case Tab.PLAN:
+      return 'Kế hoạch tập luyện'
+    case Tab.SOLUTION:
+      return 'Giải pháp'
+    case Tab.GUIDE:
+      return 'Hướng dẫn'
+    default:
+      return ''
+  }
+}
+
+const getTabsWithErrors = (errors: FieldErrors): Tab[] => {
+  return Object.values(Tab).filter((tab) => {
+    const fields = tabFields[tab]
+    return fields.some((field) => !!errors[field])
+  })
+}
 
 const CourseCodingView = ({
   slug,
@@ -43,6 +78,8 @@ const CourseCodingView = ({
   slug: string
   codingId: string
 }) => {
+  const [errorTabs, setErrorTabs] = useState<Tab[]>([])
+
   const router = useRouter()
   const { data: lessonCoding, isLoading } = useGetLessonCoding(slug, codingId)
   const updateCodingLesson = useUpdateCodingLesson()
@@ -55,12 +92,12 @@ const CourseCodingView = ({
       title: '',
       language: '',
       sample_code: '',
-      test_case: '',
+      test_case: Array.from({ length: 2 }, () => ({ input: '', output: '' })),
       hints: [],
       instruct: '',
       content: '',
+      ignore_test_case: false,
     },
-
     disabled,
   })
 
@@ -91,7 +128,10 @@ const CourseCodingView = ({
       content: lessonCoding?.data.content || '',
       hints: lessonCoding?.data.hints?.map((hint: string) => ({ hint })) || [],
       instruct: lessonCoding?.data.instruct || '',
-      test_case: lessonCoding?.data.test_case || '',
+      test_case: lessonCoding?.data.test_case
+        ? JSON.parse(lessonCoding?.data.test_case)
+        : Array.from({ length: 2 }, () => ({ input: '', output: '' })),
+      ignore_test_case: lessonCoding?.data.ignore_test_case || false,
     })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -100,9 +140,7 @@ const CourseCodingView = ({
   useEffect(() => {
     if (!language || !lessonCoding?.data) return
 
-    const { codeSnippet, testCase } = LANGUAGE_CONFIG[language as Language]
-
-    console.log(lessonCoding?.data.language === language)
+    const { codeSnippet } = LANGUAGE_CONFIG[language as Language]
 
     if (
       !lessonCoding?.data.sample_code ||
@@ -111,14 +149,14 @@ const CourseCodingView = ({
       form.setValue('sample_code', codeSnippet)
     }
 
-    if (
-      !lessonCoding?.data.test_case ||
-      language !== lessonCoding?.data.language
-    ) {
-      form.setValue('test_case', testCase)
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, lessonCoding?.data])
+
+  useEffect(() => {
+    const tabsWithErrors = getTabsWithErrors(form.formState.errors)
+    setErrorTabs(tabsWithErrors)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Object.keys(form.formState.errors).length])
 
   if (isLoading) {
     return <ModalLoading />
@@ -140,7 +178,17 @@ const CourseCodingView = ({
                 {lessonCoding?.data.title || 'Bài tập coding'}
               </span>
             </div>
-            <Button type="submit" disabled={disabled} size="sm">
+            <Button
+              type="submit"
+              disabled={disabled}
+              size="sm"
+              onClick={async () => {
+                const isValid = await form.trigger()
+                if (!isValid) {
+                  toast.error('Vui lòng kiểm tra lại thông tin')
+                }
+              }}
+            >
               {updateCodingLesson.isPending && (
                 <Loader2 className="animate-spin" />
               )}
@@ -148,8 +196,12 @@ const CourseCodingView = ({
             </Button>
           </header>
 
-          <Tabs defaultValue="plan" className="h-screen py-[68px] [&>*]:mt-0">
-            <TabsContent value="plan" className="h-full">
+          <Tabs
+            defaultValue={Tab.PLAN}
+            value={undefined}
+            className="h-screen py-[68px] [&>*]:mt-0"
+          >
+            <TabsContent value={Tab.PLAN} className="h-full">
               <div className="container mx-auto max-w-4xl space-y-4 p-8">
                 <h2 className="text-2xl font-bold">Bài tập coding</h2>
                 <p className="text-muted-foreground">
@@ -212,32 +264,28 @@ const CourseCodingView = ({
                 />
               </div>
             </TabsContent>
-            <TabsContent value="solution" className="h-full">
+            <TabsContent value={Tab.SOLUTION} className="h-full">
               <SolutionTab />
             </TabsContent>
-            <TabsContent value="guide" className="h-full">
+            <TabsContent value={Tab.GUIDE} className="h-full">
               <GuideTab />
             </TabsContent>
             <footer className="fixed inset-x-0 bottom-0 z-10 flex justify-center border-t bg-white p-4">
               <TabsList className="flex gap-4">
-                <TabsTrigger
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  value="plan"
-                >
-                  Kế hoạch tập luyện
-                </TabsTrigger>
-                <TabsTrigger
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  value="solution"
-                >
-                  Giải pháp
-                </TabsTrigger>
-                <TabsTrigger
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  value="guide"
-                >
-                  Hướng dẫn
-                </TabsTrigger>
+                {Object.values(Tab).map((tab) => (
+                  <TabsTrigger
+                    key={tab}
+                    className={cn(
+                      'data-[state=active]:bg-primary data-[state=active]:text-primary-foreground',
+                      errorTabs.includes(tab) &&
+                        'border border-destructive text-destructive'
+                    )}
+                    value={tab}
+                  >
+                    {getTabName(tab)}
+                    {errorTabs.includes(tab) && ' ⚠️'}
+                  </TabsTrigger>
+                ))}
               </TabsList>
             </footer>
           </Tabs>

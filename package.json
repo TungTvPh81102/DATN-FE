@@ -66,6 +66,8 @@
     "@tiptap/react": "^2.11.7",
     "@tiptap/starter-kit": "^2.11.7",
     "@types/nprogress": "^0.2.3",
+    "acorn": "^8.14.1",
+    "astring": "^1.9.0",
     "axios": "^1.7.9",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",

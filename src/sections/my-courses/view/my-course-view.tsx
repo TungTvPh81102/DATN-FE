@@ -228,7 +228,7 @@ const MyCourseView = () => {
                           className="!text-primary-foreground"
                         >
                           <a
-                            href={`/learning/${course.slug}/lesson/${course.current_lesson.id}`}
+                            href={`/learning/${course.slug}/lesson/${course.current_lesson?.id}`}
                           >
                             {course?.status === 'draft'
                               ? 'Đang sửa đổi nội dung'

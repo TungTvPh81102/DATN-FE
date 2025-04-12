@@ -1,16 +1,22 @@
 'use client'
 
+import { ArrowUpDown, Info, Trash } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
+import { ImperativePanelHandle } from 'react-resizable-panels'
 
 import MonacoEditor from '@/components/shared/monaco-editor'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { FloatingLabelInput } from '@/components/ui/floating-label-input'
 import {
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Label } from '@/components/ui/label'
 import {
   Popover,
   PopoverContent,
@@ -22,11 +28,9 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { Language, LANGUAGE_CONFIG } from '@/constants/language'
-import { TestResult } from '@/lib/run-testcase'
+import { ExecuteTestCaseResponse } from '@/types/execute'
 import { UpdateCodingLessonPayload } from '@/validations/course'
-import { ArrowUpDown, Info } from 'lucide-react'
-import Link from 'next/link'
-import { ImperativePanelHandle } from 'react-resizable-panels'
+
 import { ResultsViewer } from './results-viewer'
 
 const SolutionTab = () => {
@@ -34,17 +38,28 @@ const SolutionTab = () => {
 
   const [userCode, setUserCode] = useState<string>()
   const [executeResult, setExecuteResult] = useState('')
-  const [testResults, setTestResults] = useState<TestResult[]>([])
+  const [testResults, setTestResults] = useState<
+    ExecuteTestCaseResponse['data']
+  >({
+    passed: false,
+    testCase: [],
+  })
   const [activeTab, setActiveTab] = useState<'test-results' | 'code-execution'>(
-    'test-results'
+    'code-execution'
   )
 
   const form = useFormContext<UpdateCodingLessonPayload>()
 
-  const language = useWatch({ name: 'language' })
-  const testCaseValue = useWatch({ name: 'test_case' })
+  const { fields, append, remove } = useFieldArray({
+    name: 'test_case',
+    control: form.control,
+  })
 
-  const { sampleFileName, version, codeSnippet, testCase } =
+  const language = useWatch({ name: 'language' })
+  const ignoreTestCase = useWatch({ name: 'ignore_test_case' })
+  const testCase = useWatch({ name: 'test_case' })
+
+  const { sampleFileName, version, codeSnippet } =
     LANGUAGE_CONFIG[language as Language]
 
   const files = {
@@ -52,15 +67,6 @@ const SolutionTab = () => {
       name: sampleFileName,
       language,
       value: codeSnippet,
-      version,
-    },
-  }
-
-  const testCaseFiles = {
-    [sampleFileName.replace(/(\.[^.]+)$/, '.test$1')]: {
-      name: sampleFileName.replace(/(\.[^.]+)$/, '.test$1'),
-      language,
-      value: testCase,
       version,
     },
   }
@@ -92,9 +98,6 @@ const SolutionTab = () => {
                       pháp tương tự (không nhất thiết phải giống y hệt) theo
                       hướng dẫn được cung cấp ở bước &quot;Hướng dẫn&quot;.
                     </p>
-                    <Button asChild className="mt-4" size="sm">
-                      <Link href="#">Xem tài liệu</Link>
-                    </Button>
                   </PopoverContent>
                 </Popover>
               </div>
@@ -106,22 +109,18 @@ const SolutionTab = () => {
                   onExecute={(value) => {
                     setExecuteResult(value)
                     setActiveTab('code-execution')
-                    form.setValue('result_code', value)
-                    form.trigger('result_code')
+
                     resultPanelRef.current?.resize(70)
                   }}
                   execute
-                  testCase={testCaseValue}
+                  testCase={!ignoreTestCase ? testCase : undefined}
                   onRunTest={(value) => {
-                    setTestResults((prev) => {
-                      if (prev.length === 0) return value
-
-                      return value.splice(
-                        value.length - prev.length,
-                        prev.length
-                      )
-                    })
+                    setTestResults(value)
                     setActiveTab('test-results')
+
+                    form.setValue('checkTestCase', value.passed)
+                    form.trigger('test_case')
+
                     resultPanelRef.current?.resize(70)
                   }}
                 />
@@ -131,49 +130,121 @@ const SolutionTab = () => {
           <ResizableHandle withHandle />
 
           <ResizablePanel minSize={15}>
-            <FormField
-              control={form.control}
-              name="test_case"
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              render={({ field: { ref, ...field } }) => (
-                <FormItem className="flex h-full flex-col space-y-0 text-white">
-                  <div className="flex h-14 items-center gap-2 border-b border-gray-500 bg-[#0d0d0d] px-4 py-2">
-                    <FormLabel className="text-lg font-bold">
-                      Đánh giá
-                    </FormLabel>
+            <div className="flex h-full flex-col">
+              <div className="flex h-14 items-center gap-2 border-b px-4 py-2">
+                <Label className="text-lg font-bold">Kiểm thử</Label>
 
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button>
-                          <Info className="size-4" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent align="start">
-                        <p>
-                          File đánh giá kiểm tra xem giải pháp của học viên có
-                          đúng hay không. Cung cấp nhiều trường hợp kiểm tra,
-                          tên kiểm tra mô tả và thông báo xác nhận giúp học viên
-                          khắc phục sự cố và cải thiện giải pháp của họ.
-                        </p>
-                        <Button asChild className="mt-4" size="sm">
-                          <Link href="#">Xem tài liệu</Link>
-                        </Button>
-                      </PopoverContent>
-                    </Popover>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button>
+                      <Info className="size-4" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="space-y-2">
+                    <p>
+                      Cung cấp nhiều trường hợp kiểm tra, tên kiểm tra mô tả và
+                      thông báo xác nhận giúp học viên khắc phục sự cố và cải
+                      thiện giải pháp của họ.
+                    </p>
+                    <p className="text-sm italic text-muted-foreground">
+                      <span className="text-destructive">*</span> Có thể truyền
+                      nhiều tham số bằng cách sử dụng dấu phẩy
+                    </p>
+                  </PopoverContent>
+                </Popover>
 
-                    <FormMessage />
-                  </div>
+                {(() => {
+                  const error =
+                    form.getFieldState('test_case').error?.message ||
+                    form.getFieldState('test_case').error?.root?.message
 
-                  <div className="h-[calc(100%-3.5rem)]">
-                    <MonacoEditor
-                      files={testCaseFiles}
-                      readOnly={field.disabled}
-                      {...field}
+                  if (!error || ignoreTestCase) return null
+
+                  return <p className="text-sm text-destructive">{error}</p>
+                })()}
+              </div>
+              <div className="h-[calc(100%-3.5rem)] space-y-4 overflow-y-auto px-3 py-4">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="gap-4 md:flex">
+                    <FormField
+                      control={form.control}
+                      name={`test_case.${index}.input`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <FloatingLabelInput
+                              label="Đầu vào"
+                              className="min-h-16"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
+
+                    <FormField
+                      control={form.control}
+                      name={`test_case.${index}.output`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <FloatingLabelInput
+                              label="Đầu ra"
+                              className="min-h-16"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="flex h-16 items-center">
+                      <Button
+                        className="rounded-full text-destructive hover:text-destructive"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => {
+                          remove(index)
+                        }}
+                        disabled={fields.length <= 2 || form.formState.disabled}
+                      >
+                        <Trash />
+                      </Button>
+                    </div>
                   </div>
-                </FormItem>
-              )}
-            />
+                ))}
+
+                <FormField
+                  control={form.control}
+                  name="ignore_test_case"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={field.disabled}
+                        />
+                      </FormControl>
+                      <FormLabel>Bỏ qua kiểm thử</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  onClick={() => append({ input: '', output: '' })}
+                  disabled={
+                    fields.length >= 5 ||
+                    form.formState.disabled ||
+                    ignoreTestCase
+                  }
+                >
+                  Thêm trường hợp
+                </Button>
+              </div>
+            </div>
           </ResizablePanel>
         </ResizablePanelGroup>
       </ResizablePanel>
@@ -202,12 +273,6 @@ const SolutionTab = () => {
           >
             <span>Kết quả</span>
 
-            {form.formState.errors.result_code && (
-              <p className="text-destructive">
-                {form.formState.errors.result_code.message}
-              </p>
-            )}
-
             <ArrowUpDown className="size-4" />
           </div>
 
@@ -216,7 +281,7 @@ const SolutionTab = () => {
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               executeResult={executeResult}
-              testResults={testResults}
+              testResults={testResults.testCase}
             />
           </div>
         </div>
