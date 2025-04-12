@@ -140,7 +140,7 @@ const CourseChapterTab = ({ chapters: chapterList, slug }: Props) => {
         </div>
 
         {isDraftOrRejected && (
-          <Button asChild>
+          <Button asChild size="sm">
             <Link href={`/draft/${slug}`}>Xem trước</Link>
           </Button>
         )}
