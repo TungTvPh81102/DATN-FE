@@ -32,6 +32,8 @@ export interface CourseRevenueStatistics {
 }
 
 export interface IMembershipsRevenueStatistics {
+  id: number
   month: number
   membershipRevenue: string
+  membershipPlanNames: string[]
 }

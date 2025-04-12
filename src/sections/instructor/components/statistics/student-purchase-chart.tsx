@@ -138,7 +138,9 @@ const StudentPurchaseChart = () => {
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent />}
-                labelFormatter={(value) => `Tháng ${value}`}
+                labelFormatter={(value) => {
+                  return `Tháng ${value}`
+                }}
               />
 
               <ChartLegend content={<ChartLegendContent />} />
