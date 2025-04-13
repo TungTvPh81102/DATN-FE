@@ -28,21 +28,21 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-type OptionType = 'table' | 'chart'
+export type OptionType = 'table' | 'chart'
 
-const options: { value: OptionType; title: string }[] = [
+export const options: { value: OptionType; title: string }[] = [
   {
     value: 'table',
-    title: 'Table',
+    title: 'Bảng',
   },
   {
     value: 'chart',
-    title: 'Chart',
+    title: 'Biểu đồ',
   },
 ]
 
 export const MembershipsRevenueStatistics = () => {
-  const [view, setView] = useState<OptionType>('table')
+  const [view, setView] = useState<OptionType>('chart')
   const { data, isLoading } = useGetMonthlyMembershipRevenueStatistics()
 
   const columns = useMemo(() => MembershipsRevenueColumns(), [])
@@ -56,13 +56,16 @@ export const MembershipsRevenueStatistics = () => {
     getRowId: (originalRow) => originalRow.id?.toString() ?? '',
   })
 
-  const chartData =
-    data && data.length > 0
-      ? data.map((item) => ({
-          month: item.month,
-          purchase: item.membershipRevenue ?? 0,
-        }))
-      : []
+  const chartData = useMemo(
+    () =>
+      data && data.length > 0
+        ? data.map((item) => ({
+            month: item.month,
+            purchase: item.membershipRevenue ?? 0,
+          }))
+        : [],
+    [data]
+  )
 
   return (
     <Card>
@@ -79,7 +82,7 @@ export const MembershipsRevenueStatistics = () => {
         >
           <SelectTrigger
             className="w-fit rounded-lg"
-            aria-label="Chọn năm"
+            aria-label="Chọn chế độ hiển thị"
             hideArrow
           >
             <SelectValue placeholder={view} />

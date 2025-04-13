@@ -48,8 +48,6 @@ const RevenueChart = () => {
       }))
     : []
 
-  console.log('chartData', chartData)
-
   return (
     <Card>
       <CardHeader className="flex items-center gap-4 space-y-0 border-b py-5 sm:flex-row">
