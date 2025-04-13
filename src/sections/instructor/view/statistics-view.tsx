@@ -7,8 +7,9 @@ import StudentPurchaseChart from '../components/statistics/student-purchase-char
 import { DashboardCoursesTable } from '../components/statistics/table/dashboard-courses-table'
 import { useSidebar } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
-import RatingStatistics from '@/sections/instructor/components/statistics/rating-statistics'
-import FollowStatistics from '@/sections/instructor/components/statistics/follow-statistics'
+import { MembershipsRevenueStatistics } from '@/sections/instructor/components/statistics/memberships-revenue-statistics'
+import RatingStatistics from '@/sections/instructor/components/rating-statistics/rating-statistics'
+import FollowStatistics from '@/sections/instructor/components/follow-statistics/follow-statistics'
 
 const StatisticsView = () => {
   const { open } = useSidebar()
@@ -23,7 +24,6 @@ const StatisticsView = () => {
           Phân tích hiệu quả khóa học của bạn
         </div>
       </div>
-
       <div
         className={cn(
           'grid items-stretch gap-5 lg:gap-8 xl:grid-cols-3',
@@ -37,13 +37,12 @@ const StatisticsView = () => {
           <RevenueChart />
         </div>
       </div>
-
       <StudentPurchaseChart />
-
+      `
       <DashboardCoursesTable />
-
       <RatingStatistics />
       <FollowStatistics />
+      <MembershipsRevenueStatistics />
     </Container>
   )
 }

@@ -72,6 +72,7 @@ enum QueryKey {
   INSTRUCTOR_STATISTICS_STUDENT = 'instructor-statistics-student',
   INSTRUCTOR_STATISTICS_RATINGS = 'instructor-statistics-rating',
   INSTRUCTOR_STATISTICS_FOLLOW = 'instructor-statistics-follow',
+  INSTRUCTOR_STATISTICS_MEMBERSHIPS_REVENUE = 'instructor-statistics-membership-revenue',
   QUIZ_SUBMISSION = 'quiz-submission',
   CODING_SUBMISSION = 'coding-submission',
   BANNERS = 'banners',

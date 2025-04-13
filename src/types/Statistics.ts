@@ -43,3 +43,10 @@ export interface IRatingStatistics {
   label: string
   percentage: number
 }
+
+export interface IMembershipsRevenueStatistics {
+  id: number
+  month: number
+  membershipRevenue: string
+  membershipPlanNames: string[]
+}
