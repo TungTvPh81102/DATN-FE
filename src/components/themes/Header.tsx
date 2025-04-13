@@ -52,7 +52,6 @@ const Header = () => {
   const { data: searchResults, isLoading: searchLoading } =
     useSearch(debouncedQuery)
   const { data: RecentCoursData } = useGetRecentCourse()
-  console.log('RecentCoursData', RecentCoursData)
 
   const router = useRouter()
 

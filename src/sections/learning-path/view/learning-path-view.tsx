@@ -152,7 +152,7 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
       <LearningTour isRunning={runTour} onClose={() => setRunTour(false)} />
 
       <div className="fixed bottom-4 left-6 z-50">
-        {progress === 100 && !checkCourseRatingState && (
+        {progress === 100 && checkCourseRatingState && (
           <EvaluationCourse courseSlug={courseSlug} />
         )}
       </div>

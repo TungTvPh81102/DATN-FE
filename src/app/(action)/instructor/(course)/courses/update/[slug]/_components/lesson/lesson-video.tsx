@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Loader2, FolderOpen, Upload } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
@@ -8,6 +8,8 @@ import {
   useCreateLessonVideo,
   useGetLessonVideo,
   useUpdateLessonVideo,
+  useGetUploadUrl,
+  useGetVideoInfo,
 } from '@/hooks/instructor/lesson/useLesson'
 import { LessonVideoPayload, lessonVideoSchema } from '@/validations/lesson'
 
@@ -27,6 +29,9 @@ import { Switch } from '@/components/ui/switch'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import MuxPlayer from '@mux/mux-player-react/lazy'
 import MuxUploader from '@mux/mux-uploader-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogTrigger } from '@/components/ui/dialog'
+import MediaLibraryDialog from '@/app/(action)/instructor/(course)/courses/update/[slug]/_components/lesson/media-item'
 
 type Props = {
   chapterId?: string
@@ -38,15 +43,23 @@ type Props = {
 const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
   const { isDraftOrRejected } = useCourseStatusStore()
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
-  const [selectedFile, setSelectedFile] = useState<any>(null)
-  const [videoUrl, setVideoUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadId, setUploadId] = useState('')
   const [muxPlaybackId, setMuxPlaybackId] = useState<string | null>(null)
+  const [muxAssetId, setMuxAssetId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<string>('upload')
+  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false)
+  const [duration, setDuration] = useState(null)
 
-  const { data: lessonVideoData, isLoading } = useGetLessonVideo(
-    chapterId as string,
-    (lessonId as string) || ''
+  const { data: lessonVideoData, isLoading: isLessonLoading } =
+    useGetLessonVideo(chapterId as string, (lessonId as string) || '')
+
+  const { data: uploadUrlData, refetch: refetchUploadUrl } = useGetUploadUrl()
+
+  const { data: videoInfoData, refetch: refetchVideoInfo } = useGetVideoInfo(
+    uploadId || ''
   )
+
   const { mutate: createLessonVideo, isPending: isLessonVideoCreating } =
     useCreateLessonVideo()
   const { mutate: updateLessonVideo, isPending: isLessonVideoUpdating } =
@@ -60,35 +73,37 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
             title: lessonVideoData.data.title,
             content: lessonVideoData.data.content,
             is_free_preview: Boolean(lessonVideoData.data.is_free_preview),
-            video_file: null as any,
             isEdit: true,
           }
         : {
             title: '',
             content: '',
             is_free_preview: false,
-            video_file: null as any,
             isEdit: false,
           },
     disabled:
       !isDraftOrRejected || isLessonVideoCreating || isLessonVideoUpdating,
   })
 
-  const checkMuxAssetStatus = useCallback(async (assetId: string) => {
-    try {
-      const response = await fetch(`/api/mux/asset/${assetId}`)
-      const data = await response.json()
-
-      if (data?.data?.status === 'ready') {
-        console.log(data)
-        return true
-      }
-      return false
-    } catch (error) {
-      console.error('Error checking Mux asset status:', error)
-      return false
+  useEffect(() => {
+    if (isDraftOrRejected && !uploadUrlData) {
+      refetchUploadUrl()
     }
-  }, [])
+
+    if (uploadUrlData?.data?.id) {
+      setUploadId(uploadUrlData.data.id)
+      console.log('Upload ID set:', uploadUrlData.data.id)
+    }
+  }, [isDraftOrRejected, uploadUrlData, refetchUploadUrl])
+
+  useEffect(() => {
+    if (videoInfoData && videoInfoData.data) {
+      setMuxPlaybackId(videoInfoData.data.playback_id)
+      setMuxAssetId(videoInfoData.data.asset_id)
+      setDuration(videoInfoData.data.duration)
+      setUploading(false)
+    }
+  }, [videoInfoData])
 
   useEffect(() => {
     if (isEdit && lessonVideoData?.data) {
@@ -99,7 +114,6 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
         title,
         content,
         is_free_preview: is_free_preview || false,
-        video_file: null as any,
       })
 
       form.setValue('isEdit', true)
@@ -107,112 +121,166 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
       if (lessonable?.mux_playback_id) {
         setMuxPlaybackId(lessonable.mux_playback_id)
       }
+
+      if (lessonable?.mux_asset_id) {
+        setMuxAssetId(lessonable.mux_asset_id)
+      }
+
+      if (lessonable?.duration) {
+        setDuration(lessonable.duration)
+      }
     }
-  }, [isEdit, lessonVideoData, form.reset, form])
+  }, [isEdit, lessonVideoData, form])
 
-  const handleFileChange = (event: any) => {
-    const file = event.target.files?.[0]
-
-    if (!file) {
-      return
+  useEffect(() => {
+    if (!isEdit) {
+      resetVideoStates()
     }
+  }, [isEdit])
 
-    const validTypes = ['video/mp4', 'video/avi', 'video/x-mkv']
-    if (!validTypes.includes(file.type)) {
-      form.setError('video_file', {
-        message: 'Định dạng file không hợp lệ. Chỉ chấp nhận MP4, AVI, MKV.',
-      })
-      return
-    }
-
-    form.clearErrors('video_file')
-    form.setValue('video_file', file)
-    setSelectedFile(file)
-
-    const videoUrl = URL.createObjectURL(file)
-    setVideoUrl(videoUrl)
-  }
-
-  const handleUploadClick = useCallback(() => {
-    fileInputRef.current?.click()
+  const handleMuxUploadStart = useCallback(() => {
+    setUploading(true)
+    toast.info('Đang bắt đầu tải lên video')
   }, [])
 
-  const handleResetClick = useCallback(() => {
-    setSelectedFile(null)
-    setVideoUrl('')
-    form.setValue('video_file', null as unknown as File)
-    form.clearErrors('video_file')
+  const handleMuxUploadSuccess = useCallback(async () => {
+    if (!uploadId) {
+      setUploading(false)
+      toast.error('Không có ID tải lên, vui lòng thử lại')
+      return
+    }
 
-    setMuxPlaybackId(null)
-  }, [form])
-
-  const handleMuxUploadSuccess = useCallback(
-    (event: any) => {
-      console.log('Mux upload successful:', event)
-      const asset = event.detail.asset
-      console.log(asset)
-      if (event.detail && event.detail.playbackId) {
-        setMuxPlaybackId(event.detail.playbackId)
+    const pollVideoStatus = async (retries = 0) => {
+      if (retries >= 10) {
+        setUploading(false)
+        toast.error('Quá thời gian xử lý video')
+        return
       }
-      toast.success('Tải lên dữ liệu thành công')
-    },
-    [checkMuxAssetStatus]
-  )
+
+      try {
+        const result = await refetchVideoInfo()
+
+        if (!result.data || !result.data.data) {
+          console.log(
+            `Video đang xử lý, thử lại sau 3s (lần ${retries + 1}/10)`
+          )
+          setTimeout(() => pollVideoStatus(retries + 1), 3000)
+        }
+      } catch (error) {
+        console.error('Error polling video status:', error)
+        if (retries < 10) {
+          setTimeout(() => pollVideoStatus(retries + 1), 3000)
+        } else {
+          setUploading(false)
+          toast.error('Lỗi khi kiểm tra trạng thái video')
+        }
+      }
+    }
+
+    pollVideoStatus()
+  }, [uploadId, refetchVideoInfo])
 
   const handleMuxUploadError = useCallback((event: any) => {
     console.error('Mux upload error:', event)
-    toast.error('Tải lên dữ liệu thất bại')
+    setUploading(false)
+    toast.error('Tải lên video thất bại')
   }, [])
 
+  const handleResetVideo = useCallback(() => {
+    setMuxPlaybackId(null)
+    setMuxAssetId(null)
+    setDuration(null)
+    refetchUploadUrl()
+  }, [refetchUploadUrl])
+
+  const handleMediaSelect = useCallback(
+    (playback_id: string, asset_id: string | undefined) => {
+      if (!asset_id) {
+        toast.error('Không tìm thấy asset ID cho video này')
+        return
+      }
+
+      setMuxPlaybackId(playback_id)
+      setMuxAssetId(asset_id)
+      toast.success('Đã chọn video từ thư viện')
+    },
+    []
+  )
+
+  const resetVideoStates = () => {
+    setMuxPlaybackId(null)
+    setMuxAssetId(null)
+    setDuration(null)
+    setUploading(false)
+    refetchUploadUrl()
+  }
+
   const onsubmit = (data: LessonVideoPayload) => {
-    if ((!isEdit && !selectedFile) || !chapterId) return
+    if (!chapterId) {
+      toast.error('Không tìm thấy thông tin chương học')
+      return
+    }
+
+    if (!isEdit && !muxPlaybackId) {
+      toast.error('Vui lòng thêm video trước khi lưu')
+      return
+    }
 
     if (isLessonVideoCreating || isLessonVideoUpdating) return
 
     const formData = new FormData()
     formData.append('title', data.title)
     formData.append('content', data.content)
-    if (data.is_free_preview !== undefined) {
-      formData.append('is_free_preview', data.is_free_preview ? '1' : '0')
-    }
-    if (isEdit) {
-      if (selectedFile) {
-        formData.append('video_file', selectedFile)
-      } else {
-        formData.delete('video_file')
-      }
-    } else {
-      if (!selectedFile) {
-        return toast.error('Vui lòng tải lên video')
-      }
-      formData.append('video_file', selectedFile)
-    }
+    formData.append('is_free_preview', data.is_free_preview ? '1' : '0')
     formData.append('chapter_id', String(chapterId))
+
+    if (muxAssetId) {
+      formData.append('mux_asset_id', muxAssetId)
+    }
+
+    if (muxPlaybackId) {
+      formData.append('mux_playback_id', muxPlaybackId)
+    }
+
+    if (duration !== null) {
+      formData.append('duration', String(duration))
+    }
+
     if (isEdit) {
       formData.append('_method', 'PUT')
     }
 
     if (isEdit) {
-      updateLessonVideo({
-        chapterId,
-        lessonId: String(lessonId),
-        payload: formData,
-      })
+      updateLessonVideo(
+        {
+          chapterId,
+          lessonId: String(lessonId),
+          payload: formData,
+        },
+        {
+          onSuccess: () => {
+            onHide()
+            resetVideoStates()
+          },
+        }
+      )
     } else {
       createLessonVideo(
         { chapterId, payload: formData },
         {
-          onSuccess: async () => {
+          onSuccess: () => {
             form.reset()
             onHide()
+            resetVideoStates()
           },
         }
       )
     }
   }
 
-  if (isLoading)
+  if (isLessonLoading) {
     return <Loader2 className="mx-auto animate-spin text-muted-foreground" />
+  }
 
   return (
     <>
@@ -253,90 +321,133 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
 
           {isDraftOrRejected && (
             <div className="mt-2">
-              <h3 className="my-2 text-sm">Tải video cho bài giảng</h3>
+              <h3 className="mb-2 text-sm font-medium">Video bài giảng</h3>
 
-              <div className="flex flex-col items-center justify-center gap-4 rounded-md border-2 border-dashed border-gray-300 p-5">
+              <div className="flex flex-col rounded-md border-2 border-dashed border-gray-300 p-5">
                 {muxPlaybackId ? (
-                  <MuxPlayer
-                    loading="page"
-                    playbackId={muxPlaybackId || ''}
-                    autoPlay={false}
-                    className="aspect-video"
-                    accentColor="hsl(var(--primary))"
-                  />
-                ) : (
-                  videoUrl && (
-                    <video
-                      src={videoUrl}
-                      controls
-                      loop
-                      className="size-full rounded-lg object-cover"
+                  <>
+                    <MuxPlayer
+                      loading="page"
+                      playbackId={muxPlaybackId}
+                      autoPlay={false}
+                      className="aspect-video w-full"
+                      accentColor="hsl(var(--primary))"
                     />
-                  )
-                )}
 
-                <FormField
-                  control={form.control}
-                  name="video_file"
-                  render={({ field }) =>
-                    videoUrl || muxPlaybackId ? (
-                      <div className="flex w-full items-center justify-between">
-                        {selectedFile && (
-                          <p className="text-left text-sm font-medium">
-                            Đã chọn video: {selectedFile?.name || ''}
-                          </p>
+                    {isDraftOrRejected && (
+                      <Button
+                        onClick={handleResetVideo}
+                        type="button"
+                        variant="outline"
+                        className="mt-4 w-full sm:w-auto"
+                        disabled={
+                          isLessonVideoCreating || isLessonVideoUpdating
+                        }
+                      >
+                        Thay đổi bài giảng
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full space-y-4">
+                    <Tabs
+                      defaultValue="upload"
+                      value={activeTab}
+                      onValueChange={setActiveTab}
+                      className="w-full"
+                    >
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger
+                          value="upload"
+                          className="flex items-center gap-2"
+                        >
+                          <Upload className="size-4" />
+                          <span>Tải lên</span>
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="library"
+                          className="flex items-center gap-2"
+                        >
+                          <FolderOpen className="size-4" />
+                          <span>Thư viện</span>
+                        </TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="upload" className="py-4">
+                        {uploadUrlData?.data?.url ? (
+                          <>
+                            <p className="mb-4 text-center text-sm">
+                              Kéo và thả hoặc tải lên video bài giảng (MP4, AVI,
+                              MKV)
+                            </p>
+                            <MuxUploader
+                              endpoint={uploadUrlData.data.url}
+                              onUploadStart={handleMuxUploadStart}
+                              onSuccess={handleMuxUploadSuccess}
+                              onUploadError={handleMuxUploadError}
+                              maxFileSize={1073741824}
+                              className="w-full"
+                            />
+                          </>
+                        ) : (
+                          <div className="flex items-center justify-center space-x-2">
+                            <Loader2 className="size-4 animate-spin" />
+                            <p className="text-sm text-muted-foreground">
+                              Đang khởi tạo trình tải lên...
+                            </p>
+                          </div>
                         )}
-                        <Button
-                          onClick={() => {
-                            handleResetClick()
-                            field.onChange(undefined)
-                          }}
-                          type="button"
-                          variant="destructive"
-                          className="ml-auto"
-                          disabled={
-                            isLessonVideoCreating || isLessonVideoUpdating
-                          }
+
+                        {uploading && (
+                          <div className="mt-4 flex items-center justify-center space-x-2">
+                            <Loader2 className="size-4 animate-spin" />
+                            <p className="text-sm text-muted-foreground">
+                              Đang xử lý video, vui lòng đợi...
+                            </p>
+                          </div>
+                        )}
+                      </TabsContent>
+
+                      <TabsContent
+                        value="library"
+                        className="flex flex-col items-center justify-center py-8"
+                      >
+                        <div className="mb-4 text-center">
+                          <h4 className="text-sm font-medium">
+                            Chọn từ thư viện video của bạn
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            Sử dụng lại video đã có sẵn trong thư viện
+                          </p>
+                        </div>
+
+                        <Dialog
+                          open={mediaLibraryOpen}
+                          onOpenChange={setMediaLibraryOpen}
                         >
-                          Tải lại
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <span className="text-xs">
-                          Tải dữ liệu video hoặc kéo thả vào đây
-                        </span>
-                        <button
-                          type="button"
-                          className="rounded-lg border border-black p-4 font-medium transition-all duration-300 ease-in-out hover:bg-[#404040] hover:text-white"
-                          onClick={handleUploadClick}
-                        >
-                          Upload a video
-                        </button>
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept=".mp4,.avi,.mkv,.flv"
-                          style={{ display: 'none' }}
-                          onChange={(event) => {
-                            handleFileChange(event)
-                            field.onChange(event.target.files?.[0])
-                          }}
-                        />
-                        <FormMessage />
-                      </>
-                    )
-                  }
-                />
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="flex items-center gap-2"
+                            >
+                              <FolderOpen className="size-4" />
+                              Mở thư viện
+                            </Button>
+                          </DialogTrigger>
+
+                          <MediaLibraryDialog
+                            open={mediaLibraryOpen}
+                            onOpenChange={setMediaLibraryOpen}
+                            onSelectMedia={handleMediaSelect}
+                          />
+                        </Dialog>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                )}
               </div>
             </div>
           )}
-
-          <MuxUploader
-            endpoint="http://datn-be.test/upload"
-            onSuccess={handleMuxUploadSuccess}
-            onUploadError={handleMuxUploadError}
-          />
 
           <FormField
             control={form.control}
@@ -365,10 +476,15 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
             <div className="flex justify-end">
               <Button
                 type="submit"
-                disabled={isLessonVideoCreating || isLessonVideoUpdating}
+                disabled={
+                  isLessonVideoCreating ||
+                  isLessonVideoUpdating ||
+                  uploading ||
+                  (!isEdit && !muxPlaybackId)
+                }
               >
                 {(isLessonVideoCreating || isLessonVideoUpdating) && (
-                  <Loader2 className="animate-spin" />
+                  <Loader2 className="mr-2 size-4 animate-spin" />
                 )}
                 {isEdit ? 'Cập nhật' : 'Thêm bài học'}
               </Button>

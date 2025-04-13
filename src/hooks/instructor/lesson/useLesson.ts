@@ -11,6 +11,7 @@ import {
 import QueryKey from '@/constants/query-key'
 import { instructorLessonApi } from '@/services/instructor/lesson/lesson-api'
 import { useToastMutation } from '@/hooks/use-toast-mutation'
+import { IMediaQueryParams } from '@/types/Common'
 
 export const useGetLessonCoding = (lessonSlug: string, codingId: string) => {
   return useQuery({
@@ -338,5 +339,28 @@ export const useUpdateCodingLesson = () => {
     onError: (error) => {
       toast.error(error.message)
     },
+  })
+}
+
+export const useGetUploadUrl = () => {
+  return useQuery({
+    queryKey: [QueryKey.GET_UPLOAD_URL],
+    queryFn: () => instructorLessonApi.getUploadUrl(),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export const useGetVideoInfo = (uploadId: string) => {
+  return useQuery({
+    queryKey: [QueryKey.GET_VIDEO_INFO, uploadId],
+    queryFn: () => instructorLessonApi.getVideoInfo(uploadId),
+    enabled: !!uploadId,
+  })
+}
+
+export const useMedia = (params: IMediaQueryParams = {}) => {
+  return useQuery({
+    queryKey: [QueryKey.GET_MEDIA_DATA, params],
+    queryFn: () => instructorLessonApi.searchMediaItem(params),
   })
 }

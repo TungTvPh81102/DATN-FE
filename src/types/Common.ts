@@ -30,3 +30,40 @@ export interface IPurchasedMembership {
   updated_at: string
   membership_plan: IMembershipPlan
 }
+
+export interface IMediaItem {
+  id: number
+  title: string
+  type: string
+  asset_id: string | undefined
+  playback_id?: string | undefined
+  thumbnail?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface IMediaResponse {
+  status: string
+  data: IMediaItem[]
+  meta: {
+    total: number
+    per_page: number
+    current_page: number
+    last_page: number
+  }
+}
+
+export interface IMediaQueryParams {
+  search?: string
+  type?: string
+  user_id?: number
+  per_page?: number
+  page?: number
+  order_by?: string
+  direction?: 'asc' | 'desc'
+}
+
+export interface DateRange {
+  from: Date | undefined
+  to: Date | undefined
+}
