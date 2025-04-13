@@ -42,6 +42,26 @@ export const instructorStatisticApi = {
     return res.data
   },
 
+  getFollowStatistics: async (year: number | undefined) => {
+    const res = await api.get(`${prefix}/follows`, {
+      params: {
+        year,
+      },
+    })
+    return res.data
+  },
+
+  getRatingStatistics: async (params: {
+    course_id?: string
+    date_from?: string
+    date_to?: string
+  }) => {
+    const res = await api.get(`${prefix}/ratings`, {
+      params,
+    })
+    return res.data
+  },
+
   getMonthlyMembershipsRevenue: async (): Promise<
     IMembershipsRevenueStatistics[]
   > => {

@@ -8,6 +8,7 @@ export interface OverviewStatistics {
 export interface RevenueStatistics {
   [key: string]: null | string
 }
+
 export interface StudentPurchaseStatistics {
   [key: string]: {
     total_purchases: number
@@ -29,6 +30,18 @@ export interface CourseRevenueStatistics {
   total_revenue: string
   avg_progress: string | null
   avg_rating: string
+}
+
+export interface IFollowStatistics {
+  month: number
+  count: number
+}
+
+export interface IRatingStatistics {
+  rating: number
+  count: number
+  label: string
+  percentage: number
 }
 
 export interface IMembershipsRevenueStatistics {

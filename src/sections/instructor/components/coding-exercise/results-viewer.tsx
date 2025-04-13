@@ -97,7 +97,7 @@ export const ResultsViewer = ({
                     </TableCell>
                     <TableCell>{test.input.join(', ')}</TableCell>
                     <TableCell>{test.expected}</TableCell>
-                    <TableCell>{test.received}</TableCell>
+                    <TableCell>{test.actual}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

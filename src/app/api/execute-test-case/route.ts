@@ -41,26 +41,26 @@ export async function POST(req: NextRequest) {
       ],
     })
 
-    const receivedOutputs = result.run.stdout
+    const actualOutputs = result.run.stdout
       .split('\n')
       .filter((line) => line.trim() !== '')
 
     const testResults = testCase.map((tc, index) => {
       const input = JSON.parse(tc.input)
       const expected = JSON.parse(tc.output)
-      let received
+      let actual
 
       try {
-        received = JSON.parse(receivedOutputs[index])
+        actual = JSON.parse(actualOutputs[index])
       } catch {
-        received = receivedOutputs[index]
+        actual = actualOutputs[index]
       }
 
       return {
         input: input?.flat(),
         expected,
-        received,
-        passed: received === expected,
+        actual,
+        passed: actual === expected,
       }
     })
 

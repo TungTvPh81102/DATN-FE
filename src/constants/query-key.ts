@@ -70,6 +70,8 @@ enum QueryKey {
   INSTRUCTOR_STATISTICS_PURCHASE = 'instructor-statistics-purchase',
   INSTRUCTOR_STATISTICS_COURSE_REVENUE = 'instructor-statistics-course-revenue',
   INSTRUCTOR_STATISTICS_STUDENT = 'instructor-statistics-student',
+  INSTRUCTOR_STATISTICS_RATINGS = 'instructor-statistics-rating',
+  INSTRUCTOR_STATISTICS_FOLLOW = 'instructor-statistics-follow',
   INSTRUCTOR_STATISTICS_MEMBERSHIPS_REVENUE = 'instructor-statistics-membership-revenue',
   QUIZ_SUBMISSION = 'quiz-submission',
   CODING_SUBMISSION = 'coding-submission',
@@ -85,6 +87,9 @@ enum QueryKey {
   WHEEL_TURN = 'wheel-spin-turn',
   WHEEL_SPIN_HISTORY = 'wheel-spin-history',
   PRACTICE_EXERCISES = 'practice-exercises',
+  GET_UPLOAD_URL = 'get-upload-url',
+  GET_VIDEO_INFO = 'get-video-info',
+  GET_MEDIA_DATA = 'get-media-data',
 }
 
 export default QueryKey

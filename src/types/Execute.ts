@@ -25,6 +25,6 @@ interface Data {
 interface TestCase {
   input: number[]
   expected: number
-  received: string
+  actual: string
   passed: boolean
 }

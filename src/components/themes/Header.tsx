@@ -32,6 +32,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
   ssr: false,
@@ -51,7 +52,6 @@ const Header = () => {
   const { data: searchResults, isLoading: searchLoading } =
     useSearch(debouncedQuery)
   const { data: RecentCoursData } = useGetRecentCourse()
-  console.log('RecentCoursData', RecentCoursData)
 
   const router = useRouter()
 
@@ -182,7 +182,12 @@ const Header = () => {
   return (
     <>
       <div className="tf-top-bar overflow-x-hidden">
-        <p className="h-full animate-slide-loop whitespace-nowrap">
+        <p
+          className={cn(
+            'h-full animate-slide-loop whitespace-nowrap',
+            'sm:duration-20s md:duration-25s lg:duration-30s xl:duration-35s 2xl:duration-40s'
+          )}
+        >
           Chào mừng bạn đến với nền tảng học tập trực tuyến tại CourseMeLy
         </p>
       </div>
