@@ -7,6 +7,8 @@ import StudentPurchaseChart from '../components/statistics/student-purchase-char
 import { DashboardCoursesTable } from '../components/statistics/table/dashboard-courses-table'
 import { useSidebar } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
+import RatingStatistics from '@/sections/instructor/components/statistics/rating-statistics'
+import FollowStatistics from '@/sections/instructor/components/statistics/follow-statistics'
 
 const StatisticsView = () => {
   const { open } = useSidebar()
@@ -39,6 +41,9 @@ const StatisticsView = () => {
       <StudentPurchaseChart />
 
       <DashboardCoursesTable />
+
+      <RatingStatistics />
+      <FollowStatistics />
     </Container>
   )
 }

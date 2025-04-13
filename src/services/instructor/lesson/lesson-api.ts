@@ -6,6 +6,7 @@ import {
   UpdateTitleLessonPayload,
 } from '@/validations/lesson'
 import api from '@/configs/api'
+import { IMediaQueryParams, IMediaResponse } from '@/types/Common'
 
 const prefix = '/instructor/manage/lessons'
 
@@ -126,5 +127,19 @@ export const instructorLessonApi = {
     payload: LessonQuizPayload
   }): Promise<any> => {
     return api.put(`${prefix}/quiz/${quizId}/update-quiz-content`, payload)
+  },
+  getUploadUrl: async () => {
+    return await api.get(`/instructor/manage/get-upload-url`)
+  },
+  getVideoInfo: async (uploadId: string) => {
+    return await api.get(`/instructor/manage/get-video-info/${uploadId}`)
+  },
+  searchMediaItem: async (
+    params: IMediaQueryParams
+  ): Promise<IMediaResponse> => {
+    const res = await api.get(`/instructor/manage/media`, {
+      params,
+    })
+    return res.data
   },
 }

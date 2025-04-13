@@ -25,7 +25,6 @@ export const lessonVideoSchema = z
       .string()
       .min(3, 'Tiêu đề phải có ít nhất 3 ký tự')
       .max(255, 'Tiêu đề không được vượt quá 255 ký tự'),
-    video_file: z.any(),
     content: z.string().min(1, 'Nội dung là bắt buộc'),
     is_free_preview: z
       .union([z.boolean(), z.number()])
@@ -33,21 +32,7 @@ export const lessonVideoSchema = z
       .optional(),
     isEdit: z.boolean().optional(),
   })
-  .superRefine((data, ctx) => {
-    if (!data.isEdit && !(data.video_file instanceof File)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['video_file'],
-        message: 'File video là bắt buộc khi thêm mới',
-      })
-    } else if (data.video_file && !(data.video_file instanceof File)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['video_file'],
-        message: 'File video không hợp lệ',
-      })
-    }
-
+  .superRefine((data) => {
     if (data.isEdit && data.is_free_preview !== undefined) {
       return
     }
