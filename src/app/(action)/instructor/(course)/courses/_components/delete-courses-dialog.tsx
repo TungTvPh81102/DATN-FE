@@ -63,7 +63,7 @@ export function DeleteCoursesDialog({
         {showTrigger ? (
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
-              <Trash className="mr-2 size-4" aria-hidden="true" />
+              <Trash aria-hidden="true" />
               Xóa ({courses.length})
             </Button>
           </DialogTrigger>
@@ -88,10 +88,7 @@ export function DeleteCoursesDialog({
               disabled={isPending}
             >
               {isPending && (
-                <Loader2
-                  className="mr-2 size-4 animate-spin"
-                  aria-hidden="true"
-                />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               Xóa
             </Button>
@@ -106,7 +103,7 @@ export function DeleteCoursesDialog({
       {showTrigger ? (
         <DrawerTrigger asChild>
           <Button variant="outline" size="sm">
-            <Trash className="mr-2 size-4" aria-hidden="true" />
+            <Trash aria-hidden="true" />
             Xóa ({courses.length})
           </Button>
         </DrawerTrigger>
@@ -131,10 +128,7 @@ export function DeleteCoursesDialog({
             disabled={isPending}
           >
             {isPending && (
-              <Loader2
-                className="mr-2 size-4 animate-spin"
-                aria-hidden="true"
-              />
+              <Loader2 className="animate-spin" aria-hidden="true" />
             )}
             Xóa
           </Button>

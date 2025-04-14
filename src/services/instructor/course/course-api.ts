@@ -4,7 +4,7 @@ import {
   UpdateCourseObjectivePayload,
 } from '@/validations/course'
 import api from '@/configs/api'
-import { CoursePreview, ICourse } from '@/types'
+import { CoursePreview, ICourse, ITrashCourse } from '@/types'
 import { ValidateCourse } from '@/types/validate-course'
 
 const prefix = '/instructor/manage/courses'
@@ -84,7 +84,7 @@ export const instructorCourseApi = {
   },
 
   // API TRASH
-  getCoursesFormTrash: async (): Promise<any> => {
+  getCoursesFormTrash: async (): Promise<ITrashCourse[]> => {
     const res = await api.get(`${prefix}/trash`)
     return res.data
   },

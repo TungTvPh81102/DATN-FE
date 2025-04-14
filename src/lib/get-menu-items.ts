@@ -62,6 +62,10 @@ export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
               title: 'Theo dõi tiến độ',
               url: '#',
             },
+            {
+              title: 'Khoá học đã xóa',
+              url: '/instructor/courses/trash',
+            },
           ],
         },
         {

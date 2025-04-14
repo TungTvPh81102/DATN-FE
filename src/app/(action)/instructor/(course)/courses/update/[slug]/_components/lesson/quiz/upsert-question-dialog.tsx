@@ -512,7 +512,7 @@ export const UpsertQuestionDialog = ({
                 </DialogClose>
                 <Button disabled={disabled} type="submit">
                   {(isQuestionCreatePending || isQuestionUpdatePending) && (
-                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    <Loader2 className="animate-spin" />
                   )}
                   {question?.id ? 'Cập nhật' : 'Thêm câu hỏi'}
                 </Button>

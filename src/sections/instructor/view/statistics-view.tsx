@@ -38,7 +38,7 @@ const StatisticsView = () => {
         </div>
       </div>
       <StudentPurchaseChart />
-      `
+
       <DashboardCoursesTable />
       <RatingStatistics />
       <FollowStatistics />

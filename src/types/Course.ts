@@ -321,3 +321,27 @@ export interface IPracticeExerciseResponse {
   message: string
   data: IPracticeExercise[]
 }
+
+export interface ITrashCourse
+  extends Pick<
+    ICourse,
+    | 'id'
+    | 'category_id'
+    | 'name'
+    | 'slug'
+    | 'thumbnail'
+    | 'intro'
+    | 'price'
+    | 'price_sale'
+    | 'total_student'
+    | 'status'
+    | 'is_free'
+    | 'deleted_at'
+    | 'created_at'
+    | 'updated_at'
+  > {
+  category: {
+    id: number
+    name: string
+  }
+}
