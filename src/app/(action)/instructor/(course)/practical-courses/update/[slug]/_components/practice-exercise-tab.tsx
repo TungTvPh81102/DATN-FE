@@ -51,7 +51,7 @@ export const PracticeExerciseTab = ({ chapter, slug }: Props) => {
 
   useEffect(() => {
     setLessons(chapter?.lessons || [])
-  }, [chapter.lessons])
+  }, [chapter?.lessons])
 
   const onValueChange = (
     data: {
@@ -185,19 +185,21 @@ export const PracticeExerciseTab = ({ chapter, slug }: Props) => {
         })}
       </Sortable>
 
-      <Button
-        disabled={!isDraftOrRejected}
-        onClick={() => setAddNewLesson((prev) => !prev)}
-        variant={addNewLesson ? 'outline' : 'default'}
-      >
-        <motion.div
-          animate={{ rotate: addNewLesson ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
+      {chapter?.lessons && (
+        <Button
+          disabled={!isDraftOrRejected}
+          onClick={() => setAddNewLesson((prev) => !prev)}
+          variant={addNewLesson ? 'outline' : 'default'}
         >
-          {addNewLesson ? <CircleX /> : <CirclePlus />}
-        </motion.div>
-        {addNewLesson ? 'Đóng' : 'Thêm bài học'}
-      </Button>
+          <motion.div
+            animate={{ rotate: addNewLesson ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {addNewLesson ? <CircleX /> : <CirclePlus />}
+          </motion.div>
+          {addNewLesson ? 'Đóng' : 'Thêm bài học'}
+        </Button>
+      )}
 
       {addNewLesson && (
         <div className="flex h-full flex-col justify-between space-y-4 rounded-lg border p-4">

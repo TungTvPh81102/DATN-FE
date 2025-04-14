@@ -59,7 +59,7 @@ export function DeleteQuestionsDialog({
         {showTrigger ? (
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
-              <Trash className="mr-2 size-4" aria-hidden="true" />
+              <Trash aria-hidden="true" />
               Xóa ({questions.length})
             </Button>
           </DialogTrigger>
@@ -84,10 +84,7 @@ export function DeleteQuestionsDialog({
               disabled={isPending}
             >
               {isPending && (
-                <Loader2
-                  className="mr-2 size-4 animate-spin"
-                  aria-hidden="true"
-                />
+                <Loader2 className="animate-spin" aria-hidden="true" />
               )}
               Xóa
             </Button>
@@ -102,7 +99,7 @@ export function DeleteQuestionsDialog({
       {showTrigger ? (
         <DrawerTrigger asChild>
           <Button variant="outline" size="sm">
-            <Trash className="mr-2 size-4" aria-hidden="true" />
+            <Trash aria-hidden="true" />
             Xóa ({questions.length})
           </Button>
         </DrawerTrigger>
@@ -127,10 +124,7 @@ export function DeleteQuestionsDialog({
             disabled={isPending}
           >
             {isPending && (
-              <Loader2
-                className="mr-2 size-4 animate-spin"
-                aria-hidden="true"
-              />
+              <Loader2 className="animate-spin" aria-hidden="true" />
             )}
             Xóa
           </Button>
