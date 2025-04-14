@@ -276,28 +276,25 @@ const Header = () => {
                     <h3 className="mb-3 text-lg font-semibold text-primary">
                       Khóa học gần đây
                     </h3>
-                    {RecentCoursData?.data?.length > 0 ? (
+                    {RecentCoursData?.data?.courses?.length > 0 ? (
                       <>
                         <div className="space-y-3">
-                          {RecentCoursData?.data.map((course: any) => (
+                          {RecentCoursData?.data?.courses.map((course: any) => (
                             <Link
-                              key={course.course_id}
-                              href={`/courses/${course.course_id}`}
+                              key={course.id}
+                              href={`/learning/${course.slug}/lesson/${course.current_lesson?.id}`}
                               className="flex items-center gap-3 rounded-lg p-2 transition-all hover:bg-gray-50"
                             >
                               <Image
-                                src={
-                                  course.thumbnail ||
-                                  '/images/course-placeholder.jpg'
-                                }
-                                alt={course.course_name}
+                                src={course?.thumbnail}
+                                alt={course?.name}
                                 width={80}
                                 height={60}
                                 className="h-16 w-20 rounded-md object-cover shadow-sm"
                               />
                               <div className="min-w-0 flex-1">
                                 <p className="mb-1 truncate text-sm font-medium">
-                                  {course.course_name}
+                                  {course.name}
                                 </p>
                                 <div className="flex items-center text-xs text-gray-500">
                                   <div className="h-1.5 w-full rounded-full bg-gray-200">

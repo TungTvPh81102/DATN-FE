@@ -9,8 +9,15 @@ import CouponPage from '@/app/(website)/my-courses/coupons/page'
 import AllCoursesPage from '@/app/(website)/my-courses/page'
 import WishlistPage from '@/app/(website)/my-courses/wishlist/page'
 import MembershipPage from '@/app/(website)/my-courses/membership/page'
+import MyCourseHistoryPage from '@/app/(website)/my-courses/history/page'
 
-type TabType = 'all' | 'wishlist' | 'certificate' | 'coupon' | 'membership'
+type TabType =
+  | 'all'
+  | 'wishlist'
+  | 'certificate'
+  | 'coupon'
+  | 'membership'
+  | 'courses-history'
 
 export default function MyCoursesLayout() {
   const searchParams = useSearchParams()
@@ -24,7 +31,13 @@ export default function MyCoursesLayout() {
   }, [activeTab, router])
 
   const handleTabChange = (
-    tab: 'all' | 'wishlist' | 'certificate' | 'coupon' | 'membership'
+    tab:
+      | 'all'
+      | 'wishlist'
+      | 'certificate'
+      | 'coupon'
+      | 'membership'
+      | 'courses-history'
   ) => {
     setActiveTab(tab)
     router.push(`/my-courses?tab=${tab}`)
@@ -42,6 +55,8 @@ export default function MyCoursesLayout() {
         return <CouponPage />
       case 'membership':
         return <MembershipPage />
+      case 'courses-history':
+        return <MyCourseHistoryPage />
       default:
         return <AllCoursesPage />
     }
@@ -69,6 +84,7 @@ export default function MyCoursesLayout() {
               { id: 'certificate', label: 'Chứng chỉ đã nhận' },
               { id: 'coupon', label: 'Mã giảm giá của tôi' },
               { id: 'membership', label: 'Hội viên' },
+              { id: 'courses-history', label: 'Khóa học gần đây' },
             ].map((tab) => (
               <button
                 key={tab.id}
