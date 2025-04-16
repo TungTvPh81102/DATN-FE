@@ -173,7 +173,7 @@ export const PracticeExerciseTab = ({ chapter, slug }: Props) => {
                   <AccordionContent className="mt-2 space-y-4 rounded-lg p-4">
                     <LessonQuiz
                       isEdit={lessonEdit === lesson.id}
-                      chapterId={chapter ? String(chapter.id) : ''}
+                      chapterId={chapter.id}
                       onHide={() => setLessonEdit(null)}
                       quizId={lesson.lessonable_id}
                     />
@@ -205,7 +205,7 @@ export const PracticeExerciseTab = ({ chapter, slug }: Props) => {
         <div className="flex h-full flex-col justify-between space-y-4 rounded-lg border p-4">
           <LessonQuiz
             onHide={() => setAddNewLesson(false)}
-            chapterId={chapter ? String(chapter.id) : ''}
+            chapterId={chapter.id}
           />
         </div>
       )}

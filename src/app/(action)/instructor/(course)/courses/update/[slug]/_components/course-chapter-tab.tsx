@@ -42,9 +42,14 @@ import SortableLesson from './lesson/sortable-lesson'
 type Props = {
   chapters: IChapter[]
   slug: string
+  allowCoding: boolean
 }
 
-const CourseChapterTab = ({ chapters: chapterList, slug }: Props) => {
+const CourseChapterTab = ({
+  chapters: chapterList,
+  slug,
+  allowCoding,
+}: Props) => {
   const [chapters, setChapters] = useState<IChapter[]>([])
   const [addNewChapter, setAddNewChapter] = useState(false)
   const [chapterEdit, setChapterEdit] = useState<number | null>(null)
@@ -248,7 +253,11 @@ const CourseChapterTab = ({ chapters: chapterList, slug }: Props) => {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="mt-3 rounded-lg p-4">
-                    <SortableLesson chapter={chapter} slug={slug} />
+                    <SortableLesson
+                      chapter={chapter}
+                      slug={slug}
+                      allowCoding={allowCoding}
+                    />
                   </AccordionContent>
                 </AccordionItem>
               </SortableItem>

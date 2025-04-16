@@ -59,20 +59,20 @@ const SolutionTab = () => {
   const ignoreTestCase = useWatch({ name: 'ignore_test_case' })
   const testCase = useWatch({ name: 'test_case' })
 
-  const { sampleFileName, version, codeSnippet } =
+  const { fileName, version, sampleCode } =
     LANGUAGE_CONFIG[language as Language]
 
   const files = {
-    [sampleFileName]: {
-      name: sampleFileName,
+    [fileName]: {
+      name: fileName,
       language,
-      value: codeSnippet,
+      value: sampleCode,
       version,
     },
   }
 
   useEffect(() => {
-    setUserCode(codeSnippet)
+    setUserCode(sampleCode)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language])
 
@@ -234,6 +234,7 @@ const SolutionTab = () => {
                 />
 
                 <Button
+                  size="sm"
                   onClick={() => append({ input: '', output: '' })}
                   disabled={
                     fields.length >= 5 ||

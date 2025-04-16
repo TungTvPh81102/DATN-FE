@@ -75,7 +75,7 @@ const CourseCodingView = ({
   codingId,
 }: {
   slug: string
-  codingId: string
+  codingId: number
 }) => {
   const [tab, setTab] = useState<Tab>(Tab.PLAN)
   const [errorTabs, setErrorTabs] = useState<Tab[]>([])
@@ -103,16 +103,11 @@ const CourseCodingView = ({
 
   const language = useWatch({ control: form.control, name: 'language' })
 
-  const onSubmit = (values: UpdateCodingLessonPayload) => {
-    const data = {
-      ...values,
-      hints: values.hints?.map((item) => item?.hint),
-    }
-
+  const onSubmit = (payload: UpdateCodingLessonPayload) => {
     updateCodingLesson.mutate({
-      chapterSlug: slug,
+      lessonSlug: slug,
       codingId,
-      data,
+      payload,
     })
   }
 
@@ -131,7 +126,7 @@ const CourseCodingView = ({
       test_case:
         lessonCoding?.data.test_case ||
         Array.from({ length: 2 }, () => ({ input: '', output: '' })),
-      ignore_test_case: lessonCoding?.data.ignore_test_case || false,
+      ignore_test_case: !!lessonCoding?.data.ignore_test_case || false,
     })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,13 +135,13 @@ const CourseCodingView = ({
   useEffect(() => {
     if (!language || !lessonCoding?.data) return
 
-    const { codeSnippet } = LANGUAGE_CONFIG[language as Language]
+    const { sampleStudentCode } = LANGUAGE_CONFIG[language as Language]
 
     if (
       !lessonCoding?.data.sample_code ||
       language !== lessonCoding?.data.language
     ) {
-      form.setValue('sample_code', codeSnippet)
+      form.setValue('sample_code', sampleStudentCode)
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

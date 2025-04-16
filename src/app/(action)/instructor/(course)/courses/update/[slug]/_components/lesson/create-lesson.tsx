@@ -8,7 +8,7 @@ import LessonQuiz from './lesson-quiz'
 import LessonVideo from './lesson-video'
 
 type Props = {
-  chapterId?: string
+  chapterId: number
   type: LessonType
   onHide: () => void
 }
@@ -20,7 +20,7 @@ const CreateLesson = ({ chapterId, onHide, type }: Props) => {
     <>
       {type === 'coding' ? (
         <AddCodingDialog
-          chapterId={chapterId as string}
+          chapterId={chapterId}
           open={isCodingDialogOpen}
           onOpenChange={(open) => {
             setIsCodingDialogOpen(open)

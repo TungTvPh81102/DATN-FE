@@ -46,9 +46,10 @@ import CreateLesson from './create-lesson'
 export interface Props {
   chapter: IChapter
   slug: string
+  allowCoding: boolean
 }
 
-const SortableLesson = ({ chapter, slug }: Props) => {
+const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
   const router = useRouter()
 
   const typeIndexMap = { video: 0, document: 0, quiz: 0, coding: 0 }
@@ -100,7 +101,7 @@ const SortableLesson = ({ chapter, slug }: Props) => {
       if (result.isConfirmed) {
         deleteLesson(
           {
-            chapterId: chapter.id as number,
+            chapterId: chapter.id,
             id,
           },
           {
@@ -127,7 +128,7 @@ const SortableLesson = ({ chapter, slug }: Props) => {
           return (
             <SortableItem
               key={lesson.id}
-              value={lesson.id!}
+              value={lesson.id}
               disabled={isUpdateOrder}
               asChild
             >
@@ -235,7 +236,7 @@ const SortableLesson = ({ chapter, slug }: Props) => {
                               return (
                                 <LessonVideo
                                   isEdit={lessonEdit === lesson.id}
-                                  chapterId={chapter ? String(chapter.id) : ''}
+                                  chapterId={chapter.id}
                                   onHide={() => setLessonEdit(null)}
                                   lessonId={lesson?.id}
                                 />
@@ -244,7 +245,7 @@ const SortableLesson = ({ chapter, slug }: Props) => {
                               return (
                                 <LessonDocument
                                   lessonId={lesson?.id}
-                                  chapterId={chapter ? String(chapter.id) : ''}
+                                  chapterId={chapter.id}
                                   onHide={() => setLessonEdit(null)}
                                 />
                               )
@@ -252,7 +253,7 @@ const SortableLesson = ({ chapter, slug }: Props) => {
                               return (
                                 <LessonQuiz
                                   isEdit={lessonEdit === lesson.id}
-                                  chapterId={chapter ? String(chapter.id) : ''}
+                                  chapterId={chapter.id}
                                   onHide={() => setLessonEdit(null)}
                                   quizId={lesson.lessonable_id}
                                 />
@@ -296,7 +297,7 @@ const SortableLesson = ({ chapter, slug }: Props) => {
                 setAddNewLesson(false)
               }}
               type={selectedLesson!}
-              chapterId={String(chapter.id!)}
+              chapterId={chapter.id}
             />
           ) : (
             <div className="grid gap-4 rounded-lg border border-dashed p-2 md:grid-cols-2 lg:grid-cols-4 xl:gap-8">
@@ -312,7 +313,10 @@ const SortableLesson = ({ chapter, slug }: Props) => {
                 <CircleHelp />
                 Câu hỏi
               </Button>
-              <Button onClick={() => setSelectedLesson('coding')}>
+              <Button
+                onClick={() => setSelectedLesson('coding')}
+                disabled={!allowCoding}
+              >
                 <FileCode2 />
                 Coding
               </Button>

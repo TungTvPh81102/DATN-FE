@@ -1,16 +1,16 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
+import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 
-import { IAuthData } from '@/types'
+import api from '@/configs/api'
+import QueryKey from '@/constants/query-key'
 import StorageKey from '@/constants/storage-key'
 import { authApi } from '@/services/auth/authApi'
-import QueryKey from '@/constants/query-key'
-import api from '@/configs/api'
+import { IAuthData } from '@/types'
 
 export const useSignIn = () => {
   const queryClient = useQueryClient()
@@ -21,7 +21,7 @@ export const useSignIn = () => {
 
   return useMutation({
     mutationFn: (data: IAuthData) => authApi.signIn(data),
-    onSuccess: async (res: any) => {
+    onSuccess: async (res) => {
       const token = res?.token
       const user = res?.user
       const role = res.role

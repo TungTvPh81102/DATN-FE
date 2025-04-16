@@ -1,16 +1,30 @@
 import { useGetProfile } from '@/hooks/profile/useProfile'
-import { Loader2 } from 'lucide-react'
 import ProfileMeView from '@/sections/me/_components/profile/_components/profile'
+import { useEffect } from 'react'
+import { setLocalStorage } from '@/lib/common'
 
 const MeProfile = () => {
   const { data: profileData, isLoading: isLoadingProfileData } = useGetProfile()
-  if (isLoadingProfileData) {
-    return (
-      <div className="mt-20">
-        <Loader2 className="mx-auto size-8 animate-spin" />
-      </div>
-    )
-  }
+
+  console.log('profileData', profileData)
+
+  useEffect(() => {
+    const profile = profileData?.data?.user?.profile
+
+    if (profile?.phone && profile?.address) {
+      setLocalStorage('checkProfile', true)
+    } else {
+      setLocalStorage('checkProfile', false)
+    }
+  }, [profileData])
+
+  // if (isLoadingProfileData) {
+  //   return (
+  //     <div className="mt-20">
+  //       <Loader2 className="mx-auto size-8 animate-spin" />
+  //     </div>
+  //   )
+  // }
   return (
     <div>
       <div className="section-setting-right">

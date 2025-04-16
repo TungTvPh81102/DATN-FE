@@ -10,50 +10,56 @@ export const LANGUAGE_CONFIG: {
   [key in Language]: {
     displayName: string
     fileExtension: string
-    sampleFileName: string
+    fileName: string
     version: string
-    codeSnippet: string
+    sampleCode: string
+    sampleStudentCode: string
     isSupported: boolean
   }
 } = {
   [Language.JAVASCRIPT]: {
     displayName: 'JavaScript',
     fileExtension: 'js',
-    sampleFileName: 'script.js',
+    fileName: 'index.js',
     version: '18.15.0',
-    codeSnippet: `console.log('Hello world!');`,
+    sampleCode: `function sum(a, b) {\n\treturn a + b;\n}`,
+    sampleStudentCode: `function sum() {\n\t\n}`,
     isSupported: true,
   },
   [Language.TYPESCRIPT]: {
     displayName: 'TypeScript',
     fileExtension: 'ts',
-    sampleFileName: 'app.ts',
+    fileName: 'index.ts',
     version: '5.0.3',
-    codeSnippet: `console.log('Hello world!');`,
-    isSupported: false,
+    sampleCode: `function sum(a: number, b: number) {\n\treturn a + b;\n}`,
+    sampleStudentCode: `function sum() {\n\t\n}`,
+    isSupported: true,
   },
   [Language.PYTHON]: {
     displayName: 'Python',
     fileExtension: 'py',
-    sampleFileName: 'main.py',
+    fileName: 'main.py',
     version: '3.10.0',
-    codeSnippet: `print('Hello world!')`,
+    sampleCode: `def sum(a, b):\n\treturn a + b`,
+    sampleStudentCode: `def sum():\n\tpass`,
     isSupported: false,
   },
   [Language.JAVA]: {
     displayName: 'Java',
     fileExtension: 'java',
-    sampleFileName: 'Main.java',
+    fileName: 'Main.java',
     version: '15.0.2',
-    codeSnippet: `public class Main {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello world!");\n\t}\n}`,
+    sampleCode: `public class Main {\n\tpublic static int sum(int a, int b) {\n\t\treturn a + b;\n\t}\n}`,
+    sampleStudentCode: `public class Main {\n\tpublic static int sum() {\n\t\t\n\t}\n}`,
     isSupported: false,
   },
   [Language.PHP]: {
     displayName: 'PHP',
     fileExtension: 'php',
-    sampleFileName: 'index.php',
+    fileName: 'index.php',
     version: '8.2.3',
-    codeSnippet: `<?php echo 'Hello world!';`,
+    sampleCode: `<?php\nfunction sum($a, $b) {\n\treturn $a + $b;\n}`,
+    sampleStudentCode: `<?php\nfunction sum() {\n\t\n}`,
     isSupported: false,
   },
 }

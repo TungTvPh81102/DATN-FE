@@ -73,6 +73,7 @@ export interface ICourse {
   user: IUser
   category: ICategory
   chapters: IChapter[]
+  allow_coding_lesson: 0 | 1
 }
 
 export interface CourseDetail extends ICourse {
@@ -95,11 +96,11 @@ export interface CoursePreview {
 }
 
 export interface IChapter {
-  id?: number
+  id: number
   courseId?: number
   title: string
-  order?: number | null
-  lessons?: ILesson[]
+  order: number | null
+  lessons: ILesson[]
   lessons_count?: number
   total_video_duration?: number
   createdAt?: Date | null
@@ -144,7 +145,7 @@ export interface Lessonable {
   // Document
   content?: string
   file_path?: string
-  file_type?: string
+  file_type?: 'upload' | 'url'
 
   // Coding
   language?: string
@@ -154,7 +155,7 @@ export interface Lessonable {
   // result_code?: string
   // solution_code?: string
   test_case?: string
-  ignore_test_case?: boolean
+  ignore_test_case?: 1 | 0
 }
 
 export type LessonType = 'video' | 'quiz' | 'document' | 'coding'

@@ -27,7 +27,7 @@ import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import { QuestionsTable } from './quiz/questions-table'
 
 type Props = {
-  chapterId?: string
+  chapterId: number
   onHide: () => void
   isEdit?: boolean
   quizId?: number
@@ -62,7 +62,7 @@ const LessonQuiz = ({ chapterId, onHide, isEdit, quizId }: Props) => {
     }
   }, [form, isEdit, questionData])
 
-  const onSubmit = (data: LessonQuizPayload) => {
+  const onSubmit = (payload: LessonQuizPayload) => {
     const onSuccess = () => {
       form.reset()
       onHide()
@@ -71,13 +71,13 @@ const LessonQuiz = ({ chapterId, onHide, isEdit, quizId }: Props) => {
     if (isEdit)
       updateQuizContent({
         quizId,
-        payload: data,
+        payload,
       })
     else
       createLessonQuiz(
         {
-          chapterId: chapterId as string,
-          payload: data,
+          chapterId,
+          payload,
         },
         {
           onSuccess,

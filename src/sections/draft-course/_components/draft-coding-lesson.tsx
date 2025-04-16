@@ -20,10 +20,10 @@ type Props = {
 const DraftCodingLesson = ({ lesson }: Props) => {
   const language = lesson?.language as Language
 
-  const { sampleFileName, version } = LANGUAGE_CONFIG[language]
+  const { fileName, version } = LANGUAGE_CONFIG[language]
   const files = {
-    [sampleFileName]: {
-      name: sampleFileName,
+    [fileName]: {
+      name: fileName,
       language,
       value: lesson?.sample_code || '',
       version,

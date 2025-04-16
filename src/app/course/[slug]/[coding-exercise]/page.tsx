@@ -18,7 +18,7 @@ const CourseExercisePage = ({ params, searchParams }: Props) => {
     redirect('/not-found')
   }
 
-  return <CourseCodingView slug={slug} codingId={codingId} />
+  return <CourseCodingView slug={slug} codingId={+codingId} />
 }
 
 export default CourseExercisePage
