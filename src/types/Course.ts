@@ -73,6 +73,7 @@ export interface ICourse {
   user: IUser
   category: ICategory
   chapters: IChapter[]
+  allow_coding_lesson: 0 | 1
 }
 
 export interface CourseDetail extends ICourse {
@@ -154,7 +155,7 @@ export interface Lessonable {
   // result_code?: string
   // solution_code?: string
   test_case?: string
-  ignore_test_case?: '1' | '0'
+  ignore_test_case?: 1 | 0
 }
 
 export type LessonType = 'video' | 'quiz' | 'document' | 'coding'

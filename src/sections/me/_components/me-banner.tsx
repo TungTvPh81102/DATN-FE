@@ -10,7 +10,7 @@ const MeBanner = () => {
   const router = useRouter()
 
   const handleBecomeInstructor = useCallback(() => {
-    const checkProfile = getLocalStorage('checkProfile') === 'true'
+    const checkProfile = getLocalStorage('checkProfile')
 
     if (!checkProfile) {
       Swal.fire({

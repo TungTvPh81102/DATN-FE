@@ -37,20 +37,21 @@ import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
+import ModalLoading from '@/components/common/ModalLoading'
+import { Card, CardContent } from '@/components/ui/card'
+import { useGetProfile } from '@/hooks/profile/useProfile'
+import echo from '@/lib/echo'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
+import Webcam from 'react-webcam'
+import Swal from 'sweetalert2'
+
 import 'swiper/css'
 import 'swiper/css/autoplay'
-import ModalLoading from '@/components/common/ModalLoading'
-import { useRouter } from 'next/navigation'
-import { useAuthStore } from '@/stores/useAuthStore'
-import Swal from 'sweetalert2'
-import { getLocalStorage } from '@/lib/common'
-import echo from '@/lib/echo'
-import { Card, CardContent } from '@/components/ui/card'
-import Webcam from 'react-webcam'
-import { toast } from 'react-toastify'
 
 const BecomeAnInstructor = () => {
-  const { user, isAuthenticated, role, setRole } = useAuthStore()
+  const { user, role, setRole } = useAuthStore()
   const router = useRouter()
 
   const [step, setStep] = useState(1)
@@ -61,9 +62,9 @@ const BecomeAnInstructor = () => {
   const [isCameraActive, setIsCameraActive] = useState(false)
 
   const { data: qaSystems, isLoading } = useGetQaSystems()
-  const { mutate: registerInstructor, isPending } = useInstructorRegister()
+  const { data: profileData, isLoading: isLoadingProfileData } = useGetProfile()
 
-  const checkProfile = getLocalStorage('checkProfile')
+  const { mutate: registerInstructor, isPending } = useInstructorRegister()
 
   const totalSteps = qaSystems?.data?.length ? qaSystems.data.length + 2 : 3
 
@@ -185,29 +186,29 @@ const BecomeAnInstructor = () => {
     })
   }
 
-  if (isLoading) return <ModalLoading />
+  useEffect(() => {
+    const profile = profileData?.data?.user?.profile
 
-  if (!user || !isAuthenticated) {
-    router.push('/login')
-    return null
-  }
+    if (!isLoading && (!profile?.phone || !profile?.address)) {
+      Swal.fire({
+        title: 'Thông báo',
+        text: 'Bạn vui lòng hoàn thiện đầy đủ thông tin cá nhân trước khi đăng ký.',
+        icon: 'warning',
+        confirmButtonText: 'Đồng ý',
+        allowOutsideClick: false,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.push('/me')
+        }
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileData, isLoading])
+
+  if (isLoading || isLoadingProfileData) return <ModalLoading />
 
   if (role === 'instructor') {
     router.push('/instructor')
-  }
-
-  if (!checkProfile) {
-    Swal.fire({
-      title: 'Thông báo',
-      text: 'Bạn vui lòng hoàn thiện đầy đủ thông tin cá nhân trước khi đăng ký.',
-      icon: 'warning',
-      confirmButtonText: 'Đồng ý',
-      allowOutsideClick: false,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        router.push('/me')
-      }
-    })
     return null
   }
 

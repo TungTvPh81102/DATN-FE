@@ -1,12 +1,23 @@
-import { IAuthData } from '@/types'
+import { IAuthData, IRole, IUser } from '@/types'
 import api from '@/configs/api'
 import { ResetPasswordPayload } from '@/validations/auth'
+import { Role } from '@/constants/role'
+
+interface SignInResponse {
+  message: string
+  user: IUser & {
+    roles: IRole[]
+  }
+  role: Role
+  token: string
+  expires_at: Date
+}
 
 export const authApi = {
   signUp: async (formData: IAuthData) => {
     return await api.post('auth/sign-up', formData)
   },
-  signIn: async (formData: IAuthData) => {
+  signIn: async (formData: IAuthData): Promise<SignInResponse> => {
     return await api.post('auth/sign-in', formData)
   },
   logout: async () => {

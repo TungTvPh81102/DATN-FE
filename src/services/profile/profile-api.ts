@@ -5,11 +5,17 @@ import {
   UpdateProfilePayload,
 } from '@/validations/profile'
 import api from '@/configs/api'
+import { UserWithProfile } from '@/types'
 
 const prefix = '/users/profile'
 
 export const profileApi = {
-  getProfile: async () => {
+  getProfile: async (): Promise<{
+    message: string
+    data: {
+      user: UserWithProfile
+    }
+  }> => {
     return await api.get(`${prefix}`)
   },
 

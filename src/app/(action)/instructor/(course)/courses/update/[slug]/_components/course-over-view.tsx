@@ -55,6 +55,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import { ICourse, LevelMap } from '@/types'
@@ -62,6 +63,7 @@ import { FileWithPreview } from '@/types/file'
 import Image from 'next/image'
 import { useDropzone } from 'react-dropzone'
 import { toast } from 'react-toastify'
+import { hasCodingLesson } from '../utils'
 
 const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
   const { isDraftOrRejected } = useCourseStatusStore()
@@ -150,6 +152,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
           data.is_free !== undefined
             ? (String(data.is_free) as '0' | '1')
             : undefined,
+        allow_coding_lesson: !!data.allow_coding_lesson,
         thumbnail: data.thumbnail || '',
         intro: data.intro || '',
       })
@@ -293,7 +296,7 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
 
           <div className="space-y-2">
             <Label className="text-base font-semibold">Thông tin cơ bản</Label>
-            <div className="grid gap-2 md:grid-cols-2">
+            <div className="grid gap-x-2 gap-y-3 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="category_id"
@@ -410,6 +413,26 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                       </Select>
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="allow_coding_lesson"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        disabled={
+                          field.disabled ||
+                          hasCodingLesson(courseOverView.chapters)
+                        }
+                      />
+                    </FormControl>
+                    <FormLabel>Bài tập coding</FormLabel>
                   </FormItem>
                 )}
               />

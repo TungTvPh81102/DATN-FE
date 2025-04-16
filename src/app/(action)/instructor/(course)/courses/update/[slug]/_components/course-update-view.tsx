@@ -284,6 +284,7 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
                     <CourseChapterTab
                       slug={slug}
                       chapters={courseOverviewData.chapters}
+                      allowCoding={!!courseOverviewData.allow_coding_lesson}
                     />
                   )
                 default:

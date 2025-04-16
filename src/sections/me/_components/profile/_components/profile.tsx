@@ -172,7 +172,7 @@ const ProfileMeView = ({ profileData, isLoadingProfileData }: Props) => {
   }
 
   return (
-    <div className="widget-content-inner">
+    <div className="widget-content-inner !block">
       <div className="row">
         <div className="profile-wrap">
           <div

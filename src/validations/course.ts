@@ -99,6 +99,7 @@ export const updateCourseOverViewSchema = z
     visibility: z.enum(['public', 'private'], {
       errorMap: () => ({ message: 'Vui lòng chọn trạng thái hợp lệ' }),
     }),
+    allow_coding_lesson: z.boolean(),
   })
   .superRefine((data: number | any, ctx) => {
     if (data.is_free === '0') {

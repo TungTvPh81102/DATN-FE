@@ -46,9 +46,10 @@ import CreateLesson from './create-lesson'
 export interface Props {
   chapter: IChapter
   slug: string
+  allowCoding: boolean
 }
 
-const SortableLesson = ({ chapter, slug }: Props) => {
+const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
   const router = useRouter()
 
   const typeIndexMap = { video: 0, document: 0, quiz: 0, coding: 0 }
@@ -312,7 +313,10 @@ const SortableLesson = ({ chapter, slug }: Props) => {
                 <CircleHelp />
                 Câu hỏi
               </Button>
-              <Button onClick={() => setSelectedLesson('coding')}>
+              <Button
+                onClick={() => setSelectedLesson('coding')}
+                disabled={!allowCoding}
+              >
                 <FileCode2 />
                 Coding
               </Button>
