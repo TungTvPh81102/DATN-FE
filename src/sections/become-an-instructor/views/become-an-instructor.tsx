@@ -372,10 +372,7 @@ const BecomeAnInstructor = () => {
               render={() => (
                 <FormItem className="space-y-4">
                   <FormLabel className="text-lg font-semibold">
-                    Thêm chứng chỉ{' '}
-                    <span className="text-sm text-muted-foreground">
-                      (* Bắt buộc ít nhất 1 chứng chỉ hoặc bằng cấp)
-                    </span>
+                    Thêm chứng chỉ <span className="text-destructive">*</span>
                   </FormLabel>
                   {fields.map((field, index) => (
                     <FormField
@@ -408,10 +405,15 @@ const BecomeAnInstructor = () => {
                                     toast.error(
                                       'Vui lòng chọn tệp hình ảnh hoặc PDF.'
                                     )
-
                                     e.target.value = ''
                                     onChange(undefined)
+                                    return
+                                  }
 
+                                  if (file.size > 10 * 1024 * 1024) {
+                                    toast.error('Tệp không được lớn hơn 10MB.')
+                                    e.target.value = ''
+                                    onChange(undefined)
                                     return
                                   }
 

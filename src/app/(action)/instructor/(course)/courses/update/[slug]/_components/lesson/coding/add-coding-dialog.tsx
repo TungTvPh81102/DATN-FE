@@ -41,7 +41,7 @@ import { Badge } from '@/components/ui/badge'
 type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  chapterId?: string
+  chapterId: number
 }
 
 const AddCodingDialog = ({ chapterId, open, onOpenChange }: Props) => {
@@ -59,11 +59,11 @@ const AddCodingDialog = ({ chapterId, open, onOpenChange }: Props) => {
     },
   })
 
-  const onSubmit = (data: LessonCodingPayload) => {
+  const onSubmit = (payload: LessonCodingPayload) => {
     createLessonCoding(
       {
-        chapterId: chapterId as string,
-        payload: data,
+        chapterId,
+        payload,
       },
       {
         onSuccess: async (res: any) => {

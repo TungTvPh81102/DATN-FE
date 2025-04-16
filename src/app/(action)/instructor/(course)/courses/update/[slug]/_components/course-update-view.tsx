@@ -66,7 +66,7 @@ const groups = [
 const CourseUpdateView = ({ slug }: { slug: string }) => {
   const router = useRouter()
 
-  const [activeTab, setActiveTab] = useState<TabId>(TabId.COURSE_OBJECTIVES)
+  const [activeTab, setActiveTab] = useState<TabId>(TabId.COURSE_CURRICULUM)
   const [openDialog, setOpenDialog] = useState(false)
   const { courseStatus, setCourseStatus } = useCourseStatusStore()
 

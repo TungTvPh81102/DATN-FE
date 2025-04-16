@@ -34,10 +34,10 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import MediaLibraryDialog from '@/app/(action)/instructor/(course)/courses/update/[slug]/_components/lesson/media-item'
 
 type Props = {
-  chapterId?: string
+  chapterId: number
   onHide: () => void
   isEdit?: boolean
-  lessonId?: string | number
+  lessonId?: number
 }
 
 const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
@@ -52,7 +52,7 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
   const [duration, setDuration] = useState(null)
 
   const { data: lessonVideoData, isLoading: isLessonLoading } =
-    useGetLessonVideo(chapterId as string, (lessonId as string) || '')
+    useGetLessonVideo(chapterId, lessonId)
 
   const { data: uploadUrlData, refetch: refetchUploadUrl } = useGetUploadUrl()
 
@@ -136,6 +136,7 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
     if (!isEdit) {
       resetVideoStates()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit])
 
   const handleMuxUploadStart = useCallback(() => {
@@ -250,11 +251,11 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
       formData.append('_method', 'PUT')
     }
 
-    if (isEdit) {
+    if (isEdit && lessonId) {
       updateLessonVideo(
         {
           chapterId,
-          lessonId: String(lessonId),
+          lessonId,
           payload: formData,
         },
         {

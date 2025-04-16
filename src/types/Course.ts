@@ -96,11 +96,11 @@ export interface CoursePreview {
 }
 
 export interface IChapter {
-  id?: number
+  id: number
   courseId?: number
   title: string
-  order?: number | null
-  lessons?: ILesson[]
+  order: number | null
+  lessons: ILesson[]
   lessons_count?: number
   total_video_duration?: number
   createdAt?: Date | null
@@ -145,7 +145,7 @@ export interface Lessonable {
   // Document
   content?: string
   file_path?: string
-  file_type?: string
+  file_type?: 'upload' | 'url'
 
   // Coding
   language?: string

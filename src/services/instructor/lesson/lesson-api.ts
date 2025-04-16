@@ -2,11 +2,13 @@ import { UpdateCodingLessonPayload } from '@/validations/course'
 import {
   CreateLessonPayload,
   LessonCodingPayload,
+  LessonDocumentPayload,
   LessonQuizPayload,
   UpdateTitleLessonPayload,
 } from '@/validations/lesson'
 import api from '@/configs/api'
 import { IMediaQueryParams, IMediaResponse } from '@/types/Common'
+import { ILesson } from '@/types'
 
 const prefix = '/instructor/manage/lessons'
 
@@ -17,11 +19,17 @@ export const instructorLessonApi = {
   getLessonCoding: async (lessonSlug: string, codingId: number) => {
     return await api.get(`${prefix}/${lessonSlug}/${codingId}/coding-exercise`)
   },
-  getLessonVideo: async (chapterId: string, lessonId: string) => {
+  getLessonVideo: async (chapterId: number, lessonId: number) => {
     return await api.get(`${prefix}/${chapterId}/${lessonId}/show-lesson`)
   },
-  getLessonDocument: async (chapterId: string, lessonId: string) => {
-    return await api.get(`${prefix}/${chapterId}/${lessonId}/lesson-document`)
+  getLessonDocument: async (
+    chapterId: number,
+    lessonId: number
+  ): Promise<ILesson> => {
+    const { data } = await api.get(
+      `${prefix}/${chapterId}/${lessonId}/lesson-document`
+    )
+    return data
   },
   createLesson: (payload: CreateLessonPayload) => {
     return api.post(prefix, payload, {
@@ -30,27 +38,50 @@ export const instructorLessonApi = {
       },
     })
   },
-  createLessonVideo: (chapterId: string, payload: FormData): Promise<any> => {
+  createLessonVideo: (chapterId: number, payload: FormData): Promise<any> => {
     return api.post(`${prefix}/${chapterId}/store-lesson-video`, payload, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
   },
-  createLessonDocument: (chapterId: string, payload: FormData) => {
-    return api.post(`${prefix}/${chapterId}/store-lesson-document`, payload, {
+  createLessonDocument: ({
+    chapterId,
+    payload,
+  }: {
+    chapterId: number
+    payload: LessonDocumentPayload
+  }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { file_type, isEdit, document_file, document_url, ...data } = payload
+
+    Object.assign(data, {
+      ...(file_type === 'url' && { document_url }),
+      ...(file_type === 'upload' && { document_file }),
+    })
+
+    return api.post(`${prefix}/${chapterId}/store-lesson-document`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
   },
-  createLessonQuiz: (
-    chapterId: string,
+  createLessonQuiz: ({
+    chapterId,
+    payload,
+  }: {
+    chapterId: number
     payload: LessonQuizPayload
-  ): Promise<any> => {
+  }): Promise<any> => {
     return api.post(`${prefix}/${chapterId}/store-lesson-quiz`, payload)
   },
-  createLessonCoding: (chapterId: string, payload: LessonCodingPayload) => {
+  createLessonCoding: ({
+    chapterId,
+    payload,
+  }: {
+    chapterId: number
+    payload: LessonCodingPayload
+  }) => {
     return api.post(`${prefix}/${chapterId}/store-lesson-coding`, payload)
   },
   updateContentLesson: (
@@ -77,8 +108,8 @@ export const instructorLessonApi = {
     )
   },
   updateLessonVideo: (
-    chapterId: string,
-    lessonId: string,
+    chapterId: number,
+    lessonId: number,
     payload: FormData
   ): Promise<any> => {
     return api.post(
@@ -91,14 +122,27 @@ export const instructorLessonApi = {
       }
     )
   },
-  updateLessonDocument: (
-    chapterId: string,
-    lessonId: string,
-    payload: FormData
-  ) => {
+  updateLessonDocument: ({
+    chapterId,
+    lessonId,
+    payload,
+  }: {
+    chapterId: number
+    lessonId: number
+    payload: LessonDocumentPayload
+  }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { file_type, isEdit, document_file, document_url, ...data } = payload
+
+    Object.assign(data, {
+      ...(file_type === 'url' && { document_url }),
+      ...(file_type === 'upload' && { document_file }),
+      _method: 'PUT',
+    })
+
     return api.post(
       `${prefix}/${chapterId}/${lessonId}/update-lesson-document`,
-      payload,
+      data,
       {
         headers: {
           'Content-Type': 'multipart/form-data',

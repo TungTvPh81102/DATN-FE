@@ -45,15 +45,26 @@ export const lessonDocumentSchema = z
       .trim()
       .min(3, 'Tiêu đề phải có ít nhất 3 ký tự')
       .max(255, 'Tiêu đề không được vượt quá 255 ký tự'),
-    file_type: z.enum(['document_file', 'document_url']).optional(),
+    file_type: z.enum(['upload', 'url']),
     document_file: z
-      .any()
-      .refine((file) => file instanceof File || file === null, {
-        message: 'Tập tin là bắt buộc và phải là một file hợp lệ',
+      .instanceof(File, {
+        message: 'Tập tin không hợp lệ',
       })
+      .refine((file) => {
+        const allowedTypes = [
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ]
+        return allowedTypes.includes(file.type)
+      }, 'Chỉ chấp nhận định dạng PDF, DOC, DOCX')
+      .refine(
+        (file) => file.size <= 10 * 1024 * 1024,
+        'Tài liệu phải nhỏ hơn 10MB'
+      )
       .optional(),
-    document_url: z.string().optional(),
-    content: z.string().trim().min(1, 'Nội dung là bắt buộc').optional(),
+    document_url: z.string().trim().url('URL tài liệu không hợp lệ').optional(),
+    content: z.string().trim().min(1, 'Nội dung là bắt buộc'),
     isEdit: z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
@@ -63,40 +74,24 @@ export const lessonDocumentSchema = z
           code: z.ZodIssueCode.custom,
           path: ['file_type'],
           message: 'Vui lòng chọn loại tài liệu',
+          fatal: true,
         })
+
+        return z.NEVER
       }
 
-      if (data.file_type === 'document_file' && !data.document_file) {
+      if (data.file_type === 'upload' && !data.document_file) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['document_file'],
           message: 'Bạn phải tải lên một tập tin',
+          fatal: true,
         })
+
+        return z.NEVER
       }
 
-      if (
-        data.file_type === 'document_url' &&
-        (!data.document_url || data.document_url.trim() === '')
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['document_url'],
-          message: 'URL tài liệu là bắt buộc khi chọn URL',
-        })
-      }
-    } else {
-      if (data.file_type === 'document_file' && !data.document_file) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['document_file'],
-          message: 'Bạn phải tải lên một tập tin',
-        })
-      }
-
-      if (
-        data.file_type === 'document_url' &&
-        (!data.document_url || data.document_url.trim() === '')
-      ) {
+      if (data.file_type === 'url' && !data.document_url) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['document_url'],

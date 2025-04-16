@@ -101,7 +101,7 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
       if (result.isConfirmed) {
         deleteLesson(
           {
-            chapterId: chapter.id as number,
+            chapterId: chapter.id,
             id,
           },
           {
@@ -128,7 +128,7 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
           return (
             <SortableItem
               key={lesson.id}
-              value={lesson.id!}
+              value={lesson.id}
               disabled={isUpdateOrder}
               asChild
             >
@@ -236,7 +236,7 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
                               return (
                                 <LessonVideo
                                   isEdit={lessonEdit === lesson.id}
-                                  chapterId={chapter ? String(chapter.id) : ''}
+                                  chapterId={chapter.id}
                                   onHide={() => setLessonEdit(null)}
                                   lessonId={lesson?.id}
                                 />
@@ -245,7 +245,7 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
                               return (
                                 <LessonDocument
                                   lessonId={lesson?.id}
-                                  chapterId={chapter ? String(chapter.id) : ''}
+                                  chapterId={chapter.id}
                                   onHide={() => setLessonEdit(null)}
                                 />
                               )
@@ -253,7 +253,7 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
                               return (
                                 <LessonQuiz
                                   isEdit={lessonEdit === lesson.id}
-                                  chapterId={chapter ? String(chapter.id) : ''}
+                                  chapterId={chapter.id}
                                   onHide={() => setLessonEdit(null)}
                                   quizId={lesson.lessonable_id}
                                 />
@@ -297,7 +297,7 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
                 setAddNewLesson(false)
               }}
               type={selectedLesson!}
-              chapterId={String(chapter.id!)}
+              chapterId={chapter.id}
             />
           ) : (
             <div className="grid gap-4 rounded-lg border border-dashed p-2 md:grid-cols-2 lg:grid-cols-4 xl:gap-8">

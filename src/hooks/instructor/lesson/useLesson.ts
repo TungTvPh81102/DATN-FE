@@ -7,8 +7,6 @@ import { instructorLessonApi } from '@/services/instructor/lesson/lesson-api'
 import { IMediaQueryParams } from '@/types/Common'
 import {
   CreateLessonPayload,
-  LessonCodingPayload,
-  LessonQuizPayload,
   UpdateTitleLessonPayload,
 } from '@/validations/lesson'
 
@@ -20,17 +18,17 @@ export const useGetLessonCoding = (lessonSlug: string, codingId: number) => {
   })
 }
 
-export const useGetLessonVideo = (chapterId: string, lessonId: string) => {
+export const useGetLessonVideo = (chapterId: number, lessonId?: number) => {
   return useQuery({
     queryKey: [QueryKey.INSTRUCTOR_LESSON_VIDEO, chapterId, lessonId],
-    queryFn: () => instructorLessonApi.getLessonVideo(chapterId, lessonId),
+    queryFn: () => instructorLessonApi.getLessonVideo(chapterId, lessonId!),
     enabled: !!lessonId,
   })
 }
-export const useGetLessonDocument = (chapterId: string, lessonId: string) => {
+export const useGetLessonDocument = (chapterId: number, lessonId?: number) => {
   return useQuery({
     queryKey: [QueryKey.INSTRUCTOR_LESSON_DOCUMENT, chapterId, lessonId],
-    queryFn: () => instructorLessonApi.getLessonDocument(chapterId, lessonId),
+    queryFn: () => instructorLessonApi.getLessonDocument(chapterId, lessonId!),
     enabled: !!lessonId,
   })
 }
@@ -43,7 +41,7 @@ export const useCreateLessonVideo = () => {
       chapterId,
       payload,
     }: {
-      chapterId: string
+      chapterId: number
       payload: FormData
     }) => instructorLessonApi.createLessonVideo(chapterId, payload),
     onSuccess: async (res) => {
@@ -73,8 +71,8 @@ export const useUpdateLessonVideo = () => {
       lessonId,
       payload,
     }: {
-      chapterId: string
-      lessonId: string
+      chapterId: number
+      lessonId: number
       payload: FormData
     }) => instructorLessonApi.updateLessonVideo(chapterId, lessonId, payload),
     onSuccess: async (res) => {
@@ -102,13 +100,7 @@ export const useCreateLessonDocument = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
-      chapterId,
-      payload,
-    }: {
-      chapterId: string
-      payload: FormData
-    }) => instructorLessonApi.createLessonDocument(chapterId, payload),
+    mutationFn: instructorLessonApi.createLessonDocument,
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
@@ -126,16 +118,7 @@ export const useUpdateLessonDocument = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
-      chapterId,
-      lessonId,
-      payload,
-    }: {
-      chapterId: string
-      lessonId: string
-      payload: FormData
-    }) =>
-      instructorLessonApi.updateLessonDocument(chapterId, lessonId, payload),
+    mutationFn: instructorLessonApi.updateLessonDocument,
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
@@ -178,13 +161,7 @@ export const useCreateLessonCoding = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
-      chapterId,
-      payload,
-    }: {
-      chapterId: string
-      payload: LessonCodingPayload
-    }) => instructorLessonApi.createLessonCoding(chapterId, payload),
+    mutationFn: instructorLessonApi.createLessonCoding,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: [QueryKey.INSTRUCTOR_COURSE_VALIDATE],
@@ -197,13 +174,7 @@ export const useCreateLessonQuiz = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
-      chapterId,
-      payload,
-    }: {
-      chapterId: string
-      payload: LessonQuizPayload
-    }) => instructorLessonApi.createLessonQuiz(chapterId, payload),
+    mutationFn: instructorLessonApi.createLessonQuiz,
 
     onSuccess: async (res) => {
       await Promise.all([
