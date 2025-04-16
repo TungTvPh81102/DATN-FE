@@ -279,43 +279,45 @@ const Header = () => {
                     {RecentCoursData?.data?.courses?.length > 0 ? (
                       <>
                         <div className="space-y-3">
-                          {RecentCoursData?.data?.courses.map((course: any) => (
-                            <Link
-                              key={course.id}
-                              href={`/learning/${course.slug}/lesson/${course.current_lesson?.id}`}
-                              className="flex items-center gap-3 rounded-lg p-2 transition-all hover:bg-gray-50"
-                            >
-                              <Image
-                                src={course?.thumbnail}
-                                alt={course?.name}
-                                width={80}
-                                height={60}
-                                className="h-16 w-20 rounded-md object-cover shadow-sm"
-                              />
-                              <div className="min-w-0 flex-1">
-                                <p className="mb-1 truncate text-sm font-medium">
-                                  {course.name}
-                                </p>
-                                <div className="flex items-center text-xs text-gray-500">
-                                  <div className="h-1.5 w-full rounded-full bg-gray-200">
-                                    <div
-                                      className="h-1.5 rounded-full bg-primary"
-                                      style={{
-                                        width: `${course.progress_percent}%`,
-                                      }}
-                                    />
+                          {RecentCoursData?.data?.courses
+                            ?.slice(0, 3)
+                            .map((course: any) => (
+                              <Link
+                                key={course.id}
+                                href={`/learning/${course.slug}/lesson/${course.current_lesson?.id}`}
+                                className="flex items-center gap-3 rounded-lg p-2 transition-all hover:bg-gray-50"
+                              >
+                                <Image
+                                  src={course?.thumbnail}
+                                  alt={course?.name}
+                                  width={80}
+                                  height={60}
+                                  className="h-16 w-20 rounded-md object-cover shadow-sm"
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <p className="mb-1 truncate text-sm font-medium">
+                                    {course.name}
+                                  </p>
+                                  <div className="flex items-center text-xs text-gray-500">
+                                    <div className="h-1.5 w-full rounded-full bg-gray-200">
+                                      <div
+                                        className="h-1.5 rounded-full bg-primary"
+                                        style={{
+                                          width: `${course.progress_percent}%`,
+                                        }}
+                                      />
+                                    </div>
+                                    <span className="ml-2">
+                                      {course.progress_percent}%
+                                    </span>
                                   </div>
-                                  <span className="ml-2">
-                                    {course.progress_percent}%
-                                  </span>
                                 </div>
-                              </div>
-                            </Link>
-                          ))}
+                              </Link>
+                            ))}
                         </div>
                         <div className="mt-3 border-t border-gray-100 pt-4">
                           <Link
-                            href="/my-courses?tab=all"
+                            href="/my-courses?tab=courses-history"
                             className="block w-full rounded-lg bg-primary px-4 py-2 text-center text-sm text-white hover:bg-primary/90 hover:text-white"
                           >
                             Xem tất cả

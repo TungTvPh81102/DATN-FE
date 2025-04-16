@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu } from 'lucide-react'
 import { LivestreamSidebar } from '@/app/room-live-stream/_components/livestream-sidebar'
@@ -8,15 +8,26 @@ import { LivestreamPlayer } from '@/app/room-live-stream/_components/livestream-
 import { LivestreamInfo } from '@/app/room-live-stream/_components/livestream-info'
 import { LivestreamChat } from '@/app/room-live-stream/_components/livestream-chat'
 import { useLiveSessionInfo } from '@/hooks/live/useLive'
+import { useRouter } from 'next/navigation'
 
 interface LivestreamLayoutProps {
-  id: string
+  stream_key: string
 }
 
-export function LivestreamLayout({ id }: LivestreamLayoutProps) {
+export function LivestreamLayout({ stream_key }: LivestreamLayoutProps) {
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [joinNotification, setJoinNotification] = useState<string | null>(null)
-  const { data: liveSession, isLoading: isLoadingLive } = useLiveSessionInfo(id)
+  const { data: liveSession, isLoading: isLoadingLive } =
+    useLiveSessionInfo(stream_key)
+  useEffect(() => {
+    if (
+      liveSession?.data?.status == 'Kết thúc' ||
+      liveSession?.data?.status == 'Đã hủy'
+    ) {
+      router.push('/404')
+    }
+  }, [liveSession?.data?.status, router])
   return (
     <div className="flex min-h-screen bg-background">
       <Button
@@ -48,7 +59,6 @@ export function LivestreamLayout({ id }: LivestreamLayoutProps) {
             {/* Chat section */}
             <div className="lg:col-span-1">
               <LivestreamChat
-                id={id}
                 setJoinNotification={setJoinNotification}
                 liveSession={liveSession}
                 isLoading={isLoadingLive}

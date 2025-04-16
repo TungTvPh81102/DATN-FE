@@ -1,3 +1,4 @@
+'use client'
 import { useGetRecentCourse } from '@/hooks/user/useUser'
 import { Gift, Loader2, PlayCircle, Search } from 'lucide-react'
 import Image from 'next/image'
@@ -74,10 +75,10 @@ const MyCourseHistoryView = () => {
                 className="text-2xl font-bold tracking-tight sm:text-3xl"
                 style={{ color: '#E27447' }}
               >
-                Khóa học gần đây
+                Lịch sử học tập
               </h2>
               <p className="mt-2 text-sm text-gray-600">
-                Danh sách khóa học gần đây của bạn.
+                Danh sách lịch sử học tập gần đây của bạn.
               </p>
             </div>
             <div>
@@ -202,7 +203,7 @@ const MyCourseHistoryView = () => {
                       <li>
                         <div className="border-bottom p-2">
                           <p className="fs-15 fw-5 text-center">
-                            không tìm được kết quả tìm
+                            Không có kết quả phù hợp bạn muốn tìm
                           </p>
                         </div>
                       </li>
