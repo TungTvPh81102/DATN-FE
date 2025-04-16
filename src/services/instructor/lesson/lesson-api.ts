@@ -14,7 +14,7 @@ export const instructorLessonApi = {
   getLessonOverview: async (slug: string) => {
     return await api.get(`${prefix}/${slug}`)
   },
-  getLessonCoding: async (lessonSlug: string, codingId: string) => {
+  getLessonCoding: async (lessonSlug: string, codingId: number) => {
     return await api.get(`${prefix}/${lessonSlug}/${codingId}/coding-exercise`)
   },
   getLessonVideo: async (chapterId: string, lessonId: string) => {
@@ -109,15 +109,22 @@ export const instructorLessonApi = {
   deleteLesson: (chapterId: number, id: number) => {
     return api.delete(`${prefix}/${chapterId}/${id}`)
   },
-  updateCodingLesson: (
-    lessonSlug: string,
-    codingId: string | number,
-    payload: Omit<UpdateCodingLessonPayload, 'hints'> & { hints?: string[] }
-  ) => {
-    return api.put(
-      `${prefix}/${lessonSlug}/${codingId}/coding-exercise`,
-      payload
-    )
+  updateCodingLesson: ({
+    lessonSlug,
+    codingId,
+    payload,
+  }: {
+    lessonSlug: string
+    codingId: number
+    payload: UpdateCodingLessonPayload
+  }) => {
+    delete payload.checkTestCase
+
+    return api.put(`${prefix}/${lessonSlug}/${codingId}/coding-exercise`, {
+      ...payload,
+      hints: payload.hints?.map((item) => item?.hint),
+      test_case: !payload.ignore_test_case ? payload.test_case : null,
+    })
   },
   updateQuizContent: ({
     quizId,

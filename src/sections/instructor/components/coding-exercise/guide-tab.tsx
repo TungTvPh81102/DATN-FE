@@ -46,14 +46,14 @@ const GuideTab = () => {
 
   const language = useWatch({ name: 'language' })
 
-  const { sampleFileName, version, codeSnippet } =
+  const { fileName, version, sampleStudentCode } =
     LANGUAGE_CONFIG[language as Language]
 
   const files = {
-    [sampleFileName]: {
-      name: sampleFileName,
+    [fileName]: {
+      name: fileName,
       language,
-      value: codeSnippet,
+      value: sampleStudentCode,
       version,
     },
   }

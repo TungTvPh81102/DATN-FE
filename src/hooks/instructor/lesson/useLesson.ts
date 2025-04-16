@@ -1,19 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 
-import { UpdateCodingLessonPayload } from '@/validations/course'
+import QueryKey from '@/constants/query-key'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
+import { instructorLessonApi } from '@/services/instructor/lesson/lesson-api'
+import { IMediaQueryParams } from '@/types/Common'
 import {
   CreateLessonPayload,
   LessonCodingPayload,
   LessonQuizPayload,
   UpdateTitleLessonPayload,
 } from '@/validations/lesson'
-import QueryKey from '@/constants/query-key'
-import { instructorLessonApi } from '@/services/instructor/lesson/lesson-api'
-import { useToastMutation } from '@/hooks/use-toast-mutation'
-import { IMediaQueryParams } from '@/types/Common'
 
-export const useGetLessonCoding = (lessonSlug: string, codingId: string) => {
+export const useGetLessonCoding = (lessonSlug: string, codingId: number) => {
   return useQuery({
     queryKey: [QueryKey.INSTRUCTOR_LESSON_CODING, lessonSlug, codingId],
     queryFn: () => instructorLessonApi.getLessonCoding(lessonSlug, codingId),
@@ -321,15 +320,7 @@ export const useUpdateCodingLesson = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
-      chapterSlug,
-      codingId,
-      data,
-    }: {
-      chapterSlug: string
-      codingId: string | number
-      data: Omit<UpdateCodingLessonPayload, 'hints'> & { hints?: string[] }
-    }) => instructorLessonApi.updateCodingLesson(chapterSlug, codingId, data),
+    mutationFn: instructorLessonApi.updateCodingLesson,
     onSuccess: async (res: any) => {
       await queryClient.invalidateQueries({
         queryKey: [QueryKey.INSTRUCTOR_LESSON_CODING],

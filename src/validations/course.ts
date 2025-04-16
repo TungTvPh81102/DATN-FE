@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { testCaseSchema } from './execute'
 
 export const createCourseSchema = z.object({
   category_id: z.coerce
@@ -208,12 +207,7 @@ export const updateCodingLessonSchema = z
       message: 'Vui lòng chọn ngôn ngữ lập trình',
     }),
     instruct: z.string().optional(),
-    content: z
-      .string({
-        required_error: 'Vui lòng nhập nội dung bài học',
-        invalid_type_error: 'Vui lòng nhập nội dung bài học',
-      })
-      .trim(),
+    content: z.string().trim().min(1, 'Vui lòng nhập nội dung bài học'),
     hints: z
       .array(
         z.object({
@@ -237,28 +231,32 @@ export const updateCodingLessonSchema = z
     //     invalid_type_error: 'Vui lòng nhập giải pháp',
     //   })
     //   .trim(),
-    test_case: testCaseSchema.nullish(),
+    test_case: z
+      .array(
+        z.object({
+          input: z.string().trim(),
+          output: z.string().trim(),
+        })
+      )
+      .nullish(),
     ignore_test_case: z.boolean(),
 
     // Check test case
     checkTestCase: z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
-    if (
-      !data.ignore_test_case &&
-      (!data.test_case || data.test_case.length < 2)
-    ) {
-      ctx.addIssue({
-        path: ['test_case'],
-        code: z.ZodIssueCode.custom,
-        message: 'Phải có ít nhất 2 test case',
-        fatal: true,
-      })
-
-      return z.NEVER
-    }
-
     if (!data.ignore_test_case) {
+      if (!data.test_case || data.test_case.length < 2) {
+        ctx.addIssue({
+          path: ['test_case'],
+          code: z.ZodIssueCode.custom,
+          message: 'Phải có ít nhất 2 test case',
+          fatal: true,
+        })
+
+        return z.NEVER
+      }
+
       if (data.checkTestCase === undefined) {
         ctx.addIssue({
           path: ['test_case'],

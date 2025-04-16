@@ -74,7 +74,7 @@ type Props = {
 
 const CodingLesson = ({ lesson, isCompleted }: Props) => {
   const { lessonable: codeData } = lesson
-  const ignoreTestCase = codeData?.ignore_test_case || false
+  const ignoreTestCase = !!codeData?.ignore_test_case || false
 
   const resultPanelRef = useRef<ImperativePanelHandle>(null)
   const [executeResult, setExecuteResult] = useState('')
@@ -105,11 +105,11 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
 
   const language = codeData?.language as Language
 
-  const { sampleFileName, version } = LANGUAGE_CONFIG[language]
+  const { fileName, version } = LANGUAGE_CONFIG[language]
 
   const files = {
-    [sampleFileName]: {
-      name: sampleFileName,
+    [fileName]: {
+      name: fileName,
       language,
       value: codeData?.sample_code || '',
       version,

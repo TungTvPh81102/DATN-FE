@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
     const { testCase, ...rest } = parsed
 
     const cleanedCode = removeConsoleLogs(rest.files[0].content)
-
     const functionName = getFunctionName(cleanedCode)
 
     if (!functionName) {
@@ -27,8 +26,6 @@ export async function POST(req: NextRequest) {
     const logInputs = testCase
       .map((tc) => `console.log(${functionName}(...${tc.input}));`)
       .join('\n')
-
-    console.log('logInputs', logInputs)
 
     const finalCode = `${cleanedCode}\n\n${logInputs}`
 
