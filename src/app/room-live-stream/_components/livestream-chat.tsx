@@ -35,7 +35,6 @@ interface ChatMessage {
 }
 
 interface LivestreamChatProps {
-  id: string
   liveSession: any
   setJoinNotification: (notification: string | null) => void
   isLoading?: boolean

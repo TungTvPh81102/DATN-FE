@@ -84,7 +84,7 @@ export default function MyCoursesLayout() {
               { id: 'certificate', label: 'Chứng chỉ đã nhận' },
               { id: 'coupon', label: 'Mã giảm giá của tôi' },
               { id: 'membership', label: 'Hội viên' },
-              { id: 'courses-history', label: 'Khóa học gần đây' },
+              { id: 'courses-history', label: 'Lịch sử học tập' },
             ].map((tab) => (
               <button
                 key={tab.id}

@@ -4,13 +4,13 @@ import { LivestreamLayout } from '@/app/room-live-stream/_components/livestream-
 
 interface Props {
   params: {
-    id: string
+    stream_key: string
   }
 }
 
 const Page = ({ params }: Props) => {
-  const { id } = params
-  return <LivestreamLayout id={id} />
+  const { stream_key } = params
+  return <LivestreamLayout stream_key={stream_key} />
 }
 
 export default Page
