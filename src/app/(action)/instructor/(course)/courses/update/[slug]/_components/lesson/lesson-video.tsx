@@ -60,6 +60,8 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
     uploadId || ''
   )
 
+  console.log('Video info data:', videoInfoData)
+
   const { mutate: createLessonVideo, isPending: isLessonVideoCreating } =
     useCreateLessonVideo()
   const { mutate: updateLessonVideo, isPending: isLessonVideoUpdating } =
@@ -178,7 +180,9 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
       }
     }
 
-    pollVideoStatus()
+    setTimeout(() => {
+      pollVideoStatus()
+    }, 3000)
   }, [uploadId, refetchVideoInfo])
 
   const handleMuxUploadError = useCallback((event: any) => {
@@ -386,7 +390,7 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
                               onUploadStart={handleMuxUploadStart}
                               onSuccess={handleMuxUploadSuccess}
                               onUploadError={handleMuxUploadError}
-                              maxFileSize={1073741824}
+                              maxFileSize={1024 * 1024 * 1024} // 1GB
                               className="w-full"
                             />
                           </>

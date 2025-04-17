@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 
 import QueryKey from '@/constants/query-key'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 import {
   GetCoursesParams,
   instructorCourseApi,
@@ -10,7 +11,6 @@ import {
 import {
   RequestModifyContentPayload,
   UpdateCourseObjectivePayload,
-  UpdateCourseOverViewPayload,
 } from '@/validations/course'
 
 export const useGetCourses = (params?: GetCoursesParams) => {
@@ -78,94 +78,100 @@ export const useUpdateCourseObjective = () => {
   })
 }
 
-export const useUpdateCourseOverView = () => {
-  const queryClient = useQueryClient()
+// export const useUpdateCourseOverView = () => {
+//   const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: ({
-      slug,
-      data,
-    }: {
-      slug: string
-      data: UpdateCourseOverViewPayload
-    }) => {
-      const formData = new FormData()
-      formData.append('_method', 'PUT')
+//   return useMutation({
+//     mutationFn: ({
+//       slug,
+//       data,
+//     }: {
+//       slug: string
+//       data: UpdateCourseOverViewPayload
+//     }) => {
+//       const formData = new FormData()
+//       formData.append('_method', 'PUT')
 
-      const appendFormData = (
-        formData: FormData,
-        data: Record<string, any>
-      ) => {
-        Object.entries(data).forEach(([key, value]) => {
-          if (value === undefined || value === null) return
+//       const appendFormData = (
+//         formData: FormData,
+//         data: Record<string, any>
+//       ) => {
+//         Object.entries(data).forEach(([key, value]) => {
+//           if (value === undefined || value === null) return
 
-          if (value instanceof File) {
-            formData.append(key, value)
-          } else if (Array.isArray(value)) {
-            value.forEach((item, index) => {
-              appendFormData(formData, { [`${key}[${index}]`]: item })
-            })
-          } else if (typeof value === 'object' && !(value instanceof File)) {
-            appendFormData(formData, value)
-          } else {
-            formData.append(key, String(value))
-          }
-        })
-      }
+//           if (value instanceof File) {
+//             formData.append(key, value)
+//           } else if (Array.isArray(value)) {
+//             value.forEach((item, index) => {
+//               appendFormData(formData, { [`${key}[${index}]`]: item })
+//             })
+//           } else if (typeof value === 'object' && !(value instanceof File)) {
+//             appendFormData(formData, value)
+//           } else {
+//             formData.append(key, String(value))
+//           }
+//         })
+//       }
 
-      if (data.thumbnail instanceof File) {
-        formData.append('thumbnail', data.thumbnail)
-      }
+//       if (data.thumbnail instanceof File) {
+//         formData.append('thumbnail', data.thumbnail)
+//       }
 
-      if (data.intro === null) {
-        formData.append('intro', '')
-      } else if (data.intro instanceof File) {
-        formData.append('intro', data.intro)
-      } else if (typeof data.intro === 'string') {
-        formData.append('intro', data.intro)
-      }
+//       if (data.intro === null) {
+//         formData.append('intro', '')
+//       } else if (data.intro instanceof File) {
+//         formData.append('intro', data.intro)
+//       } else if (typeof data.intro === 'string') {
+//         formData.append('intro', data.intro)
+//       }
 
-      formData.append('is_free', data.is_free === '1' ? '1' : '0')
+//       formData.append('is_free', data.is_free === '1' ? '1' : '0')
 
-      if (data.is_free === '1') {
-        formData.append('price', '0')
-        formData.append('price_sale', '0')
-      } else {
-        if (data.price !== undefined) {
-          formData.append('price', String(data.price))
-        }
-        if (data.price_sale !== undefined) {
-          formData.append('price_sale', String(data.price_sale))
-        }
-      }
+//       if (data.is_free === '1') {
+//         formData.append('price', '0')
+//         formData.append('price_sale', '0')
+//       } else {
+//         if (data.price !== undefined) {
+//           formData.append('price', String(data.price))
+//         }
+//         if (data.price_sale !== undefined) {
+//           formData.append('price_sale', String(data.price_sale))
+//         }
+//       }
 
-      appendFormData(formData, {
-        category_id: data.category_id,
-        name: data.name,
-        description: data.description,
-        level: data.level,
-        visibility: data.visibility,
-      })
+//       appendFormData(formData, {
+//         category_id: data.category_id,
+//         name: data.name,
+//         description: data.description,
+//         level: data.level,
+//         visibility: data.visibility,
+//       })
 
-      return instructorCourseApi.updateCourseOverView(slug, formData)
-    },
-    onSuccess: async (res: any) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: [QueryKey.INSTRUCTOR_COURSE],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [QueryKey.VALIDATE_COURSE],
-        }),
-      ])
+//       return instructorCourseApi.updateCourseOverView(slug, formData)
+//     },
+//     onSuccess: async (res: any) => {
+//       await Promise.all([
+//         queryClient.invalidateQueries({
+//           queryKey: [QueryKey.INSTRUCTOR_COURSE],
+//         }),
+//         queryClient.invalidateQueries({
+//           queryKey: [QueryKey.VALIDATE_COURSE],
+//         }),
+//       ])
 
-      toast.success(res.message)
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
+//       toast.success(res.message)
+//     },
+//     onError: (error) => {
+//       toast.error(error.message)
+//     },
+//   })
+// }
+
+export const useUpdateCourseOverView = () =>
+  useToastMutation({
+    mutationFn: instructorCourseApi.updateCourseOverView,
+    queryKeys: [[QueryKey.INSTRUCTOR_COURSE], [QueryKey.VALIDATE_COURSE]],
   })
-}
 
 export const useValidateCourse = (slug?: string) => {
   return useQuery({
