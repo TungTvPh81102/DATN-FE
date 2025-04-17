@@ -7,8 +7,11 @@ import {
   Loader2,
   Trash2,
 } from 'lucide-react'
+import Image from 'next/image'
 import React, { useCallback, useEffect } from 'react'
+import { useDropzone } from 'react-dropzone'
 import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
 
 import { useGetCategories } from '@/hooks/category/useCategory'
 import { useUpdateCourseOverView } from '@/hooks/instructor/course/useCourse'
@@ -18,7 +21,6 @@ import {
   updateCourseOverViewSchema,
 } from '@/validations/course'
 
-import ModalLoading from '@/components/common/ModalLoading'
 import { CurrencyInput } from '@/components/shared/currency-input'
 import { ImageCropper } from '@/components/shared/image-cropper'
 import { TiptapEditor } from '@/components/tiptap-editor'
@@ -60,12 +62,11 @@ import { cn } from '@/lib/utils'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import { ICourse, LevelMap } from '@/types'
 import { FileWithPreview } from '@/types/file'
-import Image from 'next/image'
-import { useDropzone } from 'react-dropzone'
-import { toast } from 'react-toastify'
 import { hasCodingLesson } from '../utils'
+import { useRouter } from 'next/navigation'
 
 const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
+  const router = useRouter()
   const { isDraftOrRejected } = useCourseStatusStore()
 
   const { data: categoryData } = useGetCategories()
@@ -160,18 +161,26 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseOverView])
 
-  const onSubmit = (data: UpdateCourseOverViewPayload) => {
+  const onSubmit = (payload: UpdateCourseOverViewPayload) => {
     if (courseOverView)
       updateCourseOverView(
-        { slug: courseOverView.slug, data },
+        { slug: courseOverView.slug, payload },
         {
-          onSuccess: () => setSelectedThumbnailFile(null),
+          onSuccess: (res) => {
+            if (res?.data?.slug !== courseOverView.slug) {
+              const courseSlug = res?.data.slug
+              if (!courseOverView.is_practical_course) {
+                router.push(`/instructor/courses/update/${courseSlug}`)
+              } else {
+                router.push(
+                  `/instructor/practical-courses/update/${courseSlug}`
+                )
+              }
+            }
+            setSelectedThumbnailFile(null)
+          },
         }
       )
-  }
-
-  if (updateCourseOverViewPending) {
-    return <ModalLoading />
   }
 
   return (
@@ -232,16 +241,16 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                   <FormControl>
                     <Select
                       key={field.value}
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={String(field.value)}
-                      disabled={!isDraftOrRejected}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={field.disabled}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Miễn phí hay không?" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={String(1)}>Miễn phí</SelectItem>
-                        <SelectItem value={String(0)}>Có phí</SelectItem>
+                        <SelectItem value="1">Miễn phí</SelectItem>
+                        <SelectItem value="0">Có phí</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>

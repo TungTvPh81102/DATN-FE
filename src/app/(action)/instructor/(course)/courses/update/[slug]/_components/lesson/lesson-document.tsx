@@ -190,7 +190,8 @@ const LessonDocument = ({ chapterId, lessonId, onHide }: Props) => {
                     <FormLabel>Loại tài liệu</FormLabel>
                     <FormControl>
                       <Select
-                        defaultValue={field.value}
+                        key={field.value}
+                        value={field.value}
                         onValueChange={(value) => {
                           form.setValue('file_type', value as 'upload' | 'url')
                           if (value === 'upload') {

@@ -5,13 +5,17 @@ export const lessonCommentSchema = z.object({
   lesson_id: z.number().optional(),
   content: z
     .string()
-    .min(1, { message: 'Nội dung bình luận không được để trống' }),
+    .trim()
+    .min(1, { message: 'Nội dung bình luận không được để trống' })
+    .max(2000, 'Nội dung bình luận không được quá 2000 ký tự'),
 })
 
 export const replyLessonCommentSchema = z.object({
   content: z
     .string()
-    .min(1, { message: 'Nội dung bình luận không được để trống' }),
+    .trim()
+    .min(1, { message: 'Nội dung bình luận không được để trống' })
+    .max(2000, 'Nội dung bình luận không được quá 2000 ký tự'),
 })
 
 export type LessonCommentPayload = z.infer<typeof lessonCommentSchema>

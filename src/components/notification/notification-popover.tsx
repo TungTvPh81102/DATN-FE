@@ -125,7 +125,7 @@ export const NotificationPopover = ({ trigger }: Props) => {
           )}
           {!!unreadCount && (
             <div className="absolute -right-0.5 -top-0.5 flex items-center justify-center">
-              <span className="absolute size-5 animate-ping rounded-full bg-primary/60"></span>
+              <span className="absolute size-5 rounded-full bg-primary/60"></span>
               <span className="relative flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-white">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>

@@ -2,6 +2,7 @@ import {
   CreateCoursePayload,
   RequestModifyContentPayload,
   UpdateCourseObjectivePayload,
+  UpdateCourseOverViewPayload,
 } from '@/validations/course'
 import api from '@/configs/api'
 import { CoursePreview, ICourse, ITrashCourse } from '@/types'
@@ -34,13 +35,36 @@ export const instructorCourseApi = {
   createCourse: (payload: CreateCoursePayload) => {
     return api.post(prefix, payload)
   },
-  updateCourseOverView: (slug: string, data: FormData) => {
-    return api.post(`${prefix}/${slug}/courseOverView`, data, {
+  updateCourseOverView: ({
+    slug,
+    payload,
+  }: {
+    slug: string
+    payload: UpdateCourseOverViewPayload
+  }) => {
+    const finalPayload = {
+      ...payload,
+      price: payload.is_free === '1' ? 0 : payload.price,
+      price_sale: payload.is_free === '1' ? 0 : payload.price_sale,
+      thumbnail:
+        payload.thumbnail instanceof File ? payload.thumbnail : undefined,
+      allow_coding_lesson: payload.allow_coding_lesson ? 1 : 0,
+      _method: 'PUT',
+    }
+
+    return api.post(`${prefix}/${slug}/courseOverView`, finalPayload, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
   },
+  // updateCourseOverView: (slug: string, data: FormData) => {
+  //   return api.post(`${prefix}/${slug}/courseOverView`, data, {
+  //     headers: {
+  //       'Content-Type': 'multipart/form-data',
+  //     },
+  //   })
+  // },
   updateCourseObjective: (
     slug: string,
     payload: UpdateCourseObjectivePayload

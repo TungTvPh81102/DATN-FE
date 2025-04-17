@@ -1,21 +1,31 @@
 import Link from 'next/link'
 import { useWishListStore } from '@/stores/useWishListStore'
+import { Heart } from 'lucide-react'
+import { Button } from '../ui/button'
 
 const WishListIcon = () => {
   const wishList = useWishListStore((state: any) => state.wishList)
 
   return (
-    <Link
-      href={`/my-courses?tab=wishlist`}
-      className="relative flex items-center justify-center"
-    >
-      <i className="flaticon-heart fs-22" />
-      {wishList.length > 0 && (
-        <span className="absolute -top-1 right-[-4px] flex size-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-          {wishList.length}
+    <div className="relative">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="w-10 hover:bg-transparent hover:text-primary [&_svg]:size-5"
+        asChild
+      >
+        <Link href={`/my-courses?tab=wishlist`}>
+          <Heart className="stroke-[1.6]" />
+        </Link>
+      </Button>
+
+      <div className="absolute -right-0.5 -top-0.5 flex items-center justify-center">
+        <span className="absolute size-5 rounded-full bg-primary/60"></span>
+        <span className="relative flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-white">
+          {wishList.length > 9 ? '9+' : wishList.length}
         </span>
-      )}
-    </Link>
+      </div>
+    </div>
   )
 }
 

@@ -9,7 +9,7 @@ export const createCourseSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(3, 'Tiêu đề phải có ít nhất 3 ký tự')
+    .min(5, 'Tiêu đề phải có ít nhất 3 ký tự')
     .max(255, 'Tiêu đề không được vượt quá 255 ký tự'),
   isPracticalCourse: z.boolean(),
 })
@@ -24,22 +24,22 @@ export const updateCourseOverViewSchema = z
     name: z
       .string()
       .trim()
-      .min(3, 'Tiêu đề phải có ít nhất 3 ký tự')
+      .min(5, 'Tiêu đề phải có ít nhất 3 ký tự')
       .max(255, 'Tiêu đề không được vượt quá 255 ký tự'),
     description: z
       .string()
       .trim()
-      .min(1, 'Vui lòng nhập mô tả khoá học')
+      .min(100, 'Vui lòng nhập mô tả khoá học')
       .refine(
         (val) => {
           if (val) {
             const wordCount = val.trim().split(/\s+/).length
-            return wordCount <= 150
+            return wordCount <= 500
           }
           return true
         },
         {
-          message: 'Mô tả phải có không được vượt quá 150 từ',
+          message: 'Mô tả phải có không được vượt quá 500 từ',
         }
       ),
     thumbnail: z.union([
@@ -85,14 +85,9 @@ export const updateCourseOverViewSchema = z
       .int()
       .nonnegative('Giá khuyến mãi phải lớn hơn hoặc bằng 0')
       .optional(),
-    is_free: z.preprocess(
-      (val) => String(val),
-      z.enum(['0', '1'], {
-        errorMap: () => ({
-          message: 'Trường này chỉ được nhận giá trị 0 hoặc 1.',
-        }),
-      })
-    ),
+    is_free: z.enum(['0', '1'], {
+      message: 'Giá trị không hợp lệ',
+    }),
     level: z.enum(['beginner', 'intermediate', 'advanced'], {
       errorMap: () => ({ message: 'Vui lòng chọn cấp độ hợp lệ' }),
     }),
