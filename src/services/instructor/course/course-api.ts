@@ -22,6 +22,10 @@ export const instructorCourseApi = {
     })
     return res.data
   },
+  getCoursesWithPrice: async (): Promise<ICourse[]> => {
+    const res = await api.get(`${prefix}/course-with-price`)
+    return res.data
+  },
   getCourseOverview: async (slug: string): Promise<ICourse> => {
     const res = await api.get(`${prefix}/${slug}`)
     return res.data

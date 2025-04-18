@@ -20,6 +20,13 @@ export const useGetCourses = (params?: GetCoursesParams) => {
   })
 }
 
+export const useGetCoursesWithPrice = () => {
+  return useQuery({
+    queryKey: [QueryKey.INSTRUCTOR_COURSE],
+    queryFn: () => instructorCourseApi.getCoursesWithPrice(),
+  })
+}
+
 export const useGetCourseOverview = (slug?: string) => {
   return useQuery({
     queryKey: [QueryKey.INSTRUCTOR_COURSE, slug],
