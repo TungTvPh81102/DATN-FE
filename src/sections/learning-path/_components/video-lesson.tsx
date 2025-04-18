@@ -19,7 +19,7 @@ import { formatDate, formatDuration } from '@/lib/common'
 import { ILesson } from '@/types'
 import MuxPlayerElement from '@mux/mux-player'
 import MuxPlayer from '@mux/mux-player-react'
-import { Plus } from 'lucide-react'
+import { AlertTriangle, Plus, Rewind } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import AddNoteSheet from './add-note-sheet'
@@ -239,17 +239,32 @@ const VideoLesson = ({ lesson, isCompleted, lastTimeVideo = 0 }: Props) => {
         open={openWarningSeeking}
         onOpenChange={setOpenWarningSeeking}
       >
-        <AlertDialogContent className="max-w-sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Cảnh báo</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn đang học nhanh hơn bình thường, vui lòng không tua quá nhiều
-              khi học!
+        <AlertDialogContent className="max-w-md rounded-xl border-orange-400 bg-white shadow-lg dark:bg-slate-900">
+          <div className="absolute -top-12 left-1/2 flex size-24 -translate-x-1/2 items-center justify-center rounded-full bg-orange-100 text-orange-500 shadow-lg dark:bg-orange-900/30">
+            <AlertTriangle className="size-12" />
+          </div>
+          <AlertDialogHeader className="pt-12 text-center">
+            <AlertDialogTitle className="text-2xl font-bold text-orange-500">
+              Bạn đang tua quá nhanh
+            </AlertDialogTitle>
+            <AlertDialogDescription className="mt-2 text-base">
+              <p>Việc tua nhanh có thể khiến bạn bỏ lỡ nội dung quan trọng.</p>
+              <p className="mt-2 text-muted-foreground">
+                Hệ thống phát hiện bạn đang học nhanh hơn bình ui lòng không tua
+                quá nhiều khi học!
+              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => muxPlayerRef.current?.play()}>
-              Đã hiểu
+          <div className="my-4 flex items-center justify-center">
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-orange-200 to-transparent dark:via-orange-800/30"></div>
+          </div>
+          <AlertDialogFooter className="flex flex-col sm:flex-row">
+            <AlertDialogAction
+              className="mt-2 flex w-full items-center justify-center gap-2 bg-orange-500 text-white hover:bg-orange-600"
+              onClick={() => muxPlayerRef.current?.play()}
+            >
+              <Rewind className="size-4" />
+              Quay lại và tiếp tục học
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

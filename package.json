@@ -125,8 +125,8 @@
     "tailwind-scrollbar": "^3.1.0",
     "tailwindcss-animate": "^1.0.7",
     "use-immer": "^0.11.0",
+    "uuid": "^11.1.0",
     "vaul": "^1.1.2",
-    "xlsx": "^0.18.5",
     "zod": "^3.24.1",
     "zustand": "^5.0.2"
   },
@@ -139,6 +139,7 @@
     "@types/pdfjs-dist": "^2.10.377",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/parser": "^8.18.2",
     "autoprefixer": "^10.4.20",
     "eslint": "^8",

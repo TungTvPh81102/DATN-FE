@@ -38,6 +38,7 @@ import CreateChapter from './chapter/create-chapter'
 import Link from 'next/link'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import SortableLesson from './lesson/sortable-lesson'
+import { Badge } from '@/components/ui/badge'
 
 type Props = {
   chapters: IChapter[]
@@ -207,9 +208,19 @@ const CourseChapterTab = ({
                         </>
                       ) : (
                         <>
-                          <h3>
-                            Chương {chapterIndex + 1}: {chapter.title}
-                          </h3>
+                          <div className="flex items-center gap-3">
+                            <h3>
+                              Chương {chapterIndex + 1}: {chapter.title}
+                            </h3>
+                            {chapter.lessons && (
+                              <Badge
+                                variant="secondary"
+                                className="ml-2 text-xs"
+                              >
+                                {chapter.lessons.length} bài học
+                              </Badge>
+                            )}
+                          </div>
 
                           {isDraftOrRejected && (
                             <div className="flex items-center gap-2">
