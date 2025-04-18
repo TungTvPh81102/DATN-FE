@@ -28,12 +28,15 @@ import NoteList from '@/sections/learning-path/_components/note-list'
 import { Level } from '@/types'
 import { LearningPathLesson } from '@/types/LearningPath'
 import {
+  Award,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
   CircleHelp,
   Lock,
   Notebook,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -41,6 +44,12 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import Swal from 'sweetalert2'
 import { PracticeExercise } from '../_components/practice-exercise'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 type Props = {
   courseSlug: string
@@ -53,6 +62,7 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
   const [hasAlerted, setHasAlerted] = useState(false)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [runTour, setRunTour] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   const { data: lessons, isLoading: isLessonLoading } =
     useGetLessons(courseSlug)
@@ -158,203 +168,258 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
       </div>
 
       <div className="relative flex min-h-screen flex-col">
-        <div className="fixed inset-x-0 top-0 z-10 h-16 bg-[#292f3b] text-primary-foreground">
-          <div className="mx-16 flex h-full items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href={'/my-courses'}>
-                <ChevronLeft />
-              </Link>
-              <Image
-                src="/images/Logo.png"
-                className="shrink-0 rounded-md"
-                alt="logo"
-                width={36}
-                height={36}
-              />
-              <p className="course-title font-bold">{course_name}</p>
-            </div>
-            <div className="flex items-center gap-6">
-              <div className="learning-progress flex items-center gap-2">
-                <LearningProcess value={progress ?? 0} />
-                <span className="text-sm">
-                  <span className="font-bold">
-                    {courseProgress}/{total_lesson}
-                  </span>{' '}
-                  bài học
-                </span>
-                {progress === 100 && certificateLink && (
-                  <Link
-                    href={certificateLink}
-                    target="_blank"
-                    className="text-sm text-primary hover:text-primary/80"
-                  >
-                    Xem chứng chỉ
-                  </Link>
-                )}
+        <TooltipProvider>
+          <div className="fixed inset-x-0 top-0 z-10 h-16 bg-[#292f3b] text-primary-foreground">
+            <div className="flex h-full items-center justify-between px-6">
+              <div className="flex items-center gap-4">
+                <Link
+                  href={'/my-courses'}
+                  className="rounded-full bg-white/10 p-2 transition-colors hover:bg-white/20"
+                >
+                  <ChevronLeft size={20} />
+                </Link>
+                <Image
+                  src="/images/Logo.png"
+                  className="rounded-md shadow-sm"
+                  alt="logo"
+                  width={40}
+                  height={40}
+                />
+                <p className="course-title font-bold">{course_name}</p>
               </div>
-              <div
-                onClick={() => setIsSheetOpen(true)}
-                className="note-button flex cursor-pointer items-center gap-1 opacity-75 hover:opacity-100"
-              >
-                <Notebook size={18} />
-                <span className="text-sm font-normal">Ghi chú</span>
-              </div>
-              <div
-                onClick={() => setRunTour(true)}
-                className="flex cursor-pointer items-center gap-1 opacity-75 hover:opacity-100"
-              >
-                <CircleHelp size={18} />
-                <span className="text-sm font-normal">Hướng dẫn</span>
+              <div className="flex items-center gap-4">
+                <div className="learning-progress flex items-center gap-2">
+                  <LearningProcess value={progress ?? 0} />
+                  <span className="text-sm">
+                    <span className="font-bold">
+                      {courseProgress}/{total_lesson}
+                    </span>{' '}
+                    bài học
+                  </span>
+                  {progress === 100 && certificateLink && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link
+                          href="#"
+                          target="_blank"
+                          className="flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-orange-600 hover:shadow-md"
+                        >
+                          <Award size={18} />
+                          Chứng chỉ
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent className="mt-2">
+                        Xem chứng chỉ của bạn
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+                <div
+                  onClick={() => setIsSheetOpen(true)}
+                  className="note-button flex cursor-pointer items-center gap-1 opacity-75 hover:opacity-100"
+                >
+                  <Notebook size={18} />
+                  <span className="text-sm font-normal">Ghi chú</span>
+                </div>
+                <div
+                  onClick={() => setRunTour(true)}
+                  className="flex cursor-pointer items-center gap-1 opacity-75 hover:opacity-100"
+                >
+                  <CircleHelp size={18} />
+                  <span className="text-sm font-normal">Hướng dẫn</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+          <div className="fixed inset-x-0 inset-y-16 grid grid-cols-12 overflow-hidden">
+            <div
+              className={cn(
+                'lesson-content overflow-y-auto transition-all duration-300',
+                isSidebarCollapsed ? 'col-span-12' : 'col-span-9'
+              )}
+            >
+              {lessonDetail &&
+                (!is_practical_course ? (
+                  <LessonContent
+                    lesson={lessonDetail.lesson}
+                    isCompleted={isCompleted}
+                    lastTimeVideo={lastTimeVideo}
+                  />
+                ) : (
+                  <PracticeExercise
+                    lesson={lessonDetail.lesson}
+                    isCompleted={isCompleted}
+                    courseSlug={courseSlug}
+                    nextLessonId={lessonDetail?.next_lesson?.id}
+                  />
+                ))}
+            </div>
 
-        <div className="fixed inset-x-0 inset-y-16 grid grid-cols-12 overflow-hidden">
-          <div className="lesson-content col-span-9 overflow-y-auto">
-            {lessonDetail &&
-              (!is_practical_course ? (
-                <LessonContent
-                  lesson={lessonDetail.lesson}
-                  isCompleted={isCompleted}
-                  lastTimeVideo={lastTimeVideo}
-                />
-              ) : (
-                <PracticeExercise
-                  lesson={lessonDetail.lesson}
-                  isCompleted={isCompleted}
-                  courseSlug={courseSlug}
-                  nextLessonId={lessonDetail?.next_lesson?.id}
-                />
-              ))}
-          </div>
-
-          <div className="course-content col-span-3 overflow-y-auto border-l-2">
-            <h2 className="border-b-2 p-4 font-bold">Nội dung khoá học</h2>
-
-            {!is_practical_course ? (
-              <Accordion
-                type="multiple"
-                defaultValue={[`chapter-${lessonDetail?.lesson?.chapter_id}`]}
-              >
-                {chapter_lessons?.map((chapter, chapterIndex) => {
-                  const duration = chapter?.lessons.reduce(
-                    (acc, lesson) => acc + getLessonDuration(lesson),
-                    0
-                  )
-                  return (
-                    <AccordionItem
-                      key={chapterIndex}
-                      value={`chapter-${chapter.chapter_id}`}
-                      className="border-b-2"
+            <div
+              className={cn(
+                'course-content overflow-y-auto border-l-2 transition-all duration-300',
+                isSidebarCollapsed ? 'hidden' : 'col-span-3'
+              )}
+            >
+              <div className="flex items-center justify-between border-b-2 p-4">
+                <h2 className="font-bold">Nội dung khoá học</h2>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-1"
+                      onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                     >
-                      <AccordionTrigger className="border-0 hover:bg-gray-200">
-                        <div>
-                          <h3 className="font-semibold">
-                            {chapterIndex + 1}. {chapter.chapter_title}
-                          </h3>
-                          <p className="mt-1 text-xs font-light">
-                            {getChapterProgress(chapter.lessons)}/
-                            {chapter?.lessons.length} |{' '}
-                            {formatDuration(duration, 'colon')}
-                          </p>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="m-0 border-0 p-0">
-                        {chapter?.lessons?.map((lesson, lessonIndex) => {
-                          const isSelected =
-                            lesson?.id === lessonDetail?.lesson?.id
-                          return (
-                            <div
-                              onClick={() => {
-                                if (lesson.is_unlocked)
-                                  router.push(
-                                    `/learning/${courseSlug}/lesson/${lesson?.id}`
-                                  )
-                              }}
-                              className={cn(
-                                `flex cursor-default items-center space-x-3 border-t-2 p-3 pr-4 transition-colors duration-300`,
-                                isSelected
-                                  ? 'bg-orange-100'
-                                  : lesson.is_unlocked
-                                    ? 'hover:cursor-pointer hover:bg-gray-200'
-                                    : 'bg-muted'
-                              )}
-                              key={lessonIndex}
-                            >
-                              <div className="ml-2 w-full flex-1 space-y-1">
-                                <h4>
-                                  {chapterIndex + 1}.{lessonIndex + 1}{' '}
-                                  {lesson?.title}
-                                </h4>
-                                <div className="flex items-center gap-1 text-xs font-light [&_svg]:size-3">
-                                  {lessonTypeIcons[lesson?.type]}{' '}
-                                  {formatDuration(
-                                    getLessonDuration(lesson),
-                                    'colon'
-                                  )}
+                      <PanelLeftClose size={20} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">Đóng nội dung</TooltipContent>
+                </Tooltip>
+              </div>
+
+              {!is_practical_course ? (
+                <Accordion
+                  type="multiple"
+                  defaultValue={[`chapter-${lessonDetail?.lesson?.chapter_id}`]}
+                >
+                  {chapter_lessons?.map((chapter, chapterIndex) => {
+                    const duration = chapter?.lessons.reduce(
+                      (acc, lesson) => acc + getLessonDuration(lesson),
+                      0
+                    )
+                    return (
+                      <AccordionItem
+                        key={chapterIndex}
+                        value={`chapter-${chapter.chapter_id}`}
+                        className="border-b-2"
+                      >
+                        <AccordionTrigger className="border-0 hover:bg-gray-200">
+                          <div>
+                            <h3 className="font-semibold">
+                              {chapterIndex + 1}. {chapter.chapter_title}
+                            </h3>
+                            <p className="mt-1 text-xs font-light">
+                              {getChapterProgress(chapter.lessons)}/
+                              {chapter?.lessons.length} |{' '}
+                              {formatDuration(duration, 'colon')}
+                            </p>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="m-0 border-0 p-0">
+                          {chapter?.lessons?.map((lesson, lessonIndex) => {
+                            const isSelected =
+                              lesson?.id === lessonDetail?.lesson?.id
+                            return (
+                              <div
+                                onClick={() => {
+                                  if (lesson.is_unlocked)
+                                    router.push(
+                                      `/learning/${courseSlug}/lesson/${lesson?.id}`
+                                    )
+                                }}
+                                className={cn(
+                                  `flex cursor-default items-center space-x-3 border-t-2 p-3 pr-4 transition-colors duration-300`,
+                                  isSelected
+                                    ? 'bg-orange-100'
+                                    : lesson.is_unlocked
+                                      ? 'hover:cursor-pointer hover:bg-gray-200'
+                                      : 'bg-muted'
+                                )}
+                                key={lessonIndex}
+                              >
+                                <div className="ml-2 w-full flex-1 space-y-1">
+                                  <h4>
+                                    {chapterIndex + 1}.{lessonIndex + 1}{' '}
+                                    {lesson?.title}
+                                  </h4>
+                                  <div className="flex items-center gap-1 text-xs font-light [&_svg]:size-3">
+                                    {lessonTypeIcons[lesson?.type]}{' '}
+                                    {formatDuration(
+                                      getLessonDuration(lesson),
+                                      'colon'
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="size-5 *:size-full">
+                                  {!lesson.is_unlocked ? (
+                                    <Lock className="text-muted-foreground" />
+                                  ) : lesson.is_completed ? (
+                                    <CheckCircle className="text-green-500" />
+                                  ) : null}
                                 </div>
                               </div>
-
-                              <div className="size-5 *:size-full">
-                                {!lesson.is_unlocked ? (
-                                  <Lock className="text-muted-foreground" />
-                                ) : lesson.is_completed ? (
-                                  <CheckCircle className="text-green-500" />
-                                ) : null}
-                              </div>
-                            </div>
+                            )
+                          })}
+                        </AccordionContent>
+                      </AccordionItem>
+                    )
+                  })}
+                </Accordion>
+              ) : (
+                chapter_lessons?.[0]?.lessons?.map((lesson, lessonIndex) => {
+                  const isSelected = lesson?.id === lessonDetail?.lesson?.id
+                  return (
+                    <div
+                      onClick={() => {
+                        if (lesson.is_unlocked)
+                          router.push(
+                            `/learning/${courseSlug}/lesson/${lesson?.id}`
                           )
-                        })}
-                      </AccordionContent>
-                    </AccordionItem>
-                  )
-                })}
-              </Accordion>
-            ) : (
-              chapter_lessons?.[0]?.lessons?.map((lesson, lessonIndex) => {
-                const isSelected = lesson?.id === lessonDetail?.lesson?.id
-                return (
-                  <div
-                    onClick={() => {
-                      if (lesson.is_unlocked)
-                        router.push(
-                          `/learning/${courseSlug}/lesson/${lesson?.id}`
-                        )
-                    }}
-                    className={cn(
-                      `flex cursor-default items-center space-x-3 border-b-2 p-3 pr-4 transition-colors duration-300`,
-                      isSelected
-                        ? 'bg-orange-100'
-                        : lesson.is_unlocked
-                          ? 'hover:cursor-pointer hover:bg-gray-200'
-                          : 'bg-muted'
-                    )}
-                    key={lessonIndex}
-                  >
-                    <div className="ml-2 w-full flex-1 space-y-1">
-                      <h4 className="font-semibold">
-                        {lessonIndex + 1} {lesson?.title}
-                      </h4>
-                      <div className="flex items-center gap-1 text-xs font-light [&_svg]:size-3">
-                        {lessonTypeIcons[lesson?.type]}{' '}
-                        {lesson.total_questions ?? 0} câu hỏi
+                      }}
+                      className={cn(
+                        `flex cursor-default items-center space-x-3 border-b-2 p-3 pr-4 transition-colors duration-300`,
+                        isSelected
+                          ? 'bg-orange-100'
+                          : lesson.is_unlocked
+                            ? 'hover:cursor-pointer hover:bg-gray-200'
+                            : 'bg-muted'
+                      )}
+                      key={lessonIndex}
+                    >
+                      <div className="ml-2 w-full flex-1 space-y-1">
+                        <h4 className="font-semibold">
+                          {lessonIndex + 1} {lesson?.title}
+                        </h4>
+                        <div className="flex items-center gap-1 text-xs font-light [&_svg]:size-3">
+                          {lessonTypeIcons[lesson?.type]}{' '}
+                          {lesson.total_questions ?? 0} câu hỏi
+                        </div>
+                      </div>
+
+                      <div className="size-5 *:size-full">
+                        {!lesson.is_unlocked ? (
+                          <Lock className="text-muted-foreground" />
+                        ) : lesson.is_completed ? (
+                          <CheckCircle className="text-green-500" />
+                        ) : null}
                       </div>
                     </div>
-
-                    <div className="size-5 *:size-full">
-                      {!lesson.is_unlocked ? (
-                        <Lock className="text-muted-foreground" />
-                      ) : lesson.is_completed ? (
-                        <CheckCircle className="text-green-500" />
-                      ) : null}
-                    </div>
-                  </div>
-                )
-              })
-            )}
+                  )
+                })
+              )}
+            </div>
           </div>
-        </div>
+
+          {isSidebarCollapsed && (
+            <div className="fixed right-4 top-20 z-20">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="size-10 rounded-full p-2 shadow-md"
+                    onClick={() => setIsSidebarCollapsed(false)}
+                  >
+                    <PanelLeftOpen size={20} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left">Mở nội dung</TooltipContent>
+              </Tooltip>
+            </div>
+          )}
+        </TooltipProvider>
 
         <div className="navigation-buttons fixed inset-x-0 bottom-0 z-10 h-16 bg-accent">
           <div className="container mx-auto flex h-full items-center justify-center gap-4">
@@ -393,7 +458,10 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
             </Button>
           </div>
 
-          <AIChatAssistant />
+          <AIChatAssistant
+            courseName={course_name || ''}
+            lessonTitle={lessonDetail?.lesson.title || ''}
+          />
           <div className="absolute right-2 top-1/2 flex -translate-y-1/2 gap-2">
             <CommentLesson lessonId={lessonId} />
           </div>

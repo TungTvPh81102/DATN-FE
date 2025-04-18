@@ -8,8 +8,8 @@ import { DashboardCoursesTable } from '../components/statistics/table/dashboard-
 import { useSidebar } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 import { MembershipsRevenueStatistics } from '@/sections/instructor/components/statistics/memberships-revenue-statistics'
-import RatingStatistics from '@/sections/instructor/components/rating-statistics/rating-statistics'
-import FollowStatistics from '@/sections/instructor/components/follow-statistics/follow-statistics'
+import RatingStatistics from '@/sections/instructor/components/statistics/rating-statistics'
+import FollowStatistics from '@/sections/instructor/components/statistics/follow-statistics'
 
 const StatisticsView = () => {
   const { open } = useSidebar()

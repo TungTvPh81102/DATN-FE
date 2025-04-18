@@ -16,6 +16,7 @@ import {
   CompletionStatusMapping,
   ValidateCourse,
 } from '@/types/validate-course'
+import { AlertCircle } from 'lucide-react'
 
 interface Props {
   validateData?: ValidateCourse
@@ -35,6 +36,7 @@ export const ValidateCourseSheet = ({
           }
           type="button"
         >
+          <AlertCircle className="size-4 text-amber-300" />
           Xem chi tiết
         </Button>
       </SheetTrigger>

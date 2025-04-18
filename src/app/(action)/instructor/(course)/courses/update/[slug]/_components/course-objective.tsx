@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CirclePlus, Loader2, Trash } from 'lucide-react'
+import { CirclePlus, HelpCircle, Loader2, Trash } from 'lucide-react'
 import { useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 
@@ -27,6 +27,12 @@ import {
 import { GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { FloatingLabelInput } from '@/components/ui/floating-label-input'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const CourseObjective = ({ courseObjective }: { courseObjective: any }) => {
   const {
@@ -150,310 +156,373 @@ const CourseObjective = ({ courseObjective }: { courseObjective: any }) => {
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center gap-x-1">
-              <Label
-                className={cn(
-                  'text-base font-semibold',
-                  errors.benefits && 'text-destructive'
-                )}
-              >
-                Lợi ích mà khóa học mang lại
-              </Label>
+            <div className="mb-3 flex items-start justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-x-2">
+                  <Label
+                    className={cn(
+                      'text-base font-semibold',
+                      errors.benefits && 'text-destructive'
+                    )}
+                  >
+                    Lợi ích mà khóa học mang lại
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="size-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-72">
+                          {' '}
+                          Bạn phải nhập ít nhất 4 lợi ích mà học viên có thể
+                          nhận được sau khi kết thúc khóa học.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Bạn phải nhập ít nhất 4 lợi ích mà học viên có thể nhận được
+                  sau khi kết thúc khóa học.
+                </p>
+              </div>
               {!isReadOnly && (
                 <Button
                   variant="ghost"
-                  size="icon"
+                  size="sm"
                   type="button"
                   disabled={benefitFields.length >= 10}
                   onClick={handleAddBenefit}
-                  className="size-6"
+                  className="shrink-0"
                 >
                   <CirclePlus className="size-3.5" />
+                  Thêm mới
                 </Button>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">
-              Bạn phải nhập ít nhất 4 lợi ích mà học viên có thể nhận được sau
-              khi kết thúc khóa học.
-            </p>
 
-            <Sortable
-              value={benefitFields}
-              onMove={({ activeIndex, overIndex }) =>
-                moveBenefit(activeIndex, overIndex)
-              }
-              orientation="vertical"
-            >
-              <ol className="ml-4 list-decimal space-y-3">
-                {benefitFields.map((field, index) => (
-                  <SortableItem key={field.id} value={field.id} asChild>
-                    <li className="pl-1">
-                      <div className="grid grid-cols-[1fr,auto,auto] gap-2">
-                        <FormField
-                          control={form.control}
-                          name={`benefits.${index}.value`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder={`Nhập lợi ích số ${index + 1}`}
-                                  readOnly={isReadOnly}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+            <div className="rounded-lg bg-muted/30 p-4">
+              <Sortable
+                value={benefitFields}
+                onMove={({ activeIndex, overIndex }) =>
+                  moveBenefit(activeIndex, overIndex)
+                }
+                orientation="vertical"
+              >
+                <ol className="ml-4 list-decimal space-y-3">
+                  {benefitFields.map((field, index) => (
+                    <SortableItem key={field.id} value={field.id} asChild>
+                      <li className="pl-1">
+                        <div className="grid grid-cols-[1fr,auto,auto] gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`benefits.${index}.value`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder={`Nhập lợi ích số ${index + 1}`}
+                                    readOnly={isReadOnly}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {!isReadOnly && (
+                            <>
+                              <SortableDragHandle
+                                disabled={updateCourseObjectivePending}
+                              >
+                                <GripVertical className="cursor-grab" />
+                              </SortableDragHandle>
+                              <Button
+                                variant="outline"
+                                type="button"
+                                size="icon"
+                                className="text-red-500 hover:text-red-500/80"
+                                disabled={
+                                  benefitFields.length <= 4 ||
+                                  updateCourseObjectivePending
+                                }
+                                onClick={() => removeBenefit(index)}
+                              >
+                                <Trash className="size-4" />
+                              </Button>
+                            </>
                           )}
-                        />
-                        {!isReadOnly && (
-                          <>
-                            <SortableDragHandle
-                              disabled={updateCourseObjectivePending}
-                            >
-                              <GripVertical className="cursor-grab" />
-                            </SortableDragHandle>
-                            <Button
-                              variant="outline"
-                              type="button"
-                              size="icon"
-                              className="text-red-500 hover:text-red-500/80"
-                              disabled={
-                                benefitFields.length <= 4 ||
-                                updateCourseObjectivePending
-                              }
-                              onClick={() => removeBenefit(index)}
-                            >
-                              <Trash className="size-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </li>
-                  </SortableItem>
-                ))}
+                        </div>
+                      </li>
+                    </SortableItem>
+                  ))}
 
-                {errors.benefits && (
-                  <p
-                    className={
-                      'ml-1 text-[0.8rem] font-medium text-destructive'
-                    }
-                  >
-                    {errors.benefits?.message || errors.benefits?.root?.message}
-                  </p>
-                )}
-              </ol>
-            </Sortable>
+                  {errors.benefits && (
+                    <p
+                      className={
+                        'ml-1 text-[0.8rem] font-medium text-destructive'
+                      }
+                    >
+                      {errors.benefits?.message ||
+                        errors.benefits?.root?.message}
+                    </p>
+                  )}
+                </ol>
+              </Sortable>
+            </div>
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center gap-x-1">
-              <Label
-                className={cn(
-                  'text-base font-semibold',
-                  errors.requirements && 'text-destructive'
-                )}
-              >
-                Yêu cầu khi tham gia khóa học
-              </Label>
+            <div className="mb-3 flex items-start justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-x-2">
+                  <Label
+                    className={cn(
+                      'text-base font-semibold',
+                      errors.requirements && 'text-destructive'
+                    )}
+                  >
+                    Yêu cầu khi tham gia khóa học
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="size-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-72">
+                          Liệt kê các kỹ năng, kinh nghiệm, công cụ hoặc thiết
+                          bị mà học viên bắt buộc phải có trước khi tham gia
+                          khóa học.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Liệt kê các kỹ năng, kinh nghiệm, công cụ hoặc thiết bị mà học
+                  viên bắt buộc phải có trước khi tham gia khóa học.
+                </p>
+              </div>
               {!isReadOnly && (
                 <Button
                   variant="ghost"
-                  size="icon"
+                  size="sm"
                   type="button"
                   disabled={requirementFields.length >= 10}
                   onClick={handleAddRequirement}
-                  className="size-6"
+                  className="shrink-0"
                 >
                   <CirclePlus className="size-3.5" />
+                  Thêm mới
                 </Button>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">
-              Liệt kê các kỹ năng, kinh nghiệm, công cụ hoặc thiết bị mà học
-              viên bắt buộc phải có trước khi tham gia khóa học.
-            </p>
 
-            <Sortable
-              value={requirementFields}
-              onMove={({ activeIndex, overIndex }) =>
-                moveRequirement(activeIndex, overIndex)
-              }
-              orientation="vertical"
-            >
-              <ol className="ml-4 list-decimal space-y-3">
-                {requirementFields.map((field, index) => (
-                  <SortableItem key={field.id} value={field.id} asChild>
-                    <li className="pl-1">
-                      <div className="mt-3 grid grid-cols-[1fr,auto,auto] gap-2">
-                        <FormField
-                          control={form.control}
-                          name={`requirements.${index}.value`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder={`Nhập yêu cầu số ${index + 1}`}
-                                  readOnly={isReadOnly}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+            <div className="rounded-lg bg-muted/30 p-4">
+              <Sortable
+                value={requirementFields}
+                onMove={({ activeIndex, overIndex }) =>
+                  moveRequirement(activeIndex, overIndex)
+                }
+                orientation="vertical"
+              >
+                <ol className="ml-4 list-decimal space-y-3">
+                  {requirementFields.map((field, index) => (
+                    <SortableItem key={field.id} value={field.id} asChild>
+                      <li className="pl-1">
+                        <div className="mt-3 grid grid-cols-[1fr,auto,auto] gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`requirements.${index}.value`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder={`Nhập yêu cầu số ${index + 1}`}
+                                    readOnly={isReadOnly}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {!isReadOnly && (
+                            <>
+                              <SortableDragHandle
+                                disabled={updateCourseObjectivePending}
+                              >
+                                <GripVertical className="cursor-grab" />
+                              </SortableDragHandle>
+                              <Button
+                                variant="outline"
+                                type="button"
+                                size="icon"
+                                className="text-red-500 hover:text-red-500/80"
+                                disabled={
+                                  requirementFields.length <= 4 ||
+                                  updateCourseObjectivePending
+                                }
+                                onClick={() => removeRequirement(index)}
+                              >
+                                <Trash className="size-4" />
+                              </Button>
+                            </>
                           )}
-                        />
-                        {!isReadOnly && (
-                          <>
-                            <SortableDragHandle
-                              disabled={updateCourseObjectivePending}
-                            >
-                              <GripVertical className="cursor-grab" />
-                            </SortableDragHandle>
-                            <Button
-                              variant="outline"
-                              type="button"
-                              size="icon"
-                              className="text-red-500 hover:text-red-500/80"
-                              disabled={
-                                requirementFields.length <= 4 ||
-                                updateCourseObjectivePending
-                              }
-                              onClick={() => removeRequirement(index)}
-                            >
-                              <Trash className="size-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </li>
-                  </SortableItem>
-                ))}
-                {errors.requirements && (
-                  <p
-                    className={
-                      'ml-1 text-[0.8rem] font-medium text-destructive'
-                    }
-                  >
-                    {errors.requirements?.message ||
-                      errors.requirements?.root?.message}
-                  </p>
-                )}
-              </ol>
-            </Sortable>
+                        </div>
+                      </li>
+                    </SortableItem>
+                  ))}
+                  {errors.requirements && (
+                    <p
+                      className={
+                        'ml-1 text-[0.8rem] font-medium text-destructive'
+                      }
+                    >
+                      {errors.requirements?.message ||
+                        errors.requirements?.root?.message}
+                    </p>
+                  )}
+                </ol>
+              </Sortable>
+            </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center gap-x-1">
-              <Label
-                className={cn(
-                  'text-base font-semibold',
-                  errors.qa && 'text-destructive'
-                )}
-              >
-                Câu hỏi thường gặp
-              </Label>
+          <div className="space-y-2">
+            <div className="mb-3 flex items-start justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-x-2">
+                  <Label
+                    className={cn(
+                      'text-base font-semibold',
+                      errors.qa && 'text-destructive'
+                    )}
+                  >
+                    Câu hỏi thường gặp
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="size-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-72">
+                          Thêm các câu hỏi và câu trả lời thường gặp về khóa
+                          học.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Thêm các câu hỏi và câu trả lời thường gặp về khóa học.
+                </p>
+              </div>
               {!isReadOnly && (
                 <Button
                   variant="ghost"
-                  size="icon"
+                  size="sm"
                   type="button"
                   disabled={qaFields.length >= 10}
                   onClick={handleAddQA}
-                  className="size-6"
+                  className="shrink-0"
                 >
                   <CirclePlus className="size-3.5" />
+                  Thêm mới
                 </Button>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">
-              Thêm các câu hỏi và câu trả lời thường gặp về khóa học.
-            </p>
 
-            <Sortable
-              value={qaFields}
-              onMove={({ activeIndex, overIndex }) =>
-                moveQA(activeIndex, overIndex)
-              }
-              orientation="vertical"
-            >
-              <ol className="ml-4 list-decimal space-y-4">
-                {qaFields.map((field, index) => (
-                  <SortableItem key={field.id} value={field.id} asChild>
-                    <li className="space-y-3 pl-1">
-                      <div className="grid grid-cols-[1fr,auto,auto] gap-2">
-                        <FormField
-                          control={form.control}
-                          name={`qa.${index}.question`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <FloatingLabelInput
-                                  {...field}
-                                  label={`Câu hỏi ${index + 1}`}
-                                  readOnly={isReadOnly}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+            <div className="rounded-lg bg-muted/30 p-4">
+              <Sortable
+                value={qaFields}
+                onMove={({ activeIndex, overIndex }) =>
+                  moveQA(activeIndex, overIndex)
+                }
+                orientation="vertical"
+              >
+                <ol className="ml-4 list-decimal space-y-4">
+                  {qaFields.map((field, index) => (
+                    <SortableItem key={field.id} value={field.id} asChild>
+                      <li className="space-y-3 pl-1">
+                        <div className="grid grid-cols-[1fr,auto,auto] gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`qa.${index}.question`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <FloatingLabelInput
+                                    {...field}
+                                    label={`Câu hỏi ${index + 1}`}
+                                    readOnly={isReadOnly}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {!isReadOnly && (
+                            <>
+                              <SortableDragHandle
+                                disabled={
+                                  qaFields.length <= 1 ||
+                                  updateCourseObjectivePending
+                                }
+                              >
+                                <GripVertical className="cursor-grab" />
+                              </SortableDragHandle>
+                              <Button
+                                variant="outline"
+                                type="button"
+                                size="icon"
+                                className="text-red-500 hover:text-red-500/80"
+                                disabled={
+                                  qaFields.length <= 1 ||
+                                  updateCourseObjectivePending
+                                }
+                                onClick={() => removeQA(index)}
+                              >
+                                <Trash className="size-4" />
+                              </Button>
+                            </>
                           )}
-                        />
-                        {!isReadOnly && (
-                          <>
-                            <SortableDragHandle
-                              disabled={
-                                qaFields.length <= 1 ||
-                                updateCourseObjectivePending
-                              }
-                            >
-                              <GripVertical className="cursor-grab" />
-                            </SortableDragHandle>
-                            <Button
-                              variant="outline"
-                              type="button"
-                              size="icon"
-                              className="text-red-500 hover:text-red-500/80"
-                              disabled={
-                                qaFields.length <= 1 ||
-                                updateCourseObjectivePending
-                              }
-                              onClick={() => removeQA(index)}
-                            >
-                              <Trash className="size-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                      <div className="pl-1 md:pl-4">
-                        <FormField
-                          control={form.control}
-                          name={`qa.${index}.answer`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <FloatingLabelInput
-                                  {...field}
-                                  label={`Câu trả lời ${index + 1}`}
-                                  readOnly={isReadOnly}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </li>
-                  </SortableItem>
-                ))}
-                {errors.qa && (
-                  <p
-                    className={
-                      'ml-1 text-[0.8rem] font-medium text-destructive'
-                    }
-                  >
-                    {errors.qa?.message || errors.qa?.root?.message}
-                  </p>
-                )}
-              </ol>
-            </Sortable>
+                        </div>
+                        <div className="pl-1 md:pl-4">
+                          <FormField
+                            control={form.control}
+                            name={`qa.${index}.answer`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <FloatingLabelInput
+                                    {...field}
+                                    label={`Câu trả lời ${index + 1}`}
+                                    readOnly={isReadOnly}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </li>
+                    </SortableItem>
+                  ))}
+                  {errors.qa && (
+                    <p
+                      className={
+                        'ml-1 text-[0.8rem] font-medium text-destructive'
+                      }
+                    >
+                      {errors.qa?.message || errors.qa?.root?.message}
+                    </p>
+                  )}
+                </ol>
+              </Sortable>
+            </div>
           </div>
 
           {(courseObjective?.status === 'draft' ||

@@ -546,11 +546,25 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
 
                   <div>
                     <p className="font-medium text-gray-700">Tải hình ảnh</p>
-                    <p className="my-2 text-sm text-gray-500">
+                    <p className="mb-4 text-sm text-gray-500">
                       Tải lên hình ảnh khóa học của bạn ở đây. Hình ảnh sẽ xuất
                       hiện trên trang danh sách khóa học và trang chi tiết khóa
-                      học. Chấp nhận định dạng .jpg, .jpeg, .png, .webp.
+                      học.
                     </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Check className="mr-2 size-4 text-green-500" />
+                        <span>Tỉ lệ 16:9, kích thước tối thiểu 1280x720px</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Check className="mr-2 size-4 text-green-500" />
+                        <span>Định dạng: JPG, PNG, hoặc WEBP</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Check className="mr-2 size-4 text-green-500" />
+                        <span>Tránh chữ nhỏ và tối giản</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <FormMessage />
@@ -628,11 +642,25 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                     <p className="font-medium text-gray-700">
                       Tải video giới thiệu khóa học
                     </p>
-                    <p className="my-2 text-sm text-gray-500">
+                    <p className="mb-4 text-sm text-gray-500">
                       Video giới thiệu sẽ giúp học viên nhanh chóng hiểu về nội
                       dung khóa học. Một video chất lượng sẽ làm tăng tỷ lệ đăng
-                      ký của học viên. Chấp nhận định dạng .mp4, .webm, .ogg.
+                      ký của học viên.
                     </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Check className="mr-2 size-4 text-green-500" />
+                        <span>Tối đa 5 phút, chất lượng HD</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Check className="mr-2 size-4 text-green-500" />
+                        <span>Định dạng: MP4, WEBM, hoặc OGG</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Check className="mr-2 size-4 text-green-500" />
+                        <span>Giới thiệu rõ kết quả khóa học</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <FormMessage />
