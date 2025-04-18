@@ -30,15 +30,13 @@ export const couponSchema = z
       .optional(),
     start_date: z
       .string()
-      .nullable()
-      .optional()
+      .nonempty('Ngày bắt đầu là bắt buộc.')
       .refine((date) => !date || !isNaN(Date.parse(date)), {
         message: 'Ngày bắt đầu phải là một ngày hợp lệ.',
       }),
     expire_date: z
       .string()
-      .nullable()
-      .optional()
+      .nonempty('Ngày hết hạn là bắt buộc.')
       .refine((date) => !date || !isNaN(Date.parse(date)), {
         message: 'Ngày hết hạn phải là một ngày hợp lệ.',
       }),

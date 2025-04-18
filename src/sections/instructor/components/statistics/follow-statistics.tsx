@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts'
+import { TrendingUp } from 'lucide-react'
+import { CartesianGrid, LabelList, Line, LineChart, XAxis } from 'recharts'
 import {
   Card,
   CardContent,
@@ -14,7 +15,6 @@ import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
 } from '@/components/ui/chart'
 import {
   Select,
@@ -61,6 +61,26 @@ export default function FollowStatistics() {
       follows: item.count,
     })) || []
 
+  const calculatePercentChange = () => {
+    if (chartData.length >= 2) {
+      const currentMonth = chartData[chartData.length - 1]
+      const previousMonth = chartData[chartData.length - 2]
+      if (previousMonth.follows > 0) {
+        const percentChange =
+          ((currentMonth.follows - previousMonth.follows) /
+            previousMonth.follows) *
+          100
+        return {
+          value: parseFloat(percentChange.toFixed(1)),
+          isUp: percentChange > 0,
+        }
+      }
+    }
+    return null
+  }
+
+  const percentChange = calculatePercentChange()
+
   return (
     <Card>
       <CardHeader className="flex items-center gap-4 space-y-0 border-b py-5 sm:flex-row">
@@ -106,10 +126,9 @@ export default function FollowStatistics() {
                 Không có dữ liệu người theo dõi cho năm này
               </div>
             ) : (
-              <BarChart
+              <LineChart
                 data={chartData}
-                margin={{ right: 24, left: 8, bottom: 8, top: 8 }}
-                barCategoryGap={8}
+                margin={{ right: 24, left: 8, bottom: 8, top: 20 }}
               >
                 <CartesianGrid vertical={false} />
                 <XAxis
@@ -117,52 +136,74 @@ export default function FollowStatistics() {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={16}
-                  tickFormatter={(value) => {
-                    return `Tháng ${value}`
-                  }}
+                  tickFormatter={(value) => `T${value}`}
                 />
                 <ChartTooltip
-                  cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
-                  content={<ChartTooltipContent />}
-                  labelFormatter={(value) => `Tháng ${value}`}
-                  formatter={(value) => (
-                    <div className="flex w-full flex-wrap items-stretch gap-2">
-                      <div className="w-1 shrink-0 rounded-[2px] bg-[--color-follows]" />
-                      <div className="flex flex-1 items-end justify-between gap-2 leading-none">
-                        <div className="grid gap-1.5">
-                          <span className="text-muted-foreground">
-                            Người theo dõi
-                          </span>
+                  cursor={{ stroke: 'var(--border)', strokeDasharray: '5 5' }}
+                  content={(props) => {
+                    const { active, payload, label } = props
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="rounded-lg border bg-background p-2 shadow-md">
+                          <div className="mb-2 font-medium">Tháng {label}</div>
+                          <div className="flex w-full flex-wrap items-stretch gap-2">
+                            <div className="w-1 shrink-0 rounded-[2px] bg-[--color-follows]" />
+                            <div className="flex flex-1 items-end justify-between gap-2 leading-none">
+                              <div className="grid gap-1.5">
+                                <span className="text-muted-foreground">
+                                  Người theo dõi
+                                </span>
+                              </div>
+                              <span className="font-mono font-medium tabular-nums text-foreground">
+                                {payload[0].value}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <span className="font-mono font-medium tabular-nums text-foreground">
-                          {value}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                      )
+                    }
+                    return null
+                  }}
                 />
-                <Bar
+                <Line
                   dataKey="follows"
-                  fill="var(--color-follows)"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
+                  type="monotone"
+                  stroke="var(--color-follows)"
+                  strokeWidth={2}
+                  dot={{
+                    fill: 'var(--color-follows)',
+                  }}
+                  activeDot={{
+                    r: 6,
+                  }}
+                >
+                  <LabelList
+                    dataKey="follows"
+                    position="top"
+                    offset={12}
+                    className="fill-foreground"
+                    fontSize={12}
+                  />
+                </Line>
+              </LineChart>
             )
           ) : (
             <Skeleton className="size-full" />
           )}
         </ChartContainer>
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              <>Số liệu người theo dõi {year}</>
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              Thống kê người theo dõi năm {year}
-            </div>
+      <CardFooter className="flex-col items-start gap-2 text-sm">
+        {percentChange && (
+          <div className="flex gap-2 font-medium leading-none">
+            {percentChange.isUp ? 'Tăng' : 'Giảm'}{' '}
+            {Math.abs(percentChange.value)}% trong tháng này{' '}
+            <TrendingUp
+              className={`size-4 ${percentChange.isUp ? '' : 'rotate-180'}`}
+            />
           </div>
+        )}
+        <div className="leading-none text-muted-foreground">
+          Hiển thị tổng số người theo dõi trong năm {year}
         </div>
       </CardFooter>
     </Card>
