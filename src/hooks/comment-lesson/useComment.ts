@@ -17,6 +17,12 @@ export const useGetLessonComments = (lessonId: number) => {
     gcTime: 30 * 60 * 1000,
   })
 }
+export const useGetCommentBlockTime = () => {
+  return useQuery({
+    queryKey: [QueryKey.COMMENT_BLOCK_TIME],
+    queryFn: () => commentLessonApi.getCommentBlockTime(),
+  })
+}
 export const useGetReplyLessonComment = (commentId: string) => {
   return useQuery({
     queryKey: [QueryKey.LESSON_COMMENT, commentId],
@@ -26,9 +32,15 @@ export const useGetReplyLessonComment = (commentId: string) => {
 }
 
 export const useStoreCommentLesson = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: LessonCommentPayload) =>
       commentLessonApi.storeCommentLesson(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [QueryKey.LESSON_COMMENT],
+      })
+    },
   })
 }
 
