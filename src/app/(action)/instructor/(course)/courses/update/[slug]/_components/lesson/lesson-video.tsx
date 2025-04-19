@@ -60,8 +60,6 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
     uploadId || ''
   )
 
-  console.log('Video info data:', videoInfoData)
-
   const { mutate: createLessonVideo, isPending: isLessonVideoCreating } =
     useCreateLessonVideo()
   const { mutate: updateLessonVideo, isPending: isLessonVideoUpdating } =
@@ -182,7 +180,7 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
 
     setTimeout(() => {
       pollVideoStatus()
-    }, 3000)
+    }, 5000)
   }, [uploadId, refetchVideoInfo])
 
   const handleMuxUploadError = useCallback((event: any) => {

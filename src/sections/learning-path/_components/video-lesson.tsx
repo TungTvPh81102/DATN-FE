@@ -1,5 +1,11 @@
 'use client'
 
+import MuxPlayerElement from '@mux/mux-player'
+import MuxPlayer from '@mux/mux-player-react'
+import { AlertTriangle, Plus, Rewind } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+
 import HtmlRenderer from '@/components/shared/html-renderer'
 import {
   AlertDialog,
@@ -17,12 +23,8 @@ import {
 } from '@/hooks/learning-path/useLearningPath'
 import { formatDate, formatDuration } from '@/lib/common'
 import { ILesson } from '@/types'
-import MuxPlayerElement from '@mux/mux-player'
-import MuxPlayer from '@mux/mux-player-react'
-import { AlertTriangle, Plus, Rewind } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
 import AddNoteSheet from './add-note-sheet'
+import { useCurrentTimeStore } from '@/stores/use-current-time-store'
 
 type Props = {
   lesson: ILesson
@@ -36,12 +38,13 @@ const VideoLesson = ({ lesson, isCompleted, lastTimeVideo = 0 }: Props) => {
 
   const muxPlayerRef = useRef<MuxPlayerElement>(null)
   const isCalled = useRef<boolean>(false)
-  const lastCallRef = useRef<number>(Date.now())
 
   const [videoState, setVideoState] = useState({
     currentTime: lastTimeVideo,
     watchedTime: lastTimeVideo,
   })
+
+  const setCurrentTime = useCurrentTimeStore((state) => state.setCurrentTime)
 
   const [openWarningSeeking, setOpenWarningSeeking] = useState(false)
   const [openAddNote, setOpenAddNote] = useState(false)
@@ -66,46 +69,6 @@ const VideoLesson = ({ lesson, isCompleted, lastTimeVideo = 0 }: Props) => {
     return false
   }, [videoState.currentTime, videoState.watchedTime])
 
-  const handleCompleteLesson = useCallback(
-    (currentTime: number) => {
-      if (lesson?.lessonable?.duration)
-        if (
-          currentTime > (2 / 3) * lesson.lessonable.duration &&
-          !isCalled.current
-        ) {
-          isCalled.current = true
-          completeLesson(
-            {
-              lessonId: lesson.id,
-              payload: { current_time: currentTime },
-            },
-            {
-              onError: () => {
-                isCalled.current = false
-              },
-            }
-          )
-        }
-    },
-    [completeLesson, lesson.id, lesson.lessonable?.duration]
-  )
-
-  const handleAutoSave = useCallback(() => {
-    const now = Date.now()
-
-    const currentTime = muxPlayerRef.current?.currentTime
-      ? Math.floor(muxPlayerRef.current.currentTime)
-      : 0
-
-    if (now - lastCallRef.current > 30000) {
-      lastCallRef.current = now
-      updateLastTime({
-        lesson_id: lesson.id,
-        last_time_video: currentTime,
-      })
-    }
-  }, [lesson.id, updateLastTime])
-
   const handleTimeUpdate = useCallback(() => {
     if (!muxPlayerRef.current) return
 
@@ -118,59 +81,94 @@ const VideoLesson = ({ lesson, isCompleted, lastTimeVideo = 0 }: Props) => {
       currentTime: roundedCurrentTime,
       watchedTime: Math.max(roundedCurrentTime, prev.watchedTime),
     }))
-
-    if (!isCompleted) handleCompleteLesson(roundedCurrentTime)
-
-    handleAutoSave()
-  }, [
-    handleAutoSave,
-    handleCompleteLesson,
-    handleSeekingProtection,
-    isCompleted,
-  ])
+    setCurrentTime(roundedCurrentTime)
+  }, [handleSeekingProtection, isCompleted, setCurrentTime])
 
   useEffect(() => {
     if (muxPlayerRef.current && time) {
-      muxPlayerRef.current.currentTime = +time
+      muxPlayerRef.current.startTime = +time
     }
   }, [time])
 
+  // Autosave
   useEffect(() => {
+    if (videoState.currentTime > 0 && videoState.currentTime % 30 === 0) {
+      updateLastTime({
+        lesson_id: lesson.id,
+        last_time_video: videoState.currentTime,
+      })
+    }
+  }, [lesson.id, updateLastTime, videoState.currentTime])
+
+  // Complete lesson
+  useEffect(() => {
+    if (
+      !isCompleted &&
+      lesson?.lessonable?.duration &&
+      videoState.watchedTime > (2 / 3) * lesson.lessonable.duration &&
+      !isCalled.current
+    ) {
+      isCalled.current = true
+      completeLesson(
+        {
+          lessonId: lesson.id,
+          payload: { current_time: videoState.watchedTime },
+        },
+        {
+          onError: () => {
+            isCalled.current = false
+          },
+        }
+      )
+    }
+  }, [
+    completeLesson,
+    isCompleted,
+    lesson.id,
+    lesson.lessonable?.duration,
+    videoState.watchedTime,
+  ])
+
+  // Save progress when leaving the page
+  useEffect(() => {
+    const saveProgress = () => {
+      if (!muxPlayerRef.current) return
+
+      const body = {
+        lesson_id: lesson.id,
+        last_time_video: Math.round(muxPlayerRef.current.currentTime),
+      }
+
+      navigator.sendBeacon('/api/save-video-progress', JSON.stringify(body))
+    }
+
+    window.addEventListener('pagehide', saveProgress)
+
+    return () => {
+      window.removeEventListener('pagehide', saveProgress)
+    }
+  }, [lesson.id])
+
+  useEffect(() => {
+    let isPlaying = false
+
     const handleVisibilityChange = () => {
       if (!muxPlayerRef.current) return
 
-      const isHidden =
-        document.hidden ||
-        (document as any).webkitHidden ||
-        (document as any).msHidden ||
-        (document as any).mozHidden
-
-      if (isHidden) {
-        updateLastTime({
-          lesson_id: lesson.id,
-          last_time_video: Math.floor(muxPlayerRef.current.currentTime),
-        })
+      if (document.hidden) {
+        isPlaying = !muxPlayerRef.current.paused
         muxPlayerRef.current.pause()
-      } else if (muxPlayerRef.current?.paused) muxPlayerRef.current.play()
+      } else if (isPlaying) {
+        muxPlayerRef.current.play()
+      }
     }
 
-    const visibilityEvents = [
-      'visibilitychange',
-      'webkitvisibilitychange',
-      'msvisibilitychange',
-      'mozvisibilitychange',
-    ]
-
-    visibilityEvents.forEach((event) => {
-      document.addEventListener(event, handleVisibilityChange)
-    })
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
-      visibilityEvents.forEach((event) => {
-        document.removeEventListener(event, handleVisibilityChange)
-      })
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [lesson.id, updateLastTime])
+  }, [])
 
   return (
     <>
@@ -208,7 +206,6 @@ const VideoLesson = ({ lesson, isCompleted, lastTimeVideo = 0 }: Props) => {
           <Button
             variant="secondary"
             onClick={() => {
-              muxPlayerRef.current?.pause()
               setOpenAddNote(true)
             }}
           >
@@ -224,13 +221,7 @@ const VideoLesson = ({ lesson, isCompleted, lastTimeVideo = 0 }: Props) => {
 
       <AddNoteSheet
         open={openAddNote}
-        onOpenChange={(open) => {
-          setOpenAddNote(open)
-
-          if (open) {
-            muxPlayerRef.current?.pause()
-          }
-        }}
+        onOpenChange={setOpenAddNote}
         lessonId={lesson.id!}
         currentTime={videoState.currentTime}
       />
