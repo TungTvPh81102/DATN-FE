@@ -16,6 +16,7 @@ import {
   User,
 } from 'lucide-react'
 import Link from 'next/link'
+import { useAuthStore } from '@/stores/useAuthStore'
 
 // Sample recommended channels
 const recommendedChannels = [
@@ -72,6 +73,8 @@ interface LivestreamSidebarProps {
 }
 
 export function LivestreamSidebar({ open, setOpen }: LivestreamSidebarProps) {
+  const { user } = useAuthStore()
+
   const sidebarContent = (
     <>
       <div className="flex items-center justify-between p-4">
@@ -191,15 +194,16 @@ export function LivestreamSidebar({ open, setOpen }: LivestreamSidebarProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage
-                src="/placeholder.svg?height=40&width=40"
-                alt="User"
-              />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarImage src={user?.avatar ?? ''} alt={user?.name} />
+              <AvatarFallback>
+                {user?.name?.charAt(0).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-medium">Username</div>
-              <div className="text-xs text-muted-foreground">Online</div>
+              <div className="truncate font-medium">{user?.name}</div>
+              <div className="text-xs text-muted-foreground">
+                {user?.status}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-1">
