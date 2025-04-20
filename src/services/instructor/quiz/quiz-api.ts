@@ -33,7 +33,7 @@ export const instructorQuizApi = {
     quizId,
     payload,
   }: {
-    quizId: string
+    quizId: number
     payload: { file: File; type: 'overwrite' | 'add' }
   }) => {
     return api.post(`${prefix}/${quizId}/import-quiz-question`, payload, {
@@ -63,7 +63,7 @@ export const instructorQuizApi = {
     quizId,
     payload,
   }: {
-    quizId: string
+    quizId: number
     payload: { id: number; order: number }[]
   }) => {
     return await api.put(`${prefix}/${quizId}/update-order`, payload)

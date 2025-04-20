@@ -7,33 +7,44 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 
-export const useToastMutation = ({
+export const useToastMutation = <TData = unknown, TVariables = unknown>({
   mutationFn,
-  queryKey,
-  queryKeys,
   onSuccess,
   onError,
+  queryKey,
+  queryKeys,
+  pendingMessage = 'Đang xử lý...',
 }: {
-  mutationFn: MutationFunction<any, any>
+  mutationFn: MutationFunction<TData, TVariables>
+  onSuccess?: (
+    data: TData,
+    variables: TVariables,
+    context: unknown
+  ) => Promise<unknown> | unknown
+  onError?: (
+    error: Error,
+    variables: TVariables,
+    context: unknown
+  ) => Promise<unknown> | unknown
   queryKey?: string[]
   queryKeys?: string[][]
-  onSuccess?: (data: any) => void
-  onError?: (error: any) => void
+  pendingMessage?: string
 }) => {
   const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (payload: any) => {
+
+  return useMutation<TData, Error, TVariables>({
+    mutationFn: (payload) => {
       return toast.promise(mutationFn(payload), {
-        pending: 'Đang xử lý...',
+        pending: pendingMessage,
         success: {
-          render: ({ data }) => data.message as string,
+          render: ({ data }) => (data as any)?.message as string,
         },
         error: {
           render: ({ data }: { data: { message: string } }) => data.message,
         },
       })
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables, context) => {
       if (queryKey) {
         queryClient.invalidateQueries({ queryKey })
       }
@@ -43,7 +54,7 @@ export const useToastMutation = ({
           queryClient.invalidateQueries({ queryKey })
         })
       }
-      onSuccess?.(data)
+      onSuccess?.(data, variables, context)
     },
     onError,
   })

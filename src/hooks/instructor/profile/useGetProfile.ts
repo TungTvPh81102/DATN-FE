@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import QUERY_KEY from '@/constants/query-key'
-import { toast } from 'react-toastify'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 import { instructorProfileApi } from '@/services/instructor/profile/instructor-profile-apit'
+import { useQuery } from '@tanstack/react-query'
 
 export const useGetInstructorProfile = (code: string) => {
   return useQuery({
@@ -32,26 +32,11 @@ export const useCheckInstructorFollow = (
   })
 }
 
-export const useFollowInstructor = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ code }: { code: string }) =>
-      instructorProfileApi.followInstructor(code),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: [QUERY_KEY.INSTRUCTOR_CHECK_FOLLOW],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [QUERY_KEY.INSTRUCTOR_PROFILE_INFO],
-        }),
-      ])
-    },
-    onError: (error) => {
-      if (error.message) {
-        toast.error('Vui lòng đăng nhập trước khi thực hiện!')
-      }
-    },
+export const useFollowInstructor = () =>
+  useToastMutation({
+    mutationFn: instructorProfileApi.followInstructor,
+    queryKeys: [
+      [QUERY_KEY.INSTRUCTOR_CHECK_FOLLOW],
+      [QUERY_KEY.INSTRUCTOR_PROFILE_INFO],
+    ],
   })
-}

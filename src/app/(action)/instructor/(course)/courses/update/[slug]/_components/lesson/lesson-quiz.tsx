@@ -68,7 +68,7 @@ const LessonQuiz = ({ chapterId, onHide, isEdit, quizId }: Props) => {
       onHide()
     }
 
-    if (isEdit)
+    if (isEdit && quizId)
       updateQuizContent({
         quizId,
         payload,

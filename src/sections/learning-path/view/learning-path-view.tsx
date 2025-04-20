@@ -69,8 +69,11 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
   const [runTour, setRunTour] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
-  const { data: lessons, isLoading: isLessonLoading } =
-    useGetLessons(courseSlug)
+  const {
+    data: lessons,
+    isLoading: isLessonLoading,
+    error: lessonError,
+  } = useGetLessons(courseSlug)
   const {
     chapter_lessons,
     course_name,
@@ -175,9 +178,9 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
 
   if (isLessonLoading || isLessonDetailLoading) return <ModalLoading />
 
-  if (!lessons) {
+  if ((lessonError as any)?.status === 403) {
     router.replace(`/not-found`)
-    return
+    return null
   }
 
   return (
@@ -472,7 +475,7 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
               className="rounded-full font-semibold [&_svg]:size-5"
               disabled={
                 !lessonDetail?.next_lesson ||
-                (lessons.level === Level.ADVANCED && !isCompleted)
+                (lessons?.level === Level.ADVANCED && !isCompleted)
               }
               onClick={() => {
                 if (lessonDetail?.next_lesson?.id) {
