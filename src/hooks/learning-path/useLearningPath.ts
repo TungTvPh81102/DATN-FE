@@ -33,6 +33,23 @@ export const useGetLessonDetail = (params: {
   })
 }
 
+export function useLessonAccess(params: {
+  courseSlug: string
+  lessonId: number
+}) {
+  return useQuery({
+    queryKey: [
+      QueryKey.LESSON_ACCESS_VALIDATION,
+      params.courseSlug,
+      params.lessonId,
+    ],
+    enabled: !!params,
+    queryFn: () => learningPathApi.getLessonAccess(params),
+    retry: false,
+    staleTime: 1000 * 60,
+  })
+}
+
 export const usePrefetchLessonDetail = ({
   courseSlug,
   lessonId,
