@@ -10,11 +10,18 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { lessonTypeIcons } from '@/configs'
 import {
   useGetLessonDetail,
   useGetLessons,
   usePrefetchLessonDetail,
+  useUpdateLastTime,
 } from '@/hooks/learning-path/useLearningPath'
 import { useCheckCourseRatingState } from '@/hooks/rating/useRating'
 import { useDownloadCertificate, useGetProgress } from '@/hooks/user/useUser'
@@ -25,6 +32,7 @@ import CommentLesson from '@/sections/learning-path/_components/comment-lesson'
 import EvaluationCourse from '@/sections/learning-path/_components/evaluation-course'
 import LessonContent from '@/sections/learning-path/_components/lesson-content'
 import NoteList from '@/sections/learning-path/_components/note-list'
+import { useCurrentTimeStore } from '@/stores/use-current-time-store'
 import { Level } from '@/types'
 import { LearningPathLesson } from '@/types/LearningPath'
 import {
@@ -44,12 +52,8 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import Swal from 'sweetalert2'
 import { PracticeExercise } from '../_components/practice-exercise'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { useQueryClient } from '@tanstack/react-query'
+import QueryKey from '@/constants/query-key'
 
 type Props = {
   courseSlug: string
@@ -57,6 +61,7 @@ type Props = {
 }
 
 const LearningPathView = ({ courseSlug, lessonId }: Props) => {
+  const queryClient = useQueryClient()
   const router = useRouter()
 
   const [hasAlerted, setHasAlerted] = useState(false)
@@ -88,6 +93,24 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
   const { data: progress } = useGetProgress(courseSlug)
   const { data: checkCourseRatingState } = useCheckCourseRatingState(courseSlug)
   const { data: certificateLink } = useDownloadCertificate(courseSlug, progress)
+
+  const currentTime = useCurrentTimeStore((state) => state.currentTime)
+  const { mutate: updateLastTime } = useUpdateLastTime()
+
+  const handleUpdateLastTime = () => {
+    const lesson = lessonDetail?.lesson
+
+    if (lesson?.type !== 'video' || currentTime === lastTimeVideo) return
+
+    queryClient.invalidateQueries({
+      queryKey: [QueryKey.LEARNING_PATH_LESSON, courseSlug, lessonId],
+    })
+
+    updateLastTime({
+      lesson_id: lesson.id,
+      last_time_video: currentTime,
+    })
+  }
 
   const getLessonDuration = (lesson: LearningPathLesson) => {
     switch (lesson.type) {
@@ -313,10 +336,12 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
                             return (
                               <div
                                 onClick={() => {
-                                  if (lesson.is_unlocked)
+                                  if (lesson.is_unlocked) {
+                                    handleUpdateLastTime()
                                     router.push(
                                       `/learning/${courseSlug}/lesson/${lesson?.id}`
                                     )
+                                  }
                                 }}
                                 className={cn(
                                   `flex cursor-default items-center space-x-3 border-t-2 p-3 pr-4 transition-colors duration-300`,
@@ -363,10 +388,11 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
                   return (
                     <div
                       onClick={() => {
-                        if (lesson.is_unlocked)
+                        if (lesson.is_unlocked) {
                           router.push(
                             `/learning/${courseSlug}/lesson/${lesson?.id}`
                           )
+                        }
                       }}
                       className={cn(
                         `flex cursor-default items-center space-x-3 border-b-2 p-3 pr-4 transition-colors duration-300`,
@@ -429,10 +455,12 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
               className="rounded-full border-primary font-semibold text-primary hover:text-primary/80 [&_svg]:size-5"
               disabled={!lessonDetail?.previous_lesson}
               onClick={() => {
-                if (lessonDetail?.previous_lesson?.id)
+                if (lessonDetail?.previous_lesson?.id) {
+                  handleUpdateLastTime()
                   router.push(
                     `/learning/${courseSlug}/lesson/${lessonDetail.previous_lesson.id}`
                   )
+                }
               }}
             >
               <ChevronLeft />
@@ -447,10 +475,12 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
                 (lessons.level === Level.ADVANCED && !isCompleted)
               }
               onClick={() => {
-                if (lessonDetail?.next_lesson?.id)
+                if (lessonDetail?.next_lesson?.id) {
+                  handleUpdateLastTime()
                   router.push(
                     `/learning/${courseSlug}/lesson/${lessonDetail.next_lesson.id}`
                   )
+                }
               }}
             >
               {'BÀI TIẾP THEO'}

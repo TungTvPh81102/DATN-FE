@@ -115,6 +115,7 @@ export const useCompletePracticeExercise = () => {
 export const useUpdateLastTime = () => {
   return useMutation({
     mutationFn: learningPathApi.updateLastTime,
+    retry: 1,
   })
 }
 
