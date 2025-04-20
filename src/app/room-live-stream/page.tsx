@@ -1,5 +1,7 @@
+import { LivestreamList } from '@/sections/livestream/views/livestream-list'
+
 const Page = () => {
-  return <h1>Livestream list</h1>
+  return <LivestreamList />
 }
 
 export default Page

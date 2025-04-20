@@ -99,7 +99,7 @@ export function LivestreamSidebar({ open, setOpen }: LivestreamSidebarProps) {
           {/* Main navigation */}
           <div className="space-y-1">
             <Link
-              href="#"
+              href="/room-live-stream"
               className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
             >
               <Home className="size-5" />

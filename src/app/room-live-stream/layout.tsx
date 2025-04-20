@@ -1,7 +1,8 @@
 import React from 'react'
+import { LivestreamLayout } from '@/app/room-live-stream/_components/livestream-layout'
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  return <div className="min-h-screen bg-background">{children}</div>
+  return <LivestreamLayout>{children}</LivestreamLayout>
 }
 
 export default Layout
