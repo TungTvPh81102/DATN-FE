@@ -22,7 +22,7 @@ export function LivestreamLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <LivestreamSidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
-      <div>{children}</div>
+      <div className="w-full bg-[#f2f4f7]">{children}</div>
     </div>
   )
 }

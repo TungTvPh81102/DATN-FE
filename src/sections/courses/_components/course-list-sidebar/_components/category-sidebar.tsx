@@ -56,7 +56,7 @@ export const CategorySidebar = ({
           <p>Không có danh mục nào</p>
         )}
       </ul>
-      {/*<div className="btn-showmore showmore view-more-button">*/}
+      {/*<div className="btn-showmore showmore views-more-button">*/}
       {/*  <span className="title">*/}
       {/*    Xem thêm <i className="icon icon-arrow-bottom" />*/}
       {/*  </span>*/}
