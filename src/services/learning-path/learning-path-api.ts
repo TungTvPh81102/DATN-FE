@@ -11,6 +11,7 @@ import {
   Answers,
   PracticeExerciseSubmissionPayload,
 } from '@/validations/quiz-submission'
+import { AxiosRequestConfig } from 'axios'
 
 const prefix = 'learning-paths'
 
@@ -84,10 +85,17 @@ export const learningPathApi = {
     )
   },
 
-  updateLastTime: ({ lesson_id, last_time_video }: UpdateLastTimePayload) => {
-    return api.put(`${prefix}/lesson/${lesson_id}/update-last-time-video`, {
-      last_time_video,
-    })
+  updateLastTime: (
+    { lesson_id, last_time_video }: UpdateLastTimePayload,
+    config?: AxiosRequestConfig
+  ) => {
+    return api.put(
+      `${prefix}/lesson/${lesson_id}/update-last-time-video`,
+      {
+        last_time_video,
+      },
+      config
+    )
   },
 
   getDraftCourse: async (slug: string): Promise<DraftCourse> => {
