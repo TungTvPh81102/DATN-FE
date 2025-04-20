@@ -4,7 +4,7 @@ import DraftCourseView from '@/sections/draft-course/views'
 
 const page = ({ params }: { params: { slug: string } }) => {
   return (
-    <ProtectedRoute roles={[Role.INSTRUCTOR]}>
+    <ProtectedRoute roles={[Role.INSTRUCTOR, Role.SUPER_ADMIN, Role.ADMIN]}>
       <DraftCourseView slug={params.slug} />
     </ProtectedRoute>
   )
