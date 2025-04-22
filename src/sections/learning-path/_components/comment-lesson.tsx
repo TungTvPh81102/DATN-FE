@@ -35,9 +35,13 @@ const CommentLesson = ({ lessonId }: { lessonId: number }) => {
           </SheetHeader>
         </div>
 
-        <div className="mt-6 flex max-h-[75vh] flex-col gap-2 overflow-y-auto pr-2">
-          <CommentForm lessonId={lessonId} />
-          <CommentList lessonId={lessonId} />
+        <div className="mt-6 flex h-[calc(100vh-180px)] flex-1 flex-col gap-4 overflow-hidden">
+          <div className="shrink-0">
+            <CommentForm lessonId={lessonId} />
+          </div>
+          <div className="flex-1 overflow-y-auto pr-2">
+            <CommentList lessonId={lessonId} />
+          </div>
         </div>
       </SheetContent>
     </Sheet>
