@@ -7,6 +7,7 @@ import {
   Film,
   Info,
   Loader2,
+  Menu,
   MoreVertical,
   Paperclip,
   Plus,
@@ -50,6 +51,7 @@ import { IChannel, IMessage } from '@/types/Chat'
 import { MessagePayload } from '@/validations/chat'
 import Image from 'next/image'
 import { ChatSidebar } from '../_components/chat-sidebar'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 
 interface FilePreview {
   name: string
@@ -75,6 +77,7 @@ const ChatView = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [filePreviews, setFilePreviews] = useState<FilePreview[]>([])
   const [openSidebarChatInfo, setOpenSidebarChatInfo] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const searchInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -393,15 +396,37 @@ const ChatView = () => {
           multiple
         />
 
-        <ChatSidebar
-          selectedChannel={selectedChannel}
-          setSelectedChannel={setSelectedChannel}
-        />
+        <div className="hidden md:block">
+          <ChatSidebar
+            selectedChannel={selectedChannel}
+            setSelectedChannel={setSelectedChannel}
+          />
+        </div>
+
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetContent side="left" className="p-0 sm:max-w-xs">
+            <ChatSidebar
+              selectedChannel={selectedChannel}
+              setSelectedChannel={(channel) => {
+                setSelectedChannel(channel)
+                setMobileMenuOpen(false)
+              }}
+            />
+          </SheetContent>
+        </Sheet>
 
         <div className="flex flex-1 flex-col">
           {selectedChannel ? (
             <div className="flex h-16 items-center justify-between border-b px-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="blockmd:hidden self-center"
+                  onClick={() => setMobileMenuOpen(true)}
+                >
+                  <Menu className="size-5" />
+                </Button>
                 {!openSidebarChatInfo && (
                   <div className="relative">
                     <Avatar className="size-8">
@@ -440,10 +465,10 @@ const ChatView = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 {showSearch ? (
                   <div className="flex items-center gap-2 rounded-md bg-secondary px-2">
-                    <Search className="size-4 text-muted-foreground" />
+                    <Search className="size-4 text-muted-foreground sm:block" />
                     <Input
                       ref={searchInputRef}
                       placeholder="Tìm kiếm tin nhắn"
@@ -468,6 +493,7 @@ const ChatView = () => {
                     size="icon"
                     variant="ghost"
                     onClick={() => setShowSearch(true)}
+                    className="ml-auto sm:ml-0"
                   >
                     <Search className="size-5" />
                   </Button>
@@ -475,7 +501,11 @@ const ChatView = () => {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="ghost">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="hidden sm:flex"
+                    >
                       <MoreVertical className="size-5" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -512,7 +542,7 @@ const ChatView = () => {
             </div>
           )}
 
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-4 sm:p-4">
             {!selectedChannel ? (
               <div className="flex h-full items-center justify-center">
                 <p className="text-muted-foreground">
@@ -553,12 +583,12 @@ const ChatView = () => {
 
           {filePreviews.length > 0 && (
             <div className="border-t bg-secondary p-2">
-              <ScrollArea className="h-32">
-                <div className="grid grid-cols-4 gap-2 p-2">
+              <ScrollArea className="h-24 sm:h-32">
+                <div className="grid grid-cols-2 gap-2 p-2 sm:grid-cols-4">
                   {filePreviews.map((preview, index) => (
                     <div key={index} className="relative">
                       {preview.type === 'image' ? (
-                        <div className="group relative aspect-video h-24">
+                        <div className="group relative aspect-video h-16 sm:h-24">
                           <Image
                             src={preview.url}
                             alt={preview.name}
@@ -578,7 +608,7 @@ const ChatView = () => {
                         </div>
                       ) : preview.type === 'video' ? (
                         <div className="group relative">
-                          <div className="relative h-24 w-full rounded-lg bg-black/10">
+                          <div className="relative h-24 w-full rounded-lg bg-black/10 sm:h-24">
                             <video
                               src={preview.url}
                               className="size-full rounded-lg object-cover"
@@ -607,8 +637,8 @@ const ChatView = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className="group relative flex h-24 flex-col items-center justify-center rounded-lg bg-background p-2">
-                          <Paperclip className="mb-1 size-6" />
+                        <div className="group relative flex h-24 flex-col items-center justify-center rounded-lg bg-background p-2 sm:h-24">
+                          <Paperclip className="mb-1 size-5 sm:size-6" />
                           <span className="line-clamp-2 px-1 text-center text-xs">
                             {preview.name}
                           </span>
@@ -630,10 +660,10 @@ const ChatView = () => {
                     <Button
                       size="icon"
                       variant="secondary"
-                      className="h-24 w-full rounded-lg"
+                      className="h-16 w-full rounded-lg sm:h-24"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      <Plus className="size-6" />
+                      <Plus className="size-5 sm:size-6" />
                     </Button>
                   </div>
                 </div>
@@ -642,7 +672,7 @@ const ChatView = () => {
           )}
 
           {selectedChannel && (
-            <div className="border-t bg-white p-4">
+            <div className="border-t bg-white p-2 sm:p-4">
               {replyTo && (
                 <ReplyPreview
                   message={replyTo}
@@ -651,19 +681,19 @@ const ChatView = () => {
                 />
               )}
               <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1 sm:gap-1.5">
                   <Button
                     size="icon"
                     variant="ghost"
                     className="size-9 rounded-full hover:bg-secondary"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <Paperclip className="size-5 text-muted-foreground" />
+                    <Paperclip className="size-4 text-muted-foreground sm:size-5" />
                   </Button>
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="size-9 rounded-full hover:bg-secondary"
+                    className="size-8 rounded-full hover:bg-secondary sm:size-9"
                     onClick={() => imageInputRef.current?.click()}
                   >
                     <svg
@@ -674,7 +704,7 @@ const ChatView = () => {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="size-5 text-muted-foreground"
+                      className="size-4 text-muted-foreground sm:size-5"
                     >
                       <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
                       <circle cx="8.5" cy="8.5" r="1.5" />
@@ -684,23 +714,23 @@ const ChatView = () => {
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="size-9 rounded-full hover:bg-secondary"
+                    className="size-8 rounded-full hover:bg-secondary sm:size-9"
                     onClick={() => videoInputRef.current?.click()}
                   >
-                    <Film className="size-5 text-muted-foreground" />
+                    <Film className="size-4 text-muted-foreground sm:size-5" />
                   </Button>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="size-9 rounded-full hover:bg-secondary"
+                        className="size-9 rounded-full hover:bg-secondary sm:size-9"
                       >
-                        <Smile className="size-5 text-muted-foreground" />
+                        <Smile className="size-4 text-muted-foreground sm:size-5" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="w-80 p-0"
+                      className="w-64 p-0 sm:w-80"
                       side="top"
                       align="start"
                     >
@@ -728,7 +758,7 @@ const ChatView = () => {
                     onClick={() => sendMessage()}
                     disabled={isPendingSendMessage}
                   >
-                    <Send />
+                    <Send className="size-4 sm:size-5" />
                   </Button>
                 </div>
               </div>

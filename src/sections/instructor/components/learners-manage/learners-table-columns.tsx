@@ -94,7 +94,7 @@ export function getColumns(): ColumnDef<Learner>[] {
         return (
           <div className="space-y-1">
             <div className="font-medium">
-              {formatDate(row.original.enrolled_at, {
+              {formatDate(row.original.enrolled_at ?? '', {
                 dateStyle: 'medium',
               })}
             </div>

@@ -22,6 +22,7 @@ import { ReactionPicker } from '@/sections/learning-path/_components/comment/rea
 import { ReplyList } from '@/sections/learning-path/_components/comment/reply-list'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ReactionData, reactionEmojis } from '@/types/Reaction'
+import { LoadingButton } from '@/components/ui/loading-button'
 
 export const CommentItem = ({
   comment,
@@ -386,27 +387,21 @@ export const CommentItem = ({
                   disabled={isPendingStoreReplyLessonComment}
                   className="rounded-full"
                 >
+                  <X size={14} />
                   Hủy
                 </Button>
-                <Button
+                <LoadingButton
                   onClick={handleReplySubmit}
+                  size="sm"
+                  loading={isPendingStoreReplyLessonComment}
                   disabled={
                     !replyContent.trim() || isPendingStoreReplyLessonComment
                   }
-                  className="rounded-full bg-blue-600 hover:bg-blue-700"
+                  className="rounded-full"
                 >
-                  {isPendingStoreReplyLessonComment ? (
-                    <>
-                      <Loader2 className="mr-2 size-4 animate-spin" />
-                      Đang gửi...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 size-4" />
-                      Phản hồi
-                    </>
-                  )}
-                </Button>
+                  <Send size={14} />
+                  Phản hồi
+                </LoadingButton>
               </div>
             </div>
           </div>

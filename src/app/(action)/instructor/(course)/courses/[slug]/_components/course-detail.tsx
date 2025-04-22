@@ -17,6 +17,7 @@ import { DataTableColumnHeader } from '@/components/shared/data-table-column-hea
 import DialogLiveStreamCreate from '@/components/live-stream/dialog-live-stream-create'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Container from '@/components/shared/container'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const getLocalizedLevel = (level: string) => {
   switch (level) {
@@ -84,13 +85,20 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
         const student = row.original
         return (
           <div className="flex items-center gap-2">
-            <Image
-              alt={student.user_name}
-              className="rounded-full object-cover"
-              src={student.user_avatar || ''}
-              width={30}
-              height={30}
-            />
+            <Avatar className="size-8">
+              <AvatarImage
+                src={student?.user_avatar || ''}
+                alt={student.user_name}
+              />
+              <AvatarFallback>
+                {student.user_name
+                  ?.split(' ')
+                  .map((word: string) => word[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
             <p className="text-sm font-medium text-gray-900">
               {student.user_name}
             </p>
