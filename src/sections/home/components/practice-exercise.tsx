@@ -158,7 +158,7 @@ export const PracticeExercise = ({ title, description }: Props) => {
                         <div className="meta !gap-0 md:gap-4">
                           <div className="meta-item !pr-2 md:pr-[10px]">
                             <i className="flaticon-calendar" />
-                            <p>{course.lessons_count} Lessons</p>
+                            <p>{course.lessons_count} Bài học</p>
                           </div>
                         </div>
 

@@ -47,10 +47,7 @@ const BlogDetailView = ({ slug }: { slug: string }) => {
             />
           </div>
           <div className="blog-single-wrap">
-            <BlogDetailPost
-              initialBlogDetail={blogDetail?.data}
-              document={blogDetail?.data}
-            />
+            <BlogDetailPost initialBlogDetail={blogDetail?.data} />
             <BlogDetailSharePost initialBlogDetail={blogDetail?.data} />
             <BlogDetailProfileItem initialBlogDetail={blogDetail?.data} />
             <div className="post-control flex flex-wrap items-center justify-between gap-[20px]">
