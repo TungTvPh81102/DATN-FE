@@ -65,3 +65,8 @@ export interface Answer {
   answer: string
   is_correct: number
 }
+
+export interface UserQuizSubmissionAnswer {
+  answer_id: number
+  question_id: number
+}

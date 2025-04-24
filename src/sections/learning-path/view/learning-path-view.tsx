@@ -250,7 +250,7 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Link
-                          href="#"
+                          href={certificateLink ?? '#'}
                           target="_blank"
                           className="flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-orange-600 hover:shadow-md"
                         >

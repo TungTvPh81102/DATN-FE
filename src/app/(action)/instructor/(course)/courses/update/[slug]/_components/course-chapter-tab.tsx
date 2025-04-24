@@ -39,6 +39,7 @@ import Link from 'next/link'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import SortableLesson from './lesson/sortable-lesson'
 import { Badge } from '@/components/ui/badge'
+import CoursePlanningAIAssistant from '@/app/(action)/instructor/(course)/courses/update/[slug]/_components/course-planning-ai-assistant'
 import MoveLessonsDialog from '@/app/(action)/instructor/(course)/courses/update/[slug]/_components/lesson/move-lesson-dialog'
 
 type Props = {
@@ -160,7 +161,7 @@ const CourseChapterTab = ({
           }))}
           onValueChange={onValueChange}
         >
-          <Accordion type="multiple" className="space-y-6">
+          <Accordion type="single" className="space-y-6" collapsible>
             {chapters?.map((chapter, chapterIndex) => (
               <SortableItem
                 key={chapter.id}
@@ -313,6 +314,8 @@ const CourseChapterTab = ({
           </>
         )}
       </div>
+
+      <CoursePlanningAIAssistant currentCourse={`Khoá học NextJS`} />
     </div>
   )
 }
