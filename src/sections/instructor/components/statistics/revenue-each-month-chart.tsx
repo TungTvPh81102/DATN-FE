@@ -10,7 +10,7 @@ import {
 
 type Props = {
   chartConfig: ChartConfig
-  chartData: { month: number; purchase: string }[]
+  chartData: { month: string; purchase: string }[]
 }
 
 export const RevenueEachMonthChart = ({ chartConfig, chartData }: Props) => {

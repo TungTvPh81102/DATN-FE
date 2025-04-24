@@ -3,7 +3,7 @@ import { IUser } from '@/types/User'
 import { BadgeProps } from '@/components/ui/badge'
 
 import { ICategory } from './Category'
-import { IQuiz } from './Quiz'
+import { IQuiz, UserQuizSubmissionAnswer } from './Quiz'
 import { IInstructorProfile } from '@/types/Instructor'
 import { IUserRating } from '@/types/Misc'
 
@@ -156,6 +156,8 @@ export interface Lessonable {
   // solution_code?: string
   test_case?: string
   ignore_test_case?: 1 | 0
+
+  user_submitted_answers?: UserQuizSubmissionAnswer[]
 }
 
 export type LessonType = 'video' | 'quiz' | 'document' | 'coding'
