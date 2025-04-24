@@ -220,12 +220,15 @@ const CourseListCategory = ({
                               <div className="meta !gap-0 md:gap-4">
                                 <div className="meta-item !pr-2 md:pr-[10px]">
                                   <i className="flaticon-calendar" />
-                                  <p>{course.total_lesson} Lessons</p>
+                                  <p>{course?.total_lesson} Bài học</p>
                                 </div>
 
                                 <div className="meta-item pl-2 md:pl-[10px]">
                                   <i className="flaticon-clock" />
-                                  <p>{formatDuration(course.total_duration)}</p>
+                                  <p>
+                                    {formatDuration(course?.total_duration) ||
+                                      '0 giờ'}
+                                  </p>
                                 </div>
                               </div>
 

@@ -8,6 +8,7 @@ import QueryKey from '@/constants/query-key'
 import { timeAgo } from '@/lib/common'
 import {
   useDeleteComment,
+  useGetCommentBlockTime,
   useStoreReplyCommentLesson,
 } from '@/hooks/comment-lesson/useComment'
 import {
@@ -23,6 +24,7 @@ import { ReplyList } from '@/sections/learning-path/_components/comment/reply-li
 import { useAuthStore } from '@/stores/useAuthStore'
 import { ReactionData, reactionEmojis } from '@/types/Reaction'
 import { LoadingButton } from '@/components/ui/loading-button'
+import { useCommentBlockStore } from '@/stores/useCommentBlockStore'
 
 export const CommentItem = ({
   comment,
@@ -47,7 +49,6 @@ export const CommentItem = ({
   const [visibleReplies, setVisibleReplies] = useState<boolean>(false)
   const [commentReaction, setCommentReaction] = useState<string>('')
   const [replyTargetName, setReplyTargetName] = useState<string>('')
-
   const {
     mutate: storeReplyLessonComment,
     isPending: isPendingStoreReplyLessonComment,
@@ -61,6 +62,10 @@ export const CommentItem = ({
   ) as unknown as {
     data: ReactionData
   }
+  const { isBlocked } = useCommentBlockStore()
+
+  const { isLoading: isLoadingBlockTime, refetch: refetchBlockTime } =
+    useGetCommentBlockTime()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -103,6 +108,13 @@ export const CommentItem = ({
     }
   }, [comment])
 
+  useEffect(() => {
+    if (isBlocked && activeReplyEditor) {
+      setActiveReplyEditor(false)
+      setReplyContent('')
+    }
+  }, [isBlocked])
+
   const handleReactionClick = (emoji: string, reactionType: string) => {
     setCommentReaction(emoji)
     toggleReaction(
@@ -125,6 +137,14 @@ export const CommentItem = ({
   }
 
   const handleReplyClick = () => {
+    if (isLoadingBlockTime) {
+      toast.info('Đang kiểm tra trạng thái chặn bình luận, vui lòng đợi...')
+      return
+    }
+    if (isBlocked) {
+      toast.error('Bạn đang bị cấm bình luận')
+      return
+    }
     setActiveReplyEditor(!activeReplyEditor)
     const targetName = comment?.user?.name || ''
     setReplyTargetName(targetName)
@@ -150,8 +170,13 @@ export const CommentItem = ({
             queryKey: [QueryKey.LESSON_COMMENT, lessonId],
           })
         },
-        onError: (error: any) => {
+        onError: async (error: any) => {
           toast.error(error.message || 'Có lỗi xảy ra khi phản hồi bình luận')
+          await refetchBlockTime()
+          if (error?.countdown) {
+            setActiveReplyEditor(false)
+            setReplyContent('')
+          }
         },
       }
     )
@@ -206,7 +231,11 @@ export const CommentItem = ({
 
         <button
           onClick={handleReplyClick}
-          className="flex items-center gap-1 font-medium text-gray-500 hover:text-blue-600"
+          className={`flex items-center gap-1 font-medium ${
+            isBlocked
+              ? 'cursor-not-allowed text-gray-400'
+              : 'text-gray-500 hover:text-blue-600'
+          }`}
         >
           Phản hồi
         </button>
@@ -360,7 +389,7 @@ export const CommentItem = ({
         </div>
       </div>
 
-      {activeReplyEditor && (
+      {activeReplyEditor && !isBlocked && (
         <div className="ml-12 mt-4 space-y-4 pl-4">
           <div className="flex gap-2">
             <Avatar className="size-8">

@@ -72,14 +72,14 @@ const BlogListItem = ({ initialBlogs, isLoading }: BlogListItemProps) => {
               <div className="article-content">
                 <div className="article-label">{blog?.category?.name}</div>
                 <h3 className="fw-5">
-                  <Link href={`/blogs/${blog.slug}`}>{blog?.title}</Link>
+                  <Link href={`/blogs/${blog?.slug}`}>{blog?.title}</Link>
                 </h3>
                 <p
                   className="text-justify leading-relaxed"
                   dangerouslySetInnerHTML={{
                     __html:
-                      blog?.description.length > 260
-                        ? blog?.description.substring(0, 260) + '...'
+                      blog?.description?.length > 260
+                        ? blog?.description?.substring(0, 260) + '...'
                         : blog?.description,
                   }}
                 />
@@ -98,10 +98,10 @@ const BlogListItem = ({ initialBlogs, isLoading }: BlogListItemProps) => {
                   </div>
                   <a href="#" className="meta-item">
                     <i className="flaticon-user-1"></i>
-                    <p>{blog.user?.name}</p>
+                    <p>{blog?.user?.name}</p>
                   </a>
                 </div>
-                <Link href={`/blogs/${blog.slug}`} className="tf-btn-arrow">
+                <Link href={`/blogs/${blog?.slug}`} className="tf-btn-arrow">
                   Đọc thêm <i className="icon-arrow-top-right"></i>
                 </Link>
               </div>
