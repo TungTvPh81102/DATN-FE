@@ -7,6 +7,13 @@ import api from '@/configs/api'
 const prefix = 'instructor/livestreams'
 
 export const liveSteamApi = {
+  generateStreamKey: async () => {
+    return await api.post(`${prefix}/generate-stream-key`)
+  },
+  getStreamKey: async () => {
+    const res = await api.get(`${prefix}/get-stream-key`)
+    return res.data
+  },
   getLiveSessionClient: async () => {
     return await api.get(`livestreams`)
   },

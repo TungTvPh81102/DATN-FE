@@ -92,6 +92,7 @@ enum QueryKey {
   GET_UPLOAD_URL = 'get-upload-url',
   GET_VIDEO_INFO = 'get-video-info',
   GET_MEDIA_DATA = 'get-media-data',
+  STREAM_KEY = 'stream-key',
 }
 
 export default QueryKey

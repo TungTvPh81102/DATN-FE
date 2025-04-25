@@ -15,6 +15,7 @@ import {
   Video,
   Gem,
   CircleArrowLeft,
+  Radio,
 } from 'lucide-react'
 
 import React from 'react'
@@ -145,6 +146,11 @@ export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
           title: 'Chứng chỉ',
           url: '/instructor/settings/certificates',
           icon: BadgeCheck,
+        },
+        {
+          title: 'Cấu hình',
+          url: '/instructor/settings/live-access',
+          icon: Radio,
         },
       ]
     default:

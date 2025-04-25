@@ -25,6 +25,19 @@ export const useGetLiveSessionClient = () => {
   })
 }
 
+export const useGetStreamKey = () => {
+  return useQuery({
+    queryKey: [QueryKey.STREAM_KEY],
+    queryFn: () => liveSteamApi.getStreamKey(),
+  })
+}
+
+export const useGenerateStreamKey = () => {
+  return useMutation({
+    mutationFn: () => liveSteamApi.generateStreamKey(),
+  })
+}
+
 export const useCreateLiveSteam = () => {
   return useMutation({
     mutationFn: (data: CreateLiveStreamPayload) =>
