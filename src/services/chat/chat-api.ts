@@ -95,4 +95,17 @@ export const chatApi = {
       data: data,
     })
   },
+  toggleBlockMemberGroupChat: async ({
+    conversation_id,
+    member_id,
+    action,
+  }: {
+    conversation_id: number
+    member_id: number
+    action: 'block' | 'unblock'
+  }) => {
+    return await api.put(
+      `${prefixGroupChat}/${conversation_id}/${action}/toggle-block/${member_id}`
+    )
+  },
 }

@@ -13,6 +13,7 @@ import {
   Plus,
   Search,
   Send,
+  ShieldAlert,
   Smile,
   Trash2,
   Volume2,
@@ -52,6 +53,8 @@ import { MessagePayload } from '@/validations/chat'
 import Image from 'next/image'
 import { ChatSidebar } from '../_components/chat-sidebar'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { toast } from 'react-toastify'
 
 interface FilePreview {
   name: string
@@ -72,6 +75,7 @@ const ChatView = () => {
   const [selectedChannel, setSelectedChannel] = useState<IChannel | null>(null)
   const [activeUsers, setActiveUsers] = useState<any[]>([])
   const [currentUser, setCurrentUser] = useState<number | null>(null)
+  const [isUserBlocked, setIsUserBlocked] = useState(false)
 
   const [showSearch, setShowSearch] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -90,7 +94,24 @@ const ChatView = () => {
   const { mutate: senderMessage, isPending: isPendingSendMessage } =
     useSendMessage()
 
-  console.log(getMessageData)
+  useEffect(() => {
+    if (
+      selectedChannel?.type === 'group' &&
+      selectedChannel.users &&
+      user?.id
+    ) {
+      const currentUserInGroup = selectedChannel.users.find(
+        (groupUser) => groupUser.id === user.id
+      )
+      if (currentUserInGroup && currentUserInGroup.is_blocked === 1) {
+        setIsUserBlocked(true)
+      } else {
+        setIsUserBlocked(false)
+      }
+    } else {
+      setIsUserBlocked(false)
+    }
+  }, [selectedChannel, user])
 
   useEffect(() => {
     if (getMessageData && selectedChannel) {
@@ -156,6 +177,8 @@ const ChatView = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'file' | 'image' | 'video'
   ) => {
+    if (isUserBlocked) return
+
     const files = Array.from(e.target.files || [])
     if (files.length === 0) return
 
@@ -194,6 +217,8 @@ const ChatView = () => {
     })
   }
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (isUserBlocked) return
+
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
@@ -281,6 +306,7 @@ const ChatView = () => {
   }, [selectedChannel])
 
   const handleReply = (message: IMessage) => {
+    if (isUserBlocked) return
     setReplyTo(message)
   }
 
@@ -289,6 +315,8 @@ const ChatView = () => {
   }
 
   const sendMessage = () => {
+    if (isUserBlocked) return
+
     if (!message.trim() && filePreviews.length === 0) return
     if (!selectedChannel?.conversation_id) return
 
@@ -315,6 +343,9 @@ const ChatView = () => {
         setMessage('')
         setReplyTo(null)
         setFilePreviews([])
+      },
+      onError: (error) => {
+        toast.error(error.message)
       },
     })
 
@@ -378,6 +409,7 @@ const ChatView = () => {
           onChange={(e) => handleFileSelect(e, 'file')}
           accept=".pdf,.doc,.docx,.txt,.zip,.rar"
           multiple
+          disabled={isUserBlocked}
         />
         <input
           type="file"
@@ -386,6 +418,7 @@ const ChatView = () => {
           onChange={(e) => handleFileSelect(e, 'image')}
           accept="image/*"
           multiple
+          disabled={isUserBlocked}
         />
         <input
           type="file"
@@ -394,6 +427,7 @@ const ChatView = () => {
           onChange={(e) => handleFileSelect(e, 'video')}
           accept="video/*"
           multiple
+          disabled={isUserBlocked}
         />
 
         <div className="hidden md:block">
@@ -417,351 +451,373 @@ const ChatView = () => {
 
         <div className="flex flex-1 flex-col">
           {selectedChannel ? (
-            <div className="flex h-16 items-center justify-between border-b px-4">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="blockmd:hidden self-center"
-                  onClick={() => setMobileMenuOpen(true)}
-                >
-                  <Menu className="size-5" />
-                </Button>
-                {!openSidebarChatInfo && (
-                  <div className="relative">
-                    <Avatar className="size-8">
-                      <AvatarImage
-                        src={selectedChannel?.avatar || PLACEHOLDER_AVATAR}
-                        alt={selectedChannel?.name}
-                      />
-                      <AvatarFallback>L</AvatarFallback>
-                    </Avatar>
-                    {selectedChannel?.type !== 'group' && (
-                      <div
-                        className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-white ${
-                          isUserOnline(selectedChannel?.id)
-                            ? 'bg-green-500'
-                            : 'bg-gray-400'
-                        }`}
-                      />
-                    )}
-                  </div>
-                )}
-                <div>
-                  <h2 className="text-sm font-semibold">
-                    {selectedChannel.name}
-                  </h2>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedChannel?.type === 'group' ? (
-                      <GroupActiveUsers
-                        activeCount={activeUsers.length}
-                        totalCount={selectedChannel?.users_count ?? 0}
-                      />
-                    ) : (
-                      <StatusIndicator
-                        isOnline={isUserOnline(selectedChannel?.id)}
-                      />
-                    )}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 sm:gap-2">
-                {showSearch ? (
-                  <div className="flex items-center gap-2 rounded-md bg-secondary px-2">
-                    <Search className="size-4 text-muted-foreground sm:block" />
-                    <Input
-                      ref={searchInputRef}
-                      placeholder="Tìm kiếm tin nhắn"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-8 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="size-8"
-                      onClick={() => {
-                        setShowSearch(false)
-                        setSearchQuery('')
-                      }}
-                    >
-                      <X className="size-4" />
-                    </Button>
-                  </div>
-                ) : (
+            <>
+              <div className="flex h-16 items-center justify-between border-b px-4">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={() => setShowSearch(true)}
-                    className="ml-auto sm:ml-0"
+                    className="block self-center md:hidden"
+                    onClick={() => setMobileMenuOpen(true)}
                   >
-                    <Search className="size-5" />
+                    <Menu className="size-5" />
                   </Button>
-                )}
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                  {!openSidebarChatInfo && (
+                    <div className="relative">
+                      <Avatar className="size-8">
+                        <AvatarImage
+                          src={selectedChannel?.avatar || PLACEHOLDER_AVATAR}
+                          alt={selectedChannel?.name}
+                        />
+                        <AvatarFallback>L</AvatarFallback>
+                      </Avatar>
+                      {selectedChannel?.type !== 'group' && (
+                        <div
+                          className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-white ${
+                            isUserOnline(selectedChannel?.id)
+                              ? 'bg-green-500'
+                              : 'bg-gray-400'
+                          }`}
+                        />
+                      )}
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-sm font-semibold">
+                        {selectedChannel.name}
+                      </h2>
+                      {isUserBlocked && (
+                        <span className="rounded-md bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-600">
+                          Bị chặn
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedChannel?.type === 'group' ? (
+                        <GroupActiveUsers
+                          activeCount={activeUsers.length}
+                          totalCount={selectedChannel?.users_count ?? 0}
+                        />
+                      ) : (
+                        <StatusIndicator
+                          isOnline={isUserOnline(selectedChannel?.id)}
+                        />
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  {showSearch ? (
+                    <div className="flex items-center gap-2 rounded-md bg-secondary px-2">
+                      <Search className="size-4 text-muted-foreground sm:block" />
+                      <Input
+                        ref={searchInputRef}
+                        placeholder="Tìm kiếm tin nhắn"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="h-8 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-8"
+                        onClick={() => {
+                          setShowSearch(false)
+                          setSearchQuery('')
+                        }}
+                      >
+                        <X className="size-4" />
+                      </Button>
+                    </div>
+                  ) : (
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="hidden sm:flex"
+                      onClick={() => setShowSearch(true)}
+                      className="ml-auto sm:ml-0"
                     >
-                      <MoreVertical className="size-5" />
+                      <Search className="size-5" />
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40">
-                    <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
-                      <Archive className="size-4" />
-                      <span>Archive</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
-                      <Volume2 className="size-4" />
-                      <span>Muted</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex cursor-pointer items-center gap-2 text-destructive focus:text-destructive">
-                      <Trash2 className="size-4" />
-                      <span>Delete</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  )}
 
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setOpenSidebarChatInfo(!openSidebarChatInfo)}
-                >
-                  <Info className="size-5" />
-                </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="hidden sm:flex"
+                      >
+                        <MoreVertical className="size-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40">
+                      <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
+                        <Archive className="size-4" />
+                        <span>Archive</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
+                        <Volume2 className="size-4" />
+                        <span>Muted</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="flex cursor-pointer items-center gap-2 text-destructive focus:text-destructive">
+                        <Trash2 className="size-4" />
+                        <span>Delete</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setOpenSidebarChatInfo(!openSidebarChatInfo)}
+                  >
+                    <Info className="size-5" />
+                  </Button>
+                </div>
               </div>
-            </div>
+
+              <ScrollArea className="flex-1 p-4 sm:p-4">
+                <div className="space-y-4">
+                  {isLoadingGetMessageData ? (
+                    <div className="flex h-full items-center justify-center">
+                      <Loader2 className="size-8 animate-spin text-orange-500" />
+                    </div>
+                  ) : selectedChannel?.conversation_id !== undefined &&
+                    chats[selectedChannel.conversation_id]?.length > 0 ? (
+                    chats[selectedChannel.conversation_id]?.map(
+                      (msg: IMessage) => {
+                        const isCurrentUser = msg.senderId === currentUser
+                        const isGroupChat = selectedChannel?.type === 'group'
+
+                        return (
+                          <EnhancedMessageItem
+                            key={msg.id}
+                            message={msg}
+                            isCurrentUser={isCurrentUser}
+                            isGroupChat={isGroupChat}
+                            onReply={handleReply}
+                          />
+                        )
+                      }
+                    )
+                  ) : (
+                    <EmptyChatState conversationName={selectedChannel?.name} />
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+
+              {filePreviews.length > 0 && (
+                <div className="border-t bg-secondary p-2">
+                  <ScrollArea className="h-24 sm:h-32">
+                    <div className="grid grid-cols-2 gap-2 p-2 sm:grid-cols-4">
+                      {filePreviews.map((preview, index) => (
+                        <div key={index} className="relative">
+                          {preview.type === 'image' ? (
+                            <div className="group relative aspect-video h-16 sm:h-24">
+                              <Image
+                                src={preview.url}
+                                alt={preview.name}
+                                className="absolute rounded-lg object-contain"
+                                fill
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="size-8 text-white"
+                                  onClick={() => removeFilePreview(index)}
+                                >
+                                  <X className="size-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ) : preview.type === 'video' ? (
+                            <div className="group relative">
+                              <div className="relative h-24 w-full rounded-lg bg-black/10 sm:h-24">
+                                <video
+                                  src={preview.url}
+                                  className="size-full rounded-lg object-cover"
+                                  muted
+                                />
+                                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg">
+                                  <Film className="mb-1 size-6 text-white/90" />
+                                  <span className="line-clamp-1 rounded bg-black/30 px-1 text-xs text-white/90">
+                                    {preview.name.substring(0, 15)}
+                                    {preview.name.length > 15 ? '...' : ''}
+                                  </span>
+                                  <span className="mt-1 rounded bg-black/30 px-1 text-xs text-white/90">
+                                    {getFileSize(preview.blob)}
+                                  </span>
+                                </div>
+                                <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="size-8 text-white"
+                                    onClick={() => removeFilePreview(index)}
+                                  >
+                                    <X className="size-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="group relative flex h-24 flex-col items-center justify-center rounded-lg bg-background p-2 sm:h-24">
+                              <Paperclip className="mb-1 size-5 sm:size-6" />
+                              <span className="line-clamp-2 px-1 text-center text-xs">
+                                {preview.name}
+                              </span>
+                              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="size-8 text-white"
+                                  onClick={() => removeFilePreview(index)}
+                                >
+                                  <X className="size-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      <div className="flex items-center justify-center">
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="h-16 w-full rounded-lg sm:h-24"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Plus className="size-5 sm:size-6" />
+                        </Button>
+                      </div>
+                    </div>
+                  </ScrollArea>
+                </div>
+              )}
+
+              <div className="border-t bg-white p-2 sm:p-4">
+                {isUserBlocked && (
+                  <Alert className="mb-2 border-red-200 bg-red-50">
+                    <ShieldAlert className="size-4 text-red-500" />
+                    <AlertTitle className="text-sm text-red-600">
+                      Bạn đã bị chặn từ nhóm này
+                    </AlertTitle>
+                    <AlertDescription className="text-xs text-red-500">
+                      Bạn không thể gửi tin nhắn hoặc tương tác với nhóm này.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {replyTo && (
+                  <ReplyPreview
+                    message={replyTo}
+                    isReplyingToSelf={replyTo.senderId === currentUser}
+                    onClear={clearReply}
+                  />
+                )}
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-1 sm:gap-1.5">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="size-9 rounded-full hover:bg-secondary"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUserBlocked}
+                    >
+                      <Paperclip className="size-4 text-muted-foreground sm:size-5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="size-8 rounded-full hover:bg-secondary sm:size-9"
+                      onClick={() => imageInputRef.current?.click()}
+                      disabled={isUserBlocked}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="size-4 text-muted-foreground sm:size-5"
+                      >
+                        <rect
+                          width="18"
+                          height="18"
+                          x="3"
+                          y="3"
+                          rx="2"
+                          ry="2"
+                        />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <path d="M20.4 14.5 16 10 4 20" />
+                      </svg>
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="size-8 rounded-full hover:bg-secondary sm:size-9"
+                      onClick={() => videoInputRef.current?.click()}
+                      disabled={isUserBlocked}
+                    >
+                      <Film className="size-4 text-muted-foreground sm:size-5" />
+                    </Button>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="size-9 rounded-full hover:bg-secondary sm:size-9"
+                        >
+                          <Smile className="size-4 text-muted-foreground sm:size-5" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-64 p-0 sm:w-80"
+                        side="top"
+                        align="start"
+                      >
+                        <EmojiPicker
+                          onEmojiClick={onEmojiClick}
+                          width="100%"
+                          height={400}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <AutosizeTextarea
+                      placeholder="Nhập tin nhắn của bạn..."
+                      className="resize-none border-0 bg-secondary !text-base focus-visible:ring-primary"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      maxHeight={140}
+                      onKeyDown={handleKeyDown}
+                      disabled={isUserBlocked}
+                    />
+                    <Button
+                      size="icon"
+                      className="shrink-0 rounded-full"
+                      onClick={() => sendMessage()}
+                      disabled={isPendingSendMessage || isUserBlocked}
+                    >
+                      <Send className="size-4 sm:size-5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </>
           ) : (
             <div className="flex h-full items-center justify-center">
               <p className="text-muted-foreground">
                 Vui lòng chọn người bạn muốn liên hệ.
               </p>
-            </div>
-          )}
-
-          <ScrollArea className="flex-1 p-4 sm:p-4">
-            {!selectedChannel ? (
-              <div className="flex h-full items-center justify-center">
-                <p className="text-muted-foreground">
-                  Vui lòng chọn người bạn muốn liên hệ.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {isLoadingGetMessageData ? (
-                  <div className="flex h-full items-center justify-center">
-                    <Loader2 className="size-8 animate-spin text-orange-500" />
-                  </div>
-                ) : selectedChannel?.conversation_id !== undefined &&
-                  chats[selectedChannel.conversation_id]?.length > 0 ? (
-                  chats[selectedChannel.conversation_id]?.map(
-                    (msg: IMessage) => {
-                      const isCurrentUser = msg.senderId === currentUser
-                      const isGroupChat = selectedChannel?.type === 'group'
-
-                      return (
-                        <EnhancedMessageItem
-                          key={msg.id}
-                          message={msg}
-                          isCurrentUser={isCurrentUser}
-                          isGroupChat={isGroupChat}
-                          onReply={handleReply}
-                        />
-                      )
-                    }
-                  )
-                ) : (
-                  <EmptyChatState conversationName={selectedChannel?.name} />
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            )}
-          </ScrollArea>
-
-          {filePreviews.length > 0 && (
-            <div className="border-t bg-secondary p-2">
-              <ScrollArea className="h-24 sm:h-32">
-                <div className="grid grid-cols-2 gap-2 p-2 sm:grid-cols-4">
-                  {filePreviews.map((preview, index) => (
-                    <div key={index} className="relative">
-                      {preview.type === 'image' ? (
-                        <div className="group relative aspect-video h-16 sm:h-24">
-                          <Image
-                            src={preview.url}
-                            alt={preview.name}
-                            className="absolute rounded-lg object-contain"
-                            fill
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="size-8 text-white"
-                              onClick={() => removeFilePreview(index)}
-                            >
-                              <X className="size-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ) : preview.type === 'video' ? (
-                        <div className="group relative">
-                          <div className="relative h-24 w-full rounded-lg bg-black/10 sm:h-24">
-                            <video
-                              src={preview.url}
-                              className="size-full rounded-lg object-cover"
-                              muted
-                            />
-                            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg">
-                              <Film className="mb-1 size-6 text-white/90" />
-                              <span className="line-clamp-1 rounded bg-black/30 px-1 text-xs text-white/90">
-                                {preview.name.substring(0, 15)}
-                                {preview.name.length > 15 ? '...' : ''}
-                              </span>
-                              <span className="mt-1 rounded bg-black/30 px-1 text-xs text-white/90">
-                                {getFileSize(preview.blob)}
-                              </span>
-                            </div>
-                            <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="size-8 text-white"
-                                onClick={() => removeFilePreview(index)}
-                              >
-                                <X className="size-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="group relative flex h-24 flex-col items-center justify-center rounded-lg bg-background p-2 sm:h-24">
-                          <Paperclip className="mb-1 size-5 sm:size-6" />
-                          <span className="line-clamp-2 px-1 text-center text-xs">
-                            {preview.name}
-                          </span>
-                          <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="size-8 text-white"
-                              onClick={() => removeFilePreview(index)}
-                            >
-                              <X className="size-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  <div className="flex items-center justify-center">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="h-16 w-full rounded-lg sm:h-24"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <Plus className="size-5 sm:size-6" />
-                    </Button>
-                  </div>
-                </div>
-              </ScrollArea>
-            </div>
-          )}
-
-          {selectedChannel && (
-            <div className="border-t bg-white p-2 sm:p-4">
-              {replyTo && (
-                <ReplyPreview
-                  message={replyTo}
-                  isReplyingToSelf={replyTo.senderId === currentUser}
-                  onClear={clearReply}
-                />
-              )}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-1 sm:gap-1.5">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="size-9 rounded-full hover:bg-secondary"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Paperclip className="size-4 text-muted-foreground sm:size-5" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="size-8 rounded-full hover:bg-secondary sm:size-9"
-                    onClick={() => imageInputRef.current?.click()}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="size-4 text-muted-foreground sm:size-5"
-                    >
-                      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <path d="M20.4 14.5 16 10 4 20" />
-                    </svg>
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="size-8 rounded-full hover:bg-secondary sm:size-9"
-                    onClick={() => videoInputRef.current?.click()}
-                  >
-                    <Film className="size-4 text-muted-foreground sm:size-5" />
-                  </Button>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-9 rounded-full hover:bg-secondary sm:size-9"
-                      >
-                        <Smile className="size-4 text-muted-foreground sm:size-5" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-64 p-0 sm:w-80"
-                      side="top"
-                      align="start"
-                    >
-                      <EmojiPicker
-                        onEmojiClick={onEmojiClick}
-                        width="100%"
-                        height={400}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <AutosizeTextarea
-                    placeholder="Type your message..."
-                    className="resize-none border-0 bg-secondary !text-base focus-visible:ring-primary"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    maxHeight={140}
-                    onKeyDown={handleKeyDown}
-                  />
-                  <Button
-                    size="icon"
-                    className="shrink-0 rounded-full"
-                    onClick={() => sendMessage()}
-                    disabled={isPendingSendMessage}
-                  >
-                    <Send className="size-4 sm:size-5" />
-                  </Button>
-                </div>
-              </div>
             </div>
           )}
         </div>
