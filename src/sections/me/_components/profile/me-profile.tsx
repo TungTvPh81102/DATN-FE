@@ -6,8 +6,6 @@ import { setLocalStorage } from '@/lib/common'
 const MeProfile = () => {
   const { data: profileData, isLoading: isLoadingProfileData } = useGetProfile()
 
-  console.log('profileData', profileData)
-
   useEffect(() => {
     const profile = profileData?.data?.user?.profile
 

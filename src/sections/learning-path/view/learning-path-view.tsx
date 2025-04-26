@@ -20,6 +20,7 @@ import { lessonTypeIcons } from '@/configs'
 import {
   useGetLessonDetail,
   useGetLessons,
+  useLessonAccess,
   usePrefetchLessonDetail,
   useUpdateLastTime,
 } from '@/hooks/learning-path/useLearningPath'
@@ -54,6 +55,16 @@ import Swal from 'sweetalert2'
 import { PracticeExercise } from '../_components/practice-exercise'
 import { useQueryClient } from '@tanstack/react-query'
 import QueryKey from '@/constants/query-key'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 type Props = {
   courseSlug: string
@@ -68,6 +79,7 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [runTour, setRunTour] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [showAccessAlert, setShowAccessAlert] = useState(false)
 
   const { data: lessons, isLoading: isLessonLoading } =
     useGetLessons(courseSlug)
@@ -81,6 +93,10 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
 
   const { data: lessonDetail, isLoading: isLessonDetailLoading } =
     useGetLessonDetail({ courseSlug, lessonId })
+  const { data: accessData, isLoading: isAccessLoading } = useLessonAccess({
+    courseSlug,
+    lessonId,
+  })
 
   const { prefetch } = usePrefetchLessonDetail({
     courseSlug,
@@ -96,6 +112,17 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
 
   const currentTime = useCurrentTimeStore((state) => state.currentTime)
   const { mutate: updateLastTime } = useUpdateLastTime()
+
+  useEffect(() => {
+    if (
+      !isAccessLoading &&
+      accessData &&
+      !accessData.can_access &&
+      lessons?.level === 'advanced'
+    ) {
+      setShowAccessAlert(true)
+    }
+  }, [accessData, isAccessLoading, lessons?.level])
 
   const handleUpdateLastTime = () => {
     const lesson = lessonDetail?.lesson
@@ -223,7 +250,7 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Link
-                          href="#"
+                          href={certificateLink ?? '#'}
                           target="_blank"
                           className="flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-orange-600 hover:shadow-md"
                         >
@@ -504,6 +531,56 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
         courseSlug={courseSlug}
         lessonId={lessonId}
       />
+
+      <AlertDialog open={showAccessAlert} onOpenChange={setShowAccessAlert}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-orange-500">
+              <Lock size={20} />
+              Bài học chưa được mở khóa
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              <div className="mb-4">
+                Để đảm bảo quá trình học tập hiệu quả, bạn cần hoàn thành các
+                bài học trước khi tiếp tục.
+              </div>
+
+              {accessData?.next_valid_lesson_title && (
+                <Alert className="border-y-0 border-l-4 border-r-0 border-l-orange-500 bg-orange-50 p-4">
+                  <AlertTitle className="text-sm font-bold">
+                    Bài học tiếp theo của bạn:
+                  </AlertTitle>
+                  <AlertDescription className="text-sm font-medium text-orange-700">
+                    {accessData.next_valid_lesson_title}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/my-courses?tab=course-all`)}
+              className="w-full border-2 border-gray-300 font-medium hover:bg-gray-100 hover:text-gray-800"
+            >
+              Khoá học của tôi
+            </Button>
+            <AlertDialogAction
+              className="w-full gap-2 rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 text-white transition-all duration-300 hover:from-orange-600 hover:to-orange-700 hover:shadow-md hover:shadow-orange-200"
+              onClick={() => {
+                if (accessData?.next_valid_lesson_id) {
+                  router.push(
+                    `/learning/${courseSlug}/lesson/${accessData.next_valid_lesson_id}`
+                  )
+                }
+              }}
+            >
+              <ChevronRight size={18} />
+              Đến bài học cần hoàn thành
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

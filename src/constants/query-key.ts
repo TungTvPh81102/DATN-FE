@@ -59,6 +59,7 @@ enum QueryKey {
   BANKS = 'banks',
   COURSE_PROGRESS = 'course-progress',
   LESSON_COMMENT = 'lesson-comment',
+  LESSON_ACCESS_VALIDATION = 'lesson-access-validation',
   COMMENT_BLOCK_TIME = 'comment-block-time',
   BLOG_COMMENT = 'blog-comment',
   CERTIFICATE = 'certificate',

@@ -39,6 +39,8 @@ import Link from 'next/link'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import SortableLesson from './lesson/sortable-lesson'
 import { Badge } from '@/components/ui/badge'
+import CoursePlanningAIAssistant from '@/app/(action)/instructor/(course)/courses/update/[slug]/_components/course-planning-ai-assistant'
+import MoveLessonsDialog from '@/app/(action)/instructor/(course)/courses/update/[slug]/_components/lesson/move-lesson-dialog'
 
 type Props = {
   chapters: IChapter[]
@@ -159,7 +161,7 @@ const CourseChapterTab = ({
           }))}
           onValueChange={onValueChange}
         >
-          <Accordion type="multiple" className="space-y-6">
+          <Accordion type="single" className="space-y-6" collapsible>
             {chapters?.map((chapter, chapterIndex) => (
               <SortableItem
                 key={chapter.id}
@@ -212,12 +214,19 @@ const CourseChapterTab = ({
                             <h3>
                               Chương {chapterIndex + 1}: {chapter.title}
                             </h3>
-                            {chapter.lessons && (
+                            {chapter.lessons && chapter.lessons.length > 0 ? (
                               <Badge
                                 variant="secondary"
                                 className="ml-2 text-xs"
                               >
                                 {chapter.lessons.length} bài học
+                              </Badge>
+                            ) : (
+                              <Badge
+                                variant="secondary"
+                                className="ml-2 text-xs"
+                              >
+                                Chưa có bài học
                               </Badge>
                             )}
                           </div>
@@ -264,6 +273,17 @@ const CourseChapterTab = ({
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="mt-3 rounded-lg p-4">
+                    {isDraftOrRejected &&
+                      chapter.lessons &&
+                      chapter.lessons.length > 0 && (
+                        <div className="mb-4 flex justify-end">
+                          <MoveLessonsDialog
+                            chapters={chapters}
+                            currentChapter={chapter}
+                            slug={slug}
+                          />
+                        </div>
+                      )}
                     <SortableLesson
                       chapter={chapter}
                       slug={slug}
@@ -294,6 +314,8 @@ const CourseChapterTab = ({
           </>
         )}
       </div>
+
+      <CoursePlanningAIAssistant currentCourse={`Khoá học NextJS`} />
     </div>
   )
 }

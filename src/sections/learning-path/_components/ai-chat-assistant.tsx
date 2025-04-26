@@ -31,6 +31,7 @@ import {
   removeLocalStorage,
   setLocalStorage,
 } from '@/lib/common'
+import ReactMarkdown from 'react-markdown'
 
 interface ChatSession {
   id: string
@@ -836,8 +837,47 @@ const AIChatAssistant = ({
                                       : 'rounded-tl-none border bg-white text-gray-800'
                                   )}
                                 >
-                                  {message.content}
-
+                                  <div className="overflow-hidden">
+                                    <ReactMarkdown
+                                      components={{
+                                        p: (props) => (
+                                          <p
+                                            className={cn(
+                                              'prose prose-sm max-w-full overflow-x-auto break-words',
+                                              message.role === 'user' &&
+                                                'text-white'
+                                            )}
+                                            {...props}
+                                          />
+                                        ),
+                                        pre: (props) => (
+                                          <pre
+                                            className="max-w-full overflow-x-auto"
+                                            {...props}
+                                          />
+                                        ),
+                                        code: (props) => (
+                                          <code
+                                            className="whitespace-pre-wrap break-words"
+                                            {...props}
+                                          />
+                                        ),
+                                        a: (props) => (
+                                          <a
+                                            className="text-blue-500 hover:underline"
+                                            {...props}
+                                          />
+                                        ),
+                                        table: (props) => (
+                                          <div className="overflow-x-auto">
+                                            <table {...props} />
+                                          </div>
+                                        ),
+                                      }}
+                                    >
+                                      {message.content}
+                                    </ReactMarkdown>
+                                  </div>
                                   <motion.div
                                     initial={{ opacity: 0, scale: 0.5 }}
                                     whileHover={{ opacity: 1, scale: 1 }}

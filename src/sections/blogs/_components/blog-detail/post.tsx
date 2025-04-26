@@ -1,19 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Eye } from 'lucide-react'
 
 interface BlogDetailPostProps {
   initialBlogDetail: any
-  document: any
 }
 
-const BlogDetailPost = ({
-  initialBlogDetail,
-  document,
-}: BlogDetailPostProps) => {
+const BlogDetailPost = ({ initialBlogDetail }: BlogDetailPostProps) => {
+  const contentRef = useRef<HTMLDivElement>(null)
+
   const [isExpanded, setIsExpanded] = useState(false)
   const [contentPreview, setContentPreview] = useState('')
   const [hasMoreContent, setHasMoreContent] = useState(false)
-  console.log('initialBlogDetail', initialBlogDetail)
   const PREVIEW_LENGTH = 500
 
   useEffect(() => {
@@ -75,7 +72,7 @@ const BlogDetailPost = ({
           dangerouslySetInnerHTML={{ __html: initialBlogDetail?.description }}
         />
       </p>
-      <div className="content-container">
+      <div className="content-container" ref={contentRef}>
         <p className="fs-15 mt-3">
           <div
             className="text-justify leading-loose"
@@ -101,12 +98,18 @@ const BlogDetailPost = ({
             <button
               onClick={() => {
                 setIsExpanded(false)
-                window.scrollTo({
-                  top:
-                    document?.querySelector('.content-container')?.offsetTop ||
-                    0,
-                  behavior: 'smooth',
-                })
+                // window.scrollTo({
+                //   top:
+                //     document?.querySelector('.content-container')?.offsetTop ||
+                //     0,
+                //   behavior: 'smooth',
+                // })
+                if (contentRef.current) {
+                  window.scrollTo({
+                    top: contentRef.current.offsetTop,
+                    behavior: 'smooth',
+                  })
+                }
               }}
               className="read-less-btn rounded-md bg-gray-200 px-6 py-2 text-gray-700 transition-all hover:bg-gray-300"
             >
@@ -115,15 +118,15 @@ const BlogDetailPost = ({
           </div>
         )}
       </div>
-      <div className="blockquote">
-        <div className="desc fs-15">
-          Professional Web Developer Lorem ipsum dolor sit amet. Qui incidunt
-          dolores non similique ducimus et debitis molestiae. Et autem quia eum
-          reprehenderit voluptates est reprehenderit illo est enim perferendis
-          est neque sunt.
-        </div>
-        <div className="name">{initialBlogDetail?.user?.name}</div>
-      </div>
+      {/*<div className="blockquote">*/}
+      {/*  <div className="desc fs-15">*/}
+      {/*    Professional Web Developer Lorem ipsum dolor sit amet. Qui incidunt*/}
+      {/*    dolores non similique ducimus et debitis molestiae. Et autem quia eum*/}
+      {/*    reprehenderit voluptates est reprehenderit illo est enim perferendis*/}
+      {/*    est neque sunt.*/}
+      {/*  </div>*/}
+      {/*  <div className="name">{initialBlogDetail?.user?.name}</div>*/}
+      {/*</div>*/}
     </div>
   )
 }

@@ -1,22 +1,21 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
+  Ban,
   Bell,
-  ChevronDown,
   Download,
   FileText,
   ImageIcon,
+  Link as LinkIcon,
   MessageCircle,
+  Shield,
+  Trash2,
   UserMinus,
   UserRoundPlus,
   Users,
+  X,
 } from 'lucide-react'
 import { IChannel, IMessage } from '@/types/Chat'
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible'
 import Image from 'next/image'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useState } from 'react'
@@ -24,6 +23,7 @@ import { ImagePreview } from '@/components/shared/image-preview'
 import {
   useKickMemberGroupChat,
   useStartDirectChat,
+  useToggleBlockMemberInChat,
 } from '@/hooks/chat/useChat'
 import { useQueryClient } from '@tanstack/react-query'
 import QUERY_KEY from '@/constants/query-key'
@@ -34,6 +34,7 @@ import { PLACEHOLDER_AVATAR } from '@/constants/common'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -48,6 +49,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { Separator } from '@/components/ui/separator'
 
 interface ChannelInfoPanelProps {
   selectedChannel: IChannel
@@ -72,13 +81,24 @@ export const SidebarChatInfo = ({
     id: number
     name: string
   } | null>(null)
+  const [memberToBlock, setMemberToBlock] = useState<{
+    is_blocked: string
+    id: number
+    name: string
+  } | null>(null)
   const [isRemoveAlertOpen, setIsRemoveAlertOpen] = useState(false)
+  const [isBlockAlertOpen, setIsBlockAlertOpen] = useState(false)
+  const [isLeaveGroupAlertOpen, setIsLeaveGroupAlertOpen] = useState(false)
 
   const { mutate: startDirectChat } = useStartDirectChat()
   const { mutate: kickGroupMember, isPending: isKickingMember } =
     useKickMemberGroupChat()
+  const { mutate: blockMember, isPending: isBlockingMember } =
+    useToggleBlockMemberInChat()
 
   const isGroup = selectedChannel?.type === 'group'
+  const isOwner = user?.id === selectedChannel.owner_id
+  const isCurrentUser = user?.id === selectedChannel?.id
 
   const mediaMessages =
     messages?.filter(
@@ -102,6 +122,20 @@ export const SidebarChatInfo = ({
       filePath: `${process.env.NEXT_PUBLIC_STORAGE}/${message.meta_data?.[0]?.file_path || ''}`,
     }))
 
+  const openRemoveAlert = (memberId: number, memberName: string) => {
+    setMemberToRemove({ id: memberId, name: memberName })
+    setIsRemoveAlertOpen(true)
+  }
+
+  const openBlockAlert = (
+    memberId: number,
+    memberName: string,
+    is_blocked: string
+  ) => {
+    setMemberToBlock({ is_blocked, id: memberId, name: memberName })
+    setIsBlockAlertOpen(true)
+  }
+
   const handleRemoveMember = () => {
     if (!selectedChannel?.conversation_id || !memberToRemove) return
 
@@ -122,9 +156,44 @@ export const SidebarChatInfo = ({
     )
   }
 
-  const openRemoveAlert = (memberId: number, memberName: string) => {
-    setMemberToRemove({ id: memberId, name: memberName })
-    setIsRemoveAlertOpen(true)
+  const handleBlockMember = () => {
+    if (!selectedChannel?.conversation_id || !memberToBlock) return
+
+    const action = memberToBlock.is_blocked ? 'unblock' : 'block'
+
+    blockMember(
+      {
+        conversation_id: selectedChannel.conversation_id,
+        member_id: memberToBlock.id,
+        action: action,
+      },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: [QUERY_KEY.GROUP_DIRECT],
+          })
+
+          const updatedUsers = selectedChannel.users?.map((user) => {
+            if (user.id === memberToBlock.id) {
+              return {
+                ...user,
+                is_blocked: !memberToBlock.is_blocked,
+              }
+            }
+            return user
+          })
+
+          if (setSelectedChannel) {
+            setSelectedChannel({
+              ...selectedChannel,
+              users: updatedUsers,
+            })
+          }
+
+          setMemberToBlock(null)
+        },
+      }
+    )
   }
 
   const handleStartDirectChat = (
@@ -157,192 +226,299 @@ export const SidebarChatInfo = ({
 
   return (
     <>
-      <div className="w-[340px] border-l p-4">
-        <div className="flex flex-col items-center">
-          <Avatar className="size-20">
-            <AvatarImage
-              src={
-                isGroup
-                  ? PLACEHOLDER_AVATAR
+      <div className="w-[340px] border-l bg-slate-50/50 pt-4 shadow-sm">
+        <div className="sticky top-0 z-10 border-b border-l bg-white p-4 pb-3">
+          <div className="flex flex-col items-center">
+            <Avatar className="size-20 ring-2 ring-primary/20 ring-offset-2">
+              <AvatarImage
+                src={
+                  isGroup
+                    ? PLACEHOLDER_AVATAR
+                    : user?.id === selectedChannel?.id
+                      ? user?.avatar || PLACEHOLDER_AVATAR
+                      : selectedChannel?.avatar || PLACEHOLDER_AVATAR
+                }
+              />
+              <AvatarFallback className="bg-primary/10 text-primary">
+                {isGroup
+                  ? 'CN'
                   : user?.id === selectedChannel?.id
-                    ? user?.avatar || PLACEHOLDER_AVATAR
-                    : selectedChannel?.avatar || PLACEHOLDER_AVATAR
-              }
-            />
-            <AvatarFallback>
-              {isGroup
-                ? 'CN'
-                : user?.id === selectedChannel?.id
-                  ? user?.name?.charAt(0)
-                  : selectedChannel?.name?.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
+                    ? user?.name?.charAt(0)
+                    : selectedChannel?.name?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
 
-          <div className="mt-2 space-y-4 text-center">
-            <h4 className="font-bold">
+            <div className="mt-3 space-y-1 text-center">
+              <h4 className="text-lg font-bold">
+                {isGroup
+                  ? selectedChannel.name
+                  : user?.id === selectedChannel?.id
+                    ? user?.name
+                    : selectedChannel?.name}
+              </h4>
+              {isGroup ? (
+                <Badge variant="outline" className="bg-green-50 text-green-700">
+                  {selectedChannel.users_count || 0} thành viên
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                  {isCurrentUser ? 'Bạn' : 'Trò chuyện riêng tư'}
+                </Badge>
+              )}
+            </div>
+
+            <p className="mt-3 text-center text-sm text-muted-foreground">
               {isGroup
-                ? selectedChannel.name
-                : user?.id === selectedChannel?.id
-                  ? user?.name
-                  : selectedChannel?.name}
-            </h4>
-            <p className="text-sm text-muted-foreground">
-              {isGroup
-                ? 'Hí anh em, chat vui vẻ nhé. Admin online 24/7 nên đừng xạo nha 😁 Telegram: @vietnam_laravel'
-                : user?.id === selectedChannel?.id
+                ? 'Hí anh em, chat vui vẻ nhé. Admin online 24/7 nên đừng xạo nha 😁'
+                : isCurrentUser
                   ? 'Đây là thông tin của bạn'
                   : `Bạn đang chat với ${selectedChannel?.name}`}
             </p>
 
-            <div className="flex items-center justify-center gap-4 *:cursor-pointer">
-              {isGroup && user?.id === selectedChannel.owner_id && (
-                <div
-                  className="flex size-12 items-center justify-center rounded-full bg-gray-300 p-4"
-                  onClick={() => setIsInviteDialogOpen(true)}
-                >
-                  <UserRoundPlus size={24} />
-                </div>
-              )}
-              <div className="flex size-12 items-center justify-center rounded-full bg-gray-300 p-4">
-                <Bell size={24} />
-              </div>
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <TooltipProvider>
+                {isGroup && isOwner && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full"
+                        onClick={() => setIsInviteDialogOpen(true)}
+                      >
+                        <UserRoundPlus size={18} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Thêm thành viên</TooltipContent>
+                  </Tooltip>
+                )}
+
+                {isGroup && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full"
+                        onClick={() => setIsMembersDialogOpen(true)}
+                      >
+                        <Users size={18} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Xem thành viên</TooltipContent>
+                  </Tooltip>
+                )}
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-full"
+                    >
+                      <Bell size={18} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Thông báo</TooltipContent>
+                </Tooltip>
+
+                {isGroup && !isOwner && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full text-red-500 hover:bg-red-50 hover:text-red-600"
+                        onClick={() => setIsLeaveGroupAlertOpen(true)}
+                      >
+                        <X size={18} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Rời khỏi nhóm</TooltipContent>
+                  </Tooltip>
+                )}
+              </TooltipProvider>
             </div>
           </div>
         </div>
 
-        <div className="mt-6">
-          {isGroup && (
-            <div className="mb-2">
-              <button
-                onClick={() => setIsMembersDialogOpen(true)}
-                className="flex w-full items-center justify-between rounded-md p-4 transition-colors hover:bg-gray-100"
+        <div className="max-h-[calc(100vh-240px)] overflow-y-auto px-4 pb-4">
+          <Tabs defaultValue="media" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-muted/50 p-1">
+              <TabsTrigger
+                value="media"
+                className="flex items-center gap-1 data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
-                <div className="flex items-center gap-2">
-                  <Users className="size-5" />
-                  <h4 className="font-medium">Thành viên nhóm</h4>
-                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs">
-                    {selectedChannel.users_count || 0}
-                  </span>
+                <ImageIcon className="size-3.5" />
+                Ảnh & Video
+              </TabsTrigger>
+              <TabsTrigger
+                value="files"
+                className="flex items-center gap-1 data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              >
+                <FileText className="size-4" />
+                Tài liệu
+              </TabsTrigger>
+              <TabsTrigger
+                value="links"
+                className="flex items-center gap-1 data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              >
+                <LinkIcon className="size-3.5" />
+                Liên kết
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="media" className="mt-4">
+              {media.length > 0 ? (
+                <div className="grid grid-cols-3 gap-2">
+                  {media.map((item, index) => (
+                    <div
+                      key={index}
+                      className="group relative aspect-square cursor-pointer overflow-hidden rounded-md bg-black/5 ring-1 ring-gray-200 transition-all hover:ring-primary"
+                      onClick={() => setSelectedImageIndex(index)}
+                    >
+                      <div className="relative size-full">
+                        <Image
+                          src={item.url}
+                          alt="Media"
+                          fill
+                          sizes="(max-width: 768px) 33vw, 20vw"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-xs text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
+                        {item.sender.name}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </button>
-            </div>
-          )}
-          <Collapsible className="w-full transition-all duration-200 ease-in-out">
-            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md p-4 transition-colors hover:bg-gray-100">
-              <div className="flex items-center gap-2">
-                <FileText className="size-5" />
-                <h4 className="font-medium">File phương tiện, liên kết</h4>
-              </div>
-              <ChevronDown className="[data-state=open]:rotate-180 size-4 transition-transform duration-200" />
-            </CollapsibleTrigger>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-2 rounded-lg bg-white p-8 text-center shadow-sm">
+                  <ImageIcon className="size-10 text-muted-foreground/40" />
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Không có ảnh hoặc video nào
+                  </p>
+                </div>
+              )}
+            </TabsContent>
 
-            <CollapsibleContent className="w-full overflow-hidden transition-all">
-              <Tabs defaultValue="media" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1">
-                  <TabsTrigger
-                    value="media"
-                    className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-                  >
-                    <ImageIcon className="size-4" />
-                    Ảnh & Video
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="files"
-                    className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-                  >
-                    <FileText className="size-4" />
-                    Tài liệu
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="media" className="mt-4">
-                  {media.length > 0 ? (
-                    <div className="grid grid-cols-3 gap-2">
-                      {media.map((item, index) => (
-                        <div
-                          key={index}
-                          className="group relative aspect-square cursor-pointer overflow-hidden rounded-md ring-1 ring-gray-200"
-                          onClick={() => setSelectedImageIndex(index)}
-                        >
-                          <div className="relative size-full">
-                            <Image
-                              src={item.url}
-                              alt="Media"
-                              fill
-                              sizes="(max-width: 768px) 33vw, 20vw"
-                              className="object-cover transition-all duration-300 group-hover:scale-110"
-                            />
-                          </div>
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2 text-xs text-white opacity-0 transition-all duration-300 group-hover:opacity-100">
-                            {item.sender.name}
-                          </div>
+            <TabsContent value="files" className="mt-4">
+              {files.length > 0 ? (
+                <div className="space-y-3">
+                  {files.map((file) => (
+                    <a
+                      key={file.id}
+                      href={file.filePath}
+                      download
+                      className="group flex items-center justify-between rounded-lg border bg-white p-3 shadow-sm transition-all hover:border-primary/30 hover:bg-primary/5"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10">
+                          <FileText className="size-5 text-primary" />
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-                      <ImageIcon className="size-8 text-muted-foreground/50" />
-                      <p className="text-sm text-muted-foreground">
-                        Không có ảnh hoặc video nào
-                      </p>
-                    </div>
-                  )}
-                </TabsContent>
-                <TabsContent value="files" className="mt-4">
-                  {files.length > 0 ? (
-                    <div className="space-y-2">
-                      {files.map((file) => (
-                        <a
-                          key={file.id}
-                          href={file.filePath}
-                          download
-                          className="group flex items-center justify-between rounded-lg border p-3 transition-all hover:bg-gray-50"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                              <FileText className="size-5 text-primary" />
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="line-clamp-1 text-sm font-medium">
-                                {file.fileName}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                Gửi bởi {file.sender.name}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex size-8 items-center justify-center rounded-full text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-gray-100">
-                            <Download className="size-4" />
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-                      <FileText className="size-8 text-muted-foreground/50" />
-                      <p className="text-sm text-muted-foreground">
-                        Không có tài liệu nào
-                      </p>
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </CollapsibleContent>
-          </Collapsible>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="line-clamp-1 font-medium">
+                            {file.fileName}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Gửi bởi {file.sender.name}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex size-8 items-center justify-center rounded-full bg-white text-muted-foreground shadow-sm group-hover:text-primary">
+                        <Download className="size-4" />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-2 rounded-lg bg-white p-8 text-center shadow-sm">
+                  <FileText className="size-10 text-muted-foreground/40" />
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Không có tài liệu nào
+                  </p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="links" className="mt-4">
+              <div className="flex flex-col items-center justify-center gap-2 rounded-lg bg-white p-8 text-center shadow-sm">
+                <LinkIcon className="size-10 text-muted-foreground/40" />
+                <p className="text-sm font-medium text-muted-foreground">
+                  Không có liên kết nào
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 
       <Dialog open={isMembersDialogOpen} onOpenChange={setIsMembersDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-center">Thành viên nhóm</DialogTitle>
+            <DialogTitle className="flex items-center justify-center gap-2 text-xl">
+              <Users className="size-5" />
+              Thành viên nhóm
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              Nhóm có {selectedChannel?.users_count || 0} thành viên
+            </DialogDescription>
           </DialogHeader>
+
           <div className="max-h-[60vh] overflow-y-auto pr-1">
-            <div className="space-y-2 py-2">
+            {isOwner && (
+              <>
+                <div className="mb-3">
+                  <h3 className="flex items-center gap-1.5 text-sm font-medium">
+                    <Shield className="size-4 text-amber-500" />
+                    Giảng viên
+                  </h3>
+                </div>
+                <div className="space-y-2">
+                  {selectedChannel?.users
+                    ?.filter((member) => member.id === selectedChannel.owner_id)
+                    .map((member) => (
+                      <div
+                        key={member.id}
+                        className="flex items-center justify-between rounded-lg bg-amber-50/50 p-3 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar className="size-10 ring-1 ring-amber-200">
+                            <AvatarImage src={member.avatar || ''} />
+                            <AvatarFallback className="bg-amber-100 text-amber-800">
+                              {member.name?.[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {member.name}
+                              {member.id === user?.id && ' (Bạn)'}
+                            </span>
+                            <span className="text-xs text-amber-700">
+                              Giảng viên
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                <Separator className="my-4" />
+
+                <div className="mb-3">
+                  <h3 className="flex items-center gap-1.5 text-sm font-medium">
+                    <Users className="size-4 text-blue-500" />
+                    Thành viên
+                  </h3>
+                </div>
+              </>
+            )}
+
+            <div className="space-y-2">
               {selectedChannel?.users?.map((member) => (
                 <div
                   key={member.id}
-                  className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-gray-50"
+                  className="flex items-center justify-between rounded-lg bg-white p-3 shadow-sm transition-colors hover:bg-slate-50"
                 >
                   <div className="flex items-center gap-3">
                     <Avatar className="size-10">
@@ -375,31 +551,50 @@ export const SidebarChatInfo = ({
                           )
                         }
                       >
-                        <MessageCircle className="mr-1 size-4" />
+                        <MessageCircle className="mr-1.5 size-3.5" />
                         <span className="text-xs">Nhắn tin</span>
                       </Button>
                     )}
                     {user?.id === selectedChannel.owner_id &&
                       member.id !== selectedChannel.owner_id && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2 text-red-500 hover:bg-red-50 hover:text-red-600"
-                          onClick={() =>
-                            openRemoveAlert(member.id, member.name)
-                          }
-                          disabled={isKickingMember}
-                        >
-                          <UserMinus className="mr-1 size-4" />
-                          <span className="text-xs">Xóa</span>
-                        </Button>
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={`h-8 px-2 ${member.is_blocked ? 'text-blue-500 hover:bg-blue-50 hover:text-blue-600' : 'text-red-500 hover:bg-red-50 hover:text-red-600'}`}
+                            onClick={() =>
+                              openBlockAlert(
+                                member.id,
+                                member.name,
+                                member.is_blocked
+                              )
+                            }
+                          >
+                            <Ban className="mr-1.5 size-3.5" />
+                            <span className="text-xs">
+                              {member.is_blocked ? 'Bỏ chặn' : 'Chặn'}
+                            </span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-2 text-red-500 hover:bg-red-50 hover:text-red-600"
+                            onClick={() =>
+                              openRemoveAlert(member.id, member.name)
+                            }
+                            disabled={isKickingMember}
+                          >
+                            <UserMinus className="mr-1.5 size-3.5" />
+                            <span className="text-xs">Xóa</span>
+                          </Button>
+                        </>
                       )}
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          {user?.id === selectedChannel.owner_id && (
+          {isOwner && (
             <div className="mt-4 flex justify-center">
               <Button
                 onClick={() => {
@@ -419,10 +614,14 @@ export const SidebarChatInfo = ({
       <AlertDialog open={isRemoveAlertOpen} onOpenChange={setIsRemoveAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa thành viên</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <UserMinus className="size-5" />
+              Xác nhận xóa thành viên
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa {memberToRemove?.name} khỏi nhóm không?
-              Thao tác này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa <strong>{memberToRemove?.name}</strong>{' '}
+              khỏi nhóm không? Thành viên này sẽ không thể truy cập lại vào nhóm
+              trừ khi được mời lại.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -439,6 +638,93 @@ export const SidebarChatInfo = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={isBlockAlertOpen} onOpenChange={setIsBlockAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <Ban className="size-5" />
+              {memberToBlock?.is_blocked
+                ? 'Xác nhận bỏ chặn người dùng'
+                : 'Xác nhận chặn người dùng'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {memberToBlock?.is_blocked ? (
+                <>
+                  Bạn có chắc chắn muốn <strong>bỏ chặn</strong>{' '}
+                  <strong>{memberToBlock?.name}</strong>? Sau khi bỏ chặn, bạn
+                  có thể nhắn tin và nhận thông báo từ người này.
+                </>
+              ) : (
+                <>
+                  Bạn có chắc chắn muốn <strong>chặn</strong>{' '}
+                  <strong>{memberToBlock?.name}</strong>? Sau khi chặn, hai bạn
+                  sẽ không thể nhắn tin cho nhau và sẽ không nhận được thông báo
+                  từ người này.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setMemberToBlock(null)}>
+              Hủy bỏ
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBlockMember}
+              className={
+                memberToBlock?.is_blocked ? '' : 'bg-red-500 hover:bg-red-600'
+              }
+              disabled={isBlockingMember}
+            >
+              {isBlockingMember
+                ? memberToBlock?.is_blocked
+                  ? 'Đang bỏ chặn...'
+                  : 'Đang chặn...'
+                : memberToBlock?.is_blocked
+                  ? 'Bỏ chặn thành viên'
+                  : 'Chặn thành viên'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={isLeaveGroupAlertOpen}
+        onOpenChange={setIsLeaveGroupAlertOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="size-5" />
+              Xác nhận rời khỏi nhóm
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn rời khỏi nhóm{' '}
+              <strong>{selectedChannel?.name}</strong>? Bạn sẽ không thể truy
+              cập lại vào nhóm trừ khi được mời lại.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy bỏ</AlertDialogCancel>
+            <AlertDialogAction
+              // onClick={handleLeaveGroup}
+              className="bg-red-500 hover:bg-red-600"
+              // disabled={isLeavingGroup}
+            >
+              {/*{isLeavingGroup ? 'Đang rời khỏi...' : 'Rời khỏi nhóm'}*/}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {selectedImageIndex !== null && (
+        <ImagePreview
+          isOpen={true}
+          onClose={() => setSelectedImageIndex(null)}
+          images={media}
+          initialIndex={selectedImageIndex}
+        />
+      )}
 
       {selectedImageIndex !== null && (
         <ImagePreview

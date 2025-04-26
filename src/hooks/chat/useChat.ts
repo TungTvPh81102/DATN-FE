@@ -6,6 +6,8 @@ import {
   CreateGroupChatPayload,
   MessagePayload,
 } from '@/validations/chat'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
+import QueryKey from '@/constants/query-key'
 
 export const useGetDirectChats = () => {
   return useQuery({
@@ -97,5 +99,12 @@ export const useKickMemberGroupChat = () => {
   return useMutation({
     mutationFn: (data: { conversation_id: number; member_id: number }) =>
       chatApi.kickMemberGroupChat(data),
+  })
+}
+
+export const useToggleBlockMemberInChat = () => {
+  return useToastMutation({
+    mutationFn: chatApi.toggleBlockMemberGroupChat,
+    queryKey: [QUERY_KEY.GROUP_CHAT],
   })
 }

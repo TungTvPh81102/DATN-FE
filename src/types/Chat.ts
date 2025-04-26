@@ -39,12 +39,14 @@ export interface IChannel {
   type?: 'group' | 'direct'
   update_at?: string | Date
   users?: {
+    is_blocked: any
     id: number
     name: string
     avatar: string
     pivot: {
       conversation_id: number
       user_id: number
+      is_blocked: string
     }
   }[]
   users_count?: number

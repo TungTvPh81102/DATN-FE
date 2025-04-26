@@ -9,6 +9,7 @@ import {
 import api from '@/configs/api'
 import { IMediaQueryParams, IMediaResponse } from '@/types/Common'
 import { ILesson } from '@/types'
+import { MoveLessonPayload } from '@/types/Lesson'
 
 const prefix = '/instructor/manage/lessons'
 
@@ -192,5 +193,8 @@ export const instructorLessonApi = {
       params,
     })
     return res.data
+  },
+  moveLesson: async (data: MoveLessonPayload) => {
+    return await api.post(`${prefix}/move`, data)
   },
 }
