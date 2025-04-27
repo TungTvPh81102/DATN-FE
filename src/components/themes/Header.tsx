@@ -249,6 +249,9 @@ const Header = () => {
                   <li className="">
                     <Link href="/blogs">Bài viết</Link>
                   </li>
+                  <li className="">
+                    <Link href="/room-live-stream">Trực tiếp</Link>
+                  </li>
                 </ul>
               </nav>
             </div>

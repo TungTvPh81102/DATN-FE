@@ -1,6 +1,6 @@
 'use client'
 
-import { LivestreamLayout } from '@/app/room-live-stream/_components/livestream-layout'
+import { LivestreamDetails } from '@/sections/livestream/views/livestream-details'
 
 interface Props {
   params: {
@@ -10,7 +10,7 @@ interface Props {
 
 const Page = ({ params }: Props) => {
   const { stream_key } = params
-  return <LivestreamLayout stream_key={stream_key} />
+  return <LivestreamDetails stream_key={stream_key} />
 }
 
 export default Page
