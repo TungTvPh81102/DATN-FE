@@ -116,7 +116,7 @@ export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
         },
         {
           title: 'Luồng trực tuyến',
-          url: '/instructor/with-draw-request',
+          url: '/live-streaming',
           icon: Video,
         },
         {

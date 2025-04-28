@@ -6,6 +6,7 @@ import {
 } from '@/validations/live'
 import QueryKey from '@/constants/query-key'
 import { liveSteamApi } from '@/services/live/live'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 
 export const useGetLiveSessions = (filters?: {
   fromDate?: string | undefined
@@ -68,5 +69,27 @@ export const useSendMessageLive = () => {
       liveSessionId: string
       data: CreateLiveSessionMessagePayload
     }) => liveSteamApi.sendMessageLive(liveSessionId, data),
+  })
+}
+
+export const useGetLiveSchedules = () => {
+  return useQuery({
+    queryFn: () => liveSteamApi.getLiveSchedules(),
+    queryKey: [QueryKey.LIVE_SCHEDULE],
+  })
+}
+
+export const useGetLiveSchedule = (code: string) => {
+  return useQuery({
+    queryFn: () => liveSteamApi.getLiveSchedule(code),
+    queryKey: [QueryKey.LIVE_SCHEDULE, code],
+    enabled: !!code,
+  })
+}
+
+export const useCreateLiveSchedule = () => {
+  return useToastMutation({
+    mutationFn: liveSteamApi.createLiveSchedule,
+    queryKey: [QueryKey.LIVE_SCHEDULE],
   })
 }

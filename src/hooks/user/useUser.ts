@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 import QueryKey from '@/constants/query-key'
 import { userApi } from '@/services/user/user-api'
@@ -66,5 +66,11 @@ export const useCheckProfileUser = () => {
   return useQuery({
     queryKey: [QueryKey.AUTH],
     queryFn: () => userApi.checkProfileUser(),
+  })
+}
+
+export const useCheckPassword = () => {
+  return useMutation({
+    mutationFn: (password: string) => userApi.checkPassword(password),
   })
 }

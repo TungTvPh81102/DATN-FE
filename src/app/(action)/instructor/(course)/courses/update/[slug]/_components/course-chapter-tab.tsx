@@ -39,7 +39,6 @@ import Link from 'next/link'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import SortableLesson from './lesson/sortable-lesson'
 import { Badge } from '@/components/ui/badge'
-import CoursePlanningAIAssistant from '@/app/(action)/instructor/(course)/courses/update/[slug]/_components/course-planning-ai-assistant'
 import MoveLessonsDialog from '@/app/(action)/instructor/(course)/courses/update/[slug]/_components/lesson/move-lesson-dialog'
 
 type Props = {
@@ -314,8 +313,6 @@ const CourseChapterTab = ({
           </>
         )}
       </div>
-
-      <CoursePlanningAIAssistant currentCourse={`Khoá học NextJS`} />
     </div>
   )
 }

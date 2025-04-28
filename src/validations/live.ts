@@ -13,7 +13,22 @@ export const createLiveSessionMessageSchema = z.object({
     .min(1, { message: 'Tin nhắn phải có ít nhất 1 ký tự' }),
 })
 
+export const liveScheduleSchema = z.object({
+  title: z
+    .string({ required_error: 'Tên sự kiện không được để trống' })
+    .min(1, { message: 'Tên sự kiện không được để trống' })
+    .max(100, { message: 'Tên sự kiện không được vượt quá 100 ký tự' }),
+  description: z.string().optional(),
+  starts_at: z.date({ required_error: 'Vui lòng chọn ngày giờ cho sự kiện' }),
+  visibility: z.enum(['public', 'unlisted', 'private'], {
+    required_error: 'Vui lòng chọn chế độ hiển thị',
+    invalid_type_error: 'Chế độ hiển thị không hợp lệ',
+  }),
+  thumbnail: z.instanceof(File).nullable().optional(),
+})
+
 export type CreateLiveStreamPayload = z.infer<typeof createLiveSessionSchema>
 export type CreateLiveSessionMessagePayload = z.infer<
   typeof createLiveSessionMessageSchema
 >
+export type LiveSchedulePayload = z.infer<typeof liveScheduleSchema>

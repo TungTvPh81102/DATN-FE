@@ -1,6 +1,7 @@
 import {
   CreateLiveSessionMessagePayload,
   CreateLiveStreamPayload,
+  LiveSchedulePayload,
 } from '@/validations/live'
 import api from '@/configs/api'
 
@@ -38,5 +39,31 @@ export const liveSteamApi = {
     data: CreateLiveSessionMessagePayload
   ) {
     return api.post(`livestreams/${liveSessionId}/send-message`, data)
+  },
+  getLiveSchedules: async () => {
+    const res = await api.get(`${prefix}/schedule`)
+    return res.data
+  },
+  getLiveSchedule: async (code: string) => {
+    const res = await api.get(`${prefix}/schedule/${code}`)
+    return res.data
+  },
+  createLiveSchedule: (data: LiveSchedulePayload) => {
+    const formData = new FormData()
+
+    formData.append('title', data.title)
+    formData.append('description', data.description || '')
+    formData.append('visibility', data.visibility)
+    formData.append('starts_at', data.starts_at?.toISOString() || '')
+
+    if (data.thumbnail) {
+      formData.append('thumbnail', data.thumbnail)
+    }
+
+    return api.post(`${prefix}/schedule`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
   },
 }

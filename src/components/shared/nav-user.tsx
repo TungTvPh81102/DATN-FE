@@ -106,7 +106,10 @@ export function NavUser({ user }: { user: IUser | null }) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="#" className="cursor-pointer">
+                <Link
+                  href={'/instructor/settings/live-access'}
+                  className="cursor-pointer"
+                >
                   <Radio />
                   Phát trực tiếp
                 </Link>
