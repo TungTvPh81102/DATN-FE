@@ -1,4 +1,5 @@
 import { BlogDetailView } from '@/sections/blogs/view'
+import { Metadata } from 'next'
 
 // import { getPostBySlug } from '@/services/posts/post-api'
 // import { Metadata, ResolvingMetadata } from 'next'
@@ -7,6 +8,12 @@ interface Props {
   params: {
     slug: string
   }
+}
+
+export const metadata: Metadata = {
+  title: 'Chi tiết bài viết',
+  description:
+    'Đọc bài viết chi tiết về các chủ đề liên quan đến học tập, phát triển kỹ năng, công nghệ, và các xu hướng mới nhất trong ngành. Cập nhật thông tin hữu ích và chia sẻ kinh nghiệm từ các chuyên gia.',
 }
 
 // export async function generateMetadata(

@@ -4,7 +4,10 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Thông tin học viên',
+  description:
+    'Xem và quản lý thông tin chi tiết của học viên: hồ sơ, tiến độ học tập, kết quả bài kiểm tra và các thông tin liên quan khác.',
 }
+
 interface Props {
   params: {
     code: string
