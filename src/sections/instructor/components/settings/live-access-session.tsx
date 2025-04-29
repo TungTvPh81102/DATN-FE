@@ -8,18 +8,27 @@ import {
   EyeOff,
   Plus,
   RefreshCw,
+  ShieldAlert,
+  X,
+  Loader2,
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { useGenerateStreamKey, useGetStreamKey } from '@/hooks/live/useLive'
+import { useCheckPassword } from '@/hooks/user/useUser'
 
 const LiveAccessSession = () => {
   const [streamKey, setStreamKey] = useState('')
   const [isCopied, setIsCopied] = useState(false)
   const [showKey, setShowKey] = useState(false)
   const [hasKey, setHasKey] = useState(false)
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+  const [password, setPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
 
   const { data, isLoading } = useGetStreamKey()
   const { mutate, isPending } = useGenerateStreamKey()
+  const { mutate: checkPassword, isPending: isCheckingPassword } =
+    useCheckPassword()
 
   useEffect(() => {
     if (data?.stream_key) {
@@ -31,11 +40,10 @@ const LiveAccessSession = () => {
   const generateStreamKey = async () => {
     mutate(undefined, {
       onSuccess: async (res: any) => {
-        setTimeout(() => {
-          setStreamKey(res?.stream_key)
-          setHasKey(true)
-          toast.success('Đã tạo mã stream thành công!')
-        }, 1500)
+        console.log('Generated stream key:', res)
+        setStreamKey(res?.data.stream_key)
+        setHasKey(true)
+        toast.success('Đã tạo mã stream thành công!')
       },
       onError: (error) => {
         console.error('Error generating stream key:', error)
@@ -54,8 +62,39 @@ const LiveAccessSession = () => {
     }, 3000)
   }
 
-  const toggleShowKey = () => {
-    setShowKey(!showKey)
+  const handleToggleShowKey = () => {
+    if (showKey) {
+      setShowKey(false)
+    } else {
+      setShowPasswordDialog(true)
+    }
+  }
+
+  const handlePasswordSubmit = (e: any) => {
+    e.preventDefault()
+
+    if (!password) {
+      setPasswordError('Vui lòng nhập mật khẩu')
+      return
+    }
+
+    checkPassword(password, {
+      onSuccess: () => {
+        setShowKey(true)
+        setShowPasswordDialog(false)
+        setPassword('')
+        setPasswordError('')
+      },
+      onError: (error) => {
+        setPasswordError(error.message)
+      },
+    })
+  }
+
+  const closePasswordDialog = () => {
+    setShowPasswordDialog(false)
+    setPassword('')
+    setPasswordError('')
   }
 
   const maskedKey = streamKey ? '•'.repeat(Math.min(20, streamKey.length)) : ''
@@ -124,7 +163,7 @@ const LiveAccessSession = () => {
                   className="w-full border-none bg-transparent focus:outline-none"
                 />
                 <button
-                  onClick={toggleShowKey}
+                  onClick={handleToggleShowKey}
                   className="absolute right-3 text-gray-500 hover:text-gray-700"
                   aria-label={showKey ? 'Ẩn mã stream' : 'Hiện mã stream'}
                 >
@@ -150,6 +189,73 @@ const LiveAccessSession = () => {
           </div>
         )}
       </div>
+
+      {showPasswordDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="size-5 text-orange-500" />
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Xác nhận bảo mật
+                </h3>
+              </div>
+              <button
+                onClick={closePasswordDialog}
+                className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <p className="mb-4 text-sm text-gray-600">
+              Nhập mật khẩu của bạn để xem mã stream
+            </p>
+
+            <form onSubmit={handlePasswordSubmit}>
+              <div className="mb-4">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Nhập mật khẩu"
+                  className="w-full rounded-lg border border-gray-300 p-2 focus:border-orange-500 focus:outline-none"
+                  autoFocus
+                  disabled={isCheckingPassword}
+                />
+                {passwordError && (
+                  <p className="mt-1 text-sm text-red-500">{passwordError}</p>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={closePasswordDialog}
+                  disabled={isCheckingPassword}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCheckingPassword}
+                  className="flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 font-medium text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isCheckingPassword ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      <span>Đang xác thực...</span>
+                    </>
+                  ) : (
+                    'Xác nhận'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {hasKey && (
         <>
@@ -186,7 +292,7 @@ const LiveAccessSession = () => {
               <div className="group rounded-xl border border-gray-200 bg-white p-5 transition-all hover:shadow-lg">
                 <div className="mb-2 flex items-center gap-3">
                   <div className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-500 font-semibold text-white shadow-md transition-all group-hover:shadow-orange-200">
-                    1
+                    2
                   </div>
                   <h4 className="font-medium">Thiết lập stream</h4>
                 </div>
@@ -199,7 +305,7 @@ const LiveAccessSession = () => {
               <div className="group rounded-xl border border-gray-200 bg-white p-5 transition-all hover:shadow-lg">
                 <div className="mb-2 flex items-center gap-3">
                   <div className="flex size-10 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-500 font-semibold text-white shadow-md transition-all group-hover:shadow-orange-200">
-                    1
+                    3
                   </div>
                   <h4 className="font-medium">Bắt đầu phát sóng</h4>
                 </div>

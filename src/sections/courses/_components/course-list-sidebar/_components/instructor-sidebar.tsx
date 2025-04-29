@@ -52,7 +52,7 @@ export const InstructorSidebar = ({
           </li>
         ))}
       </ul>
-      {/*<div className="btn-showmore2 showmore view-more-button2">*/}
+      {/*<div className="btn-showmore2 showmore views-more-button2">*/}
       {/*  <span className="title">*/}
       {/*    Xem thêm <i className="icon icon-arrow-bottom" />*/}
       {/*  </span>*/}
