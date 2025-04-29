@@ -7,6 +7,7 @@ import CareersSection from '@/sections/instructor/components/settings/career-sec
 import { CertificateSection } from '@/sections/instructor/components/settings/certificate-section'
 import { ProfileSection } from '../components/settings/profile-section'
 import { SocialSection } from '../components/settings/social-section'
+import LiveAccessSession from '@/sections/instructor/components/settings/live-access-session'
 
 const SettingsView = ({ tab }: { tab: string }) => {
   const { data: getProfile, isLoading } = useGetProfile()
@@ -57,6 +58,8 @@ const SettingsView = ({ tab }: { tab: string }) => {
                   certificateData={getProfile?.data?.user?.profile}
                 />
               )
+            case 'live-access':
+              return <LiveAccessSession />
             default:
               return null
           }

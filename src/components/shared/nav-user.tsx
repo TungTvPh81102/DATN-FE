@@ -5,6 +5,7 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
+  Radio,
 } from 'lucide-react'
 import Link from 'next/link'
 import Swal from 'sweetalert2'
@@ -102,6 +103,15 @@ export function NavUser({ user }: { user: IUser | null }) {
                 <Link href={'/instructor/wallet'} className="cursor-pointer">
                   <CreditCard />
                   Ví của bạn
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href={'/instructor/settings/live-access'}
+                  className="cursor-pointer"
+                >
+                  <Radio />
+                  Phát trực tiếp
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>

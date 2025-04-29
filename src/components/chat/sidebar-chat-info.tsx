@@ -88,7 +88,6 @@ export const SidebarChatInfo = ({
   } | null>(null)
   const [isRemoveAlertOpen, setIsRemoveAlertOpen] = useState(false)
   const [isBlockAlertOpen, setIsBlockAlertOpen] = useState(false)
-  const [isLeaveGroupAlertOpen, setIsLeaveGroupAlertOpen] = useState(false)
 
   const { mutate: startDirectChat } = useStartDirectChat()
   const { mutate: kickGroupMember, isPending: isKickingMember } =
@@ -321,22 +320,6 @@ export const SidebarChatInfo = ({
                   </TooltipTrigger>
                   <TooltipContent>Thông báo</TooltipContent>
                 </Tooltip>
-
-                {isGroup && !isOwner && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="rounded-full text-red-500 hover:bg-red-50 hover:text-red-600"
-                        onClick={() => setIsLeaveGroupAlertOpen(true)}
-                      >
-                        <X size={18} />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Rời khỏi nhóm</TooltipContent>
-                  </Tooltip>
-                )}
               </TooltipProvider>
             </div>
           </div>
@@ -683,35 +666,6 @@ export const SidebarChatInfo = ({
                 : memberToBlock?.is_blocked
                   ? 'Bỏ chặn thành viên'
                   : 'Chặn thành viên'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog
-        open={isLeaveGroupAlertOpen}
-        onOpenChange={setIsLeaveGroupAlertOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
-              <Trash2 className="size-5" />
-              Xác nhận rời khỏi nhóm
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc chắn muốn rời khỏi nhóm{' '}
-              <strong>{selectedChannel?.name}</strong>? Bạn sẽ không thể truy
-              cập lại vào nhóm trừ khi được mời lại.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Hủy bỏ</AlertDialogCancel>
-            <AlertDialogAction
-              // onClick={handleLeaveGroup}
-              className="bg-red-500 hover:bg-red-600"
-              // disabled={isLeavingGroup}
-            >
-              {/*{isLeavingGroup ? 'Đang rời khỏi...' : 'Rời khỏi nhóm'}*/}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
