@@ -32,6 +32,7 @@ enum QueryKey {
   INSTRUCTOR_LIVE_SESSIONS = 'instructor-live-sessions',
   INSTRUCTOR_WALLET = 'instructor-wallet',
   INSTRUCTOR_LEARNER = 'instructor-learner',
+  INSTRUCTOR_LEARNER_WEEKLY_STUDY_TIME = 'instructor-learn-weekly-study-time',
   INSTRUCTOR_WITH_DRAW_REQUEST = 'instructor-with-draw-request',
   INSTRUCTOR_COUPON = 'instructor-coupon',
   INSTRUCTOR_MEMBERSHIP_PLANS = 'instructor-membership-plans',
