@@ -7,10 +7,10 @@ interface StreamContentProps {
   streamStatus: string
   streamTitle: string
   startTime: string
-  streamUrl: string
+  streamUrl?: string
   playbackId: string
-  duration: number
-  viewerCount: number
+  duration?: number
+  viewerCount?: number
 }
 
 const formatTimeRemaining = (startTimeStr: string) => {
@@ -35,7 +35,9 @@ const formatTimeRemaining = (startTimeStr: string) => {
   }
 }
 
-const formatDuration = (seconds: number) => {
+const formatDuration = (seconds: number | undefined) => {
+  if (typeof seconds === 'undefined') return '00:00'
+
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const secs = seconds % 60

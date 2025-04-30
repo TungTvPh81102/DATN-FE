@@ -23,8 +23,9 @@ import {
   practiceExerciseSubmissionSchema,
 } from '@/validations/quiz-submission'
 import { PracticeExerciseResultsAlert } from './practice-exercise-results-alert'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 
 type Props = {
   lesson: ILesson
@@ -42,8 +43,10 @@ export const PracticeExercise = ({
   const router = useRouter()
   const { lessonable: quizData } = lesson
   const { questions = [] } = quizData!
-
-  console.log(lesson)
+  const [result, setResult] = useState<{
+    correct_answer: number
+    total_question: number
+  }>()
 
   const form = useForm<PracticeExerciseSubmissionPayload>({
     resolver: zodResolver(practiceExerciseSubmissionSchema),
@@ -56,10 +59,14 @@ export const PracticeExercise = ({
     },
   })
 
-  const [result, setResult] = useState<{
-    correct_answer: number
-    total_question: number
-  }>()
+  useEffect(() => {
+    if (quizData?.user_submitted_answers) {
+      form.reset({
+        quiz_id: lesson.lessonable_id,
+        answers: quizData.user_submitted_answers,
+      })
+    }
+  }, [quizData, isCompleted, form, lesson.lessonable_id])
 
   const { mutate: completeLesson, isPending } = useCompletePracticeExercise()
 
@@ -227,6 +234,17 @@ export const PracticeExercise = ({
             ))}
 
             <div className="flex justify-end">
+              {quizData?.user_submitted_answers !== null && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setResult(undefined)}
+                  className="px-4"
+                >
+                  Ôn tập lại
+                </Button>
+              )}
+
               {!isCompleted && (
                 <LoadingButton loading={isPending} type="submit">
                   Nộp bài

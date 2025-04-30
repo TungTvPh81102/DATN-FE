@@ -1,141 +1,199 @@
-import { IUser } from '@/types'
+'use client'
+
 import { LivestreamCard } from '@/sections/livestream/_components/livestream-card'
-
-export interface ILivestreamVideo {
-  id: string
-  title: string
-  image?: string | null
-  views: number
-  author: Partial<IUser>
-}
-
-const livestreamVideos: ILivestreamVideo[] = [
-  {
-    id: '1',
-    title: 'Trực tiếp: U15 TRUNG KIM -vs- U15 CFF',
-    image: 'https://picsum.photos/400/225?random=1',
-    views: 124,
-    author: {
-      name: 'Nhịp đập iPhủ',
-      avatar: 'https://i.pravatar.cc/100?img=1',
-      code: 'NDI01',
-    },
-  },
-  {
-    id: '2',
-    title: 'U17 Đà Nẵng vs U17 Sài Gòn - Giải U17 Toàn quốc',
-    image: 'https://picsum.photos/400/225?random=2',
-    views: 98,
-    author: {
-      name: 'Bóng Đá Trẻ',
-      avatar: 'https://i.pravatar.cc/100?img=2',
-      code: 'BDT02',
-    },
-  },
-  {
-    id: '3',
-    title: 'Highlights: Trận cầu kinh điển U15',
-    image: 'https://picsum.photos/400/225?random=3',
-    views: 210,
-    author: {
-      name: 'VTV Sports',
-      avatar: 'https://i.pravatar.cc/100?img=3',
-      code: 'VTV03',
-    },
-  },
-  {
-    id: '4',
-    title: 'U15 Quốc Oai vs U15 Long Biên',
-    image: 'https://picsum.photos/400/225?random=4',
-    views: 76,
-    author: {
-      name: 'Football Zone',
-      avatar: 'https://i.pravatar.cc/100?img=4',
-      code: 'FZ04',
-    },
-  },
-  {
-    id: '5',
-    title: 'Live: Vòng loại U13 Khu vực miền Trung',
-    image: 'https://picsum.photos/400/225?random=5',
-    views: 302,
-    author: {
-      name: 'Thể Thao 24h',
-      avatar: 'https://i.pravatar.cc/100?img=5',
-      code: 'TT2405',
-    },
-  },
-  {
-    id: '6',
-    title: 'U15 iPhủ City vs U15 Hồng Lĩnh',
-    image: 'https://picsum.photos/400/225?random=6',
-    views: 145,
-    author: {
-      name: 'iPhủ Media',
-      avatar: 'https://i.pravatar.cc/100?img=6',
-      code: 'IPM06',
-    },
-  },
-  {
-    id: '7',
-    title: 'Trực tiếp: Lễ khai mạc giải U15 toàn quốc',
-    image: 'https://picsum.photos/400/225?random=7',
-    views: 528,
-    author: {
-      name: 'Bóng Đá Học Đường',
-      avatar: 'https://i.pravatar.cc/100?img=7',
-      code: 'BDHD07',
-    },
-  },
-  {
-    id: '8',
-    title: 'U15 CFF đá giao hữu với U15 Bình Dương',
-    image: 'https://picsum.photos/400/225?random=8',
-    views: 87,
-    author: {
-      name: 'CFF Channel',
-      avatar: 'https://i.pravatar.cc/100?img=8',
-      code: 'CFF08',
-    },
-  },
-  {
-    id: '9',
-    title: 'Trực tiếp: U17 Thủ đô vs U17 Đồng Nai',
-    image: 'https://picsum.photos/400/225?random=9',
-    views: 199,
-    author: {
-      name: 'Youth League',
-      avatar: 'https://i.pravatar.cc/100?img=9',
-      code: 'YL09',
-    },
-  },
-  {
-    id: '10',
-    title: 'U15 Nghệ An vs U15 Hà Tĩnh - Vòng bảng',
-    image: 'https://picsum.photos/400/225?random=10',
-    views: 163,
-    author: {
-      name: 'Giải Trẻ Online',
-      avatar: 'https://i.pravatar.cc/100?img=10',
-      code: 'GTO10',
-    },
-  },
-]
+import { useEffect, useState } from 'react'
+import { Calendar, PlayCircle } from 'lucide-react'
+import { useGetLiveSessionClient } from '@/hooks/live/useLive'
+import { formatDate } from '@/lib/common'
 
 export const LivestreamList = () => {
-  return (
-    <div className="mx-auto my-4 w-11/12 space-y-4 rounded-lg bg-white px-3 py-4">
-      <h1 className="text-xl font-bold">Video trực tiếp</h1>
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [activeTab, setActiveTab] = useState<'all' | 'upcoming' | 'live'>('all')
+  const [status, setStatus] = useState<'upcoming' | 'live' | 'all'>('all')
+  const [page, setPage] = useState(1)
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-        {livestreamVideos && livestreamVideos?.length > 0 ? (
-          livestreamVideos.map((item) => (
-            <LivestreamCard key={item.id} livestreamInfo={item} />
-          ))
-        ) : (
-          <h1>Trống...</h1>
-        )}
+  const { data, isLoading } = useGetLiveSessionClient({ status, page })
+
+  const livestreams = data?.live_streams?.data || []
+  const totalPages = Math.ceil(
+    (data?.live_streams?.total || 1) / (data?.live_streams?.per_page || 10)
+  )
+  const upcomingCount = data?.counts?.upcoming || 0
+  const liveCount = data?.counts?.live || 0
+  const totalCount = upcomingCount + liveCount
+
+  useEffect(() => {
+    if (activeTab === 'all') {
+      setStatus('all')
+    } else {
+      setStatus(activeTab)
+    }
+    setPage(1)
+  }, [activeTab])
+
+  useEffect(() => {
+    setIsLoaded(true)
+  }, [])
+
+  const formattedLivestreams = livestreams.map((stream: any) => ({
+    id: stream.id,
+    code: stream.code,
+    title: stream.title,
+    thumbnail: stream.thumbnail ? `${stream.thumbnail}` : '',
+    view_counts: 0,
+    status: stream.status,
+    starts_at: formatDate(stream.starts_at, {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    visibility: stream.visibility,
+    instructor: {
+      name: stream.instructor.name,
+      avatar: stream.instructor.avatar,
+      code: stream.instructor.code,
+    },
+  }))
+
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1)
+    }
+  }
+
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setPage(page + 1)
+    }
+  }
+
+  const TABS = [
+    {
+      id: 'all',
+      label: 'Tất cả',
+      count: totalCount,
+    },
+    {
+      id: 'live',
+      label: 'Đang diễn ra',
+      count: liveCount,
+      icon: PlayCircle,
+    },
+    {
+      id: 'upcoming',
+      label: 'Sắp diễn ra',
+      count: upcomingCount,
+      icon: Calendar,
+    },
+  ]
+
+  return (
+    <div
+      className={`mx-auto space-y-6 transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+    >
+      <div className="flex items-center space-x-2">
+        <div
+          className="h-6 w-1.5 rounded"
+          style={{ backgroundColor: '#E27447' }}
+        ></div>
+        <h1 className="text-2xl font-bold text-gray-800">Sự kiện trực tiếp</h1>
       </div>
+
+      <div className="mb-6 overflow-x-auto">
+        <div className="flex min-w-max space-x-2">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.id
+            const Icon = tab.icon
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center space-x-2 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                  isActive
+                    ? 'text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                style={{
+                  backgroundColor: isActive ? '#E27447' : undefined,
+                }}
+              >
+                {Icon && <Icon size={16} />}
+                <span>{tab.label}</span>
+                <span
+                  className={`flex items-center justify-center rounded-full px-2 py-0.5 text-xs ${
+                    isActive
+                      ? 'bg-white text-orange-500'
+                      : 'bg-gray-200 text-gray-700'
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex h-40 items-center justify-center rounded-lg bg-white">
+          <p className="text-gray-500">Đang tải dữ liệu...</p>
+        </div>
+      ) : formattedLivestreams.length > 0 ? (
+        <>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {formattedLivestreams.map((item, index) => (
+              <div
+                key={item.code}
+                className={`transition-all duration-500 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <LivestreamCard livestreamInfo={item} />
+              </div>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center space-x-4">
+              <button
+                onClick={handlePreviousPage}
+                disabled={page === 1}
+                className={`rounded-md px-4 py-2 font-medium ${
+                  page === 1
+                    ? 'cursor-not-allowed bg-gray-200 text-gray-400'
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                Trang trước
+              </button>
+              <div className="text-sm font-medium text-gray-700">
+                Trang {page} / {totalPages}
+              </div>
+              <button
+                onClick={handleNextPage}
+                disabled={page === totalPages}
+                className={`rounded-md px-4 py-2 font-medium ${
+                  page === totalPages
+                    ? 'cursor-not-allowed bg-gray-200 text-gray-400'
+                    : 'bg-orange-100 text-orange-800 hover:bg-orange-200'
+                }`}
+                style={{
+                  backgroundColor:
+                    page === totalPages ? undefined : 'rgba(226, 116, 71, 0.1)',
+                  color: page === totalPages ? undefined : '#E27447',
+                }}
+              >
+                Trang tiếp
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="flex h-40 items-center justify-center rounded-lg bg-white">
+          <p className="text-gray-500">Không có video trực tiếp nào...</p>
+        </div>
+      )}
     </div>
   )
 }

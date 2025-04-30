@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/resizable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ResultsViewer } from '@/sections/instructor/components/coding-exercise/results-viewer'
-import { ExecuteTestCaseResponse } from '@/types/execute'
+import { ExecuteTestCaseResponse } from '@/types/Execute'
 import { TestCase } from '@/validations/execute'
 
 const renderTestCase = (testCase: TestCase) => {

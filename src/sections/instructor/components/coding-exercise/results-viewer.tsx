@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import { ExecuteTestCaseResponse } from '@/types/execute'
+import { ExecuteTestCaseResponse } from '@/types/Execute'
 import { CheckCircle, FileText, SquareTerminal, XCircle } from 'lucide-react'
 
 interface Props {

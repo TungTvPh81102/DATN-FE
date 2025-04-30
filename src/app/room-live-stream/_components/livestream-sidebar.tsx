@@ -4,68 +4,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { Badge } from '@/components/ui/badge'
 import {
-  Compass,
-  Gamepad2,
-  Heart,
-  Home,
-  Library,
-  Music2,
-  Settings,
-  Trophy,
-  User,
-} from 'lucide-react'
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { Compass, Heart, Settings, User } from 'lucide-react'
 import Link from 'next/link'
 import { useAuthStore } from '@/stores/useAuthStore'
-
-// Sample recommended channels
-const recommendedChannels = [
-  {
-    id: 1,
-    name: 'ProGamer',
-    game: 'Fortnite',
-    avatar: '/placeholder.svg?height=40&width=40',
-    isLive: true,
-    viewers: 12500,
-  },
-  {
-    id: 2,
-    name: 'MusicLover',
-    game: 'Just Chatting',
-    avatar: '/placeholder.svg?height=40&width=40',
-    isLive: true,
-    viewers: 8700,
-  },
-  {
-    id: 3,
-    name: 'ArtistPro',
-    game: 'Digital Art',
-    avatar: '/placeholder.svg?height=40&width=40',
-    isLive: false,
-  },
-  {
-    id: 4,
-    name: 'ChessGrandmaster',
-    game: 'Chess',
-    avatar: '/placeholder.svg?height=40&width=40',
-    isLive: true,
-    viewers: 5200,
-  },
-  {
-    id: 5,
-    name: 'TechTalks',
-    game: 'Science & Technology',
-    avatar: '/placeholder.svg?height=40&width=40',
-    isLive: false,
-  },
-]
-
-// Sample categories
-const categories = [
-  { id: 1, name: 'Games', icon: Gamepad2 },
-  { id: 2, name: 'Esports', icon: Trophy },
-  { id: 3, name: 'Music', icon: Music2 },
-]
+import { useState } from 'react'
+import Image from 'next/image'
 
 interface LivestreamSidebarProps {
   open: boolean
@@ -74,118 +24,63 @@ interface LivestreamSidebarProps {
 
 export function LivestreamSidebar({ open, setOpen }: LivestreamSidebarProps) {
   const { user } = useAuthStore()
+  const [activePage, setActivePage] = useState('browse')
+  const [onlineStatus, setOnlineStatus] = useState('Online')
+  const statusOptions = ['Online', 'Idle', 'Do Not Disturb', 'Invisible']
 
   const sidebarContent = (
     <>
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary font-bold text-primary-foreground">
-            L
-          </div>
-          <span className="text-lg font-bold">LiveStream</span>
-        </div>
-        {/*<Button*/}
-        {/*  variant="ghost"*/}
-        {/*  size="icon"*/}
-        {/*  className="md:hidden"*/}
-        {/*  onClick={() => setOpen(false)}*/}
-        {/*>*/}
-        {/*  <X className="size-5" />*/}
-        {/*</Button>*/}
+      <div className="flex items-center justify-between border-b p-4">
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/images/Logo.png"
+            alt="CourseMeLy logo"
+            width={32}
+            height={32}
+            className="shrink-0 rounded-md"
+          />
+          <span className="bg-gradient-to-r from-orange-500 to-red-400 bg-clip-text text-lg font-bold text-transparent">
+            CourseMeLy
+          </span>
+        </Link>
       </div>
 
-      <ScrollArea className="flex-1 px-4">
+      <ScrollArea className="flex-1 px-3 pt-2">
         <div className="space-y-6">
-          {/* Main navigation */}
-          <div className="space-y-1">
+          <div className="space-y-1 py-2">
             <Link
-              href="/room-live-stream"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+              href="#"
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-orange-50 dark:hover:bg-orange-900/20 ${
+                activePage === 'browse'
+                  ? 'bg-orange-50 font-medium text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
+                  : 'text-slate-600 dark:text-slate-300'
+              }`}
+              onClick={() => setActivePage('browse')}
             >
-              <Home className="size-5" />
-              <span>Home</span>
+              <Compass
+                className={`size-5 ${activePage === 'browse' ? 'text-[#E27447]' : ''}`}
+              />
+              <span>Sự kiện</span>
+              {activePage === 'browse' && (
+                <Badge className="ml-auto bg-orange-100 text-[#E27447] hover:bg-orange-200 dark:bg-orange-900/50 dark:text-orange-300">
+                  Sự kiện
+                </Badge>
+              )}
             </Link>
             <Link
               href="#"
-              className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-foreground transition-all"
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-orange-50 dark:hover:bg-orange-900/20 ${
+                activePage === 'following'
+                  ? 'bg-orange-50 font-medium text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
+                  : 'text-slate-600 dark:text-slate-300'
+              }`}
+              onClick={() => setActivePage('following')}
             >
-              <Compass className="size-5" />
-              <span>Browse</span>
+              <Heart
+                className={`size-5 ${activePage === 'following' ? 'text-[#E27447]' : ''}`}
+              />
+              <span>Theo dõi</span>
             </Link>
-            <Link
-              href="#"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
-            >
-              <Heart className="size-5" />
-              <span>Following</span>
-            </Link>
-            <Link
-              href="#"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
-            >
-              <Library className="size-5" />
-              <span>Library</span>
-            </Link>
-          </div>
-
-          {/* Recommended channels */}
-          <div>
-            <h3 className="mb-2 px-3 text-sm font-semibold">
-              RECOMMENDED CHANNELS
-            </h3>
-            <div className="space-y-1">
-              {recommendedChannels.map((channel) => (
-                <Link
-                  key={channel.id}
-                  href="#"
-                  className="flex items-center justify-between rounded-lg px-3 py-2 transition-all hover:bg-muted"
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar className="size-7">
-                      <AvatarImage src={channel.avatar} alt={channel.name} />
-                      <AvatarFallback>{channel.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium leading-none">
-                        {channel.name}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {channel.game}
-                      </div>
-                    </div>
-                  </div>
-                  {channel.isLive ? (
-                    <div className="flex items-center gap-1">
-                      <span className="size-2 rounded-full bg-red-500"></span>
-                      <span className="text-xs">
-                        {channel?.viewers?.toLocaleString()}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">
-                      Offline
-                    </span>
-                  )}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div>
-            <h3 className="mb-2 px-3 text-sm font-semibold">CATEGORIES</h3>
-            <div className="space-y-1">
-              {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  href="#"
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
-                >
-                  <category.icon className="size-5" />
-                  <span>{category.name}</span>
-                </Link>
-              ))}
-            </div>
           </div>
         </div>
       </ScrollArea>
@@ -193,25 +88,58 @@ export function LivestreamSidebar({ open, setOpen }: LivestreamSidebarProps) {
       <div className="mt-auto border-t p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={user?.avatar ?? ''} alt={user?.name} />
-              <AvatarFallback>
-                {user?.name?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="size-10 border-2 border-white shadow-sm">
+                <AvatarImage src={user?.avatar ?? ''} alt={user?.name} />
+                <AvatarFallback className="bg-gradient-to-br from-orange-400 to-red-500 text-white">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="absolute bottom-0 right-0 block size-3 rounded-full bg-green-500 ring-2 ring-white"></span>
+            </div>
             <div>
-              <div className="truncate font-medium">{user?.name}</div>
-              <div className="text-xs text-muted-foreground">
-                {user?.status}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="max-w-[120px] truncate font-medium">
+                      {user?.name || 'User'}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="text-xs">{user?.name || 'User'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <div className="flex items-center gap-1">
+                <div className="size-2 rounded-full bg-green-500"></div>
+                <select
+                  className="m-0 cursor-pointer appearance-none border-none bg-transparent p-0 text-xs text-slate-500 outline-none"
+                  value={onlineStatus}
+                  onChange={(e) => setOnlineStatus(e.target.value)}
+                >
+                  {statusOptions.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="size-8">
-              <User className="size-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 rounded-full hover:bg-orange-50 dark:hover:bg-orange-900/20"
+            >
+              <User className="size-5 text-slate-600 dark:text-slate-300" />
             </Button>
-            <Button variant="ghost" size="icon" className="size-8">
-              <Settings className="size-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 rounded-full hover:bg-orange-50 dark:hover:bg-orange-900/20"
+            >
+              <Settings className="size-5 text-slate-600 dark:text-slate-300" />
             </Button>
           </div>
         </div>
@@ -221,15 +149,16 @@ export function LivestreamSidebar({ open, setOpen }: LivestreamSidebarProps) {
 
   return (
     <>
-      {/* Mobile sidebar */}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="flex w-72 flex-col p-0">
+        <SheetContent
+          side="left"
+          className="flex w-72 flex-col p-0 sm:max-w-72"
+        >
           {sidebarContent}
         </SheetContent>
       </Sheet>
 
-      {/* Desktop sidebar */}
-      <div className="hidden h-screen w-64 flex-col border-r bg-background md:flex">
+      <div className="fixed left-0 top-0 z-40 hidden h-screen w-72 flex-col border-r bg-background shadow-sm md:flex">
         {sidebarContent}
       </div>
     </>

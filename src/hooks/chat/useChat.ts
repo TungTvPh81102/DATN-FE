@@ -7,7 +7,6 @@ import {
   MessagePayload,
 } from '@/validations/chat'
 import { useToastMutation } from '@/hooks/use-toast-mutation'
-import QueryKey from '@/constants/query-key'
 
 export const useGetDirectChats = () => {
   return useQuery({
