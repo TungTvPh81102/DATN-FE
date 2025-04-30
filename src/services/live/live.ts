@@ -4,6 +4,7 @@ import {
   LiveSchedulePayload,
 } from '@/validations/live'
 import api from '@/configs/api'
+import { GetLiveSessionParams, GetLiveSessionResponse } from '@/types/Live'
 
 const prefix = 'instructor/livestreams'
 
@@ -15,8 +16,11 @@ export const liveSteamApi = {
     const res = await api.get(`${prefix}/get-stream-key`)
     return res.data
   },
-  getLiveSessionClient: async () => {
-    return await api.get(`livestreams`)
+  getLiveSessionClient: async (
+    params: GetLiveSessionParams
+  ): Promise<GetLiveSessionResponse> => {
+    const res = await api.get(`livestreams`, { params })
+    return res.data
   },
   getLiveSessions: async (params?: {
     fromDate?: string | undefined
@@ -26,8 +30,9 @@ export const liveSteamApi = {
       params,
     })
   },
-  getLiveSession: async (id: string) => {
-    return await api.get(`livestreams/${id}`)
+  getLiveSession: async (code: string) => {
+    const res = await api.get(`livestreams/${code}`)
+    return res.data
   },
   createLiveStream: (data: CreateLiveStreamPayload) =>
     api.post(`${prefix}`, data),

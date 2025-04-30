@@ -28,7 +28,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { Language, LANGUAGE_CONFIG } from '@/constants/language'
-import { ExecuteTestCaseResponse } from '@/types/execute'
+import { ExecuteTestCaseResponse } from '@/types/Execute'
 import { UpdateCodingLessonPayload } from '@/validations/course'
 
 import { ResultsViewer } from './results-viewer'

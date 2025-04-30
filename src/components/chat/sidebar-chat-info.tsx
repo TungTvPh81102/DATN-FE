@@ -8,11 +8,9 @@ import {
   Link as LinkIcon,
   MessageCircle,
   Shield,
-  Trash2,
   UserMinus,
   UserRoundPlus,
   Users,
-  X,
 } from 'lucide-react'
 import { IChannel, IMessage } from '@/types/Chat'
 

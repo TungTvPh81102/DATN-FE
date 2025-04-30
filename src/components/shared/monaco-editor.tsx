@@ -11,7 +11,7 @@ import { toast } from 'react-toastify'
 import { Button } from '../ui/button'
 import { LoadingButton } from '../ui/loading-button'
 import { TestCase } from '@/validations/execute'
-import { ExecuteTestCaseResponse } from '@/types/execute'
+import { ExecuteTestCaseResponse } from '@/types/Execute'
 
 const Editor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,

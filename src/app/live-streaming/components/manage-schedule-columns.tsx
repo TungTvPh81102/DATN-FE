@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { format } from 'date-fns'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
-import { LiveSession, LiveStatusMap } from '@/types/Live'
+import { LiveSession, LiveStatus, LiveStatusMap } from '@/types/Live'
 import { useRouter } from 'next/navigation'
 
 export function getColumns(
@@ -132,7 +132,11 @@ export function getColumns(
         <DataTableColumnHeader column={column} title="Trạng thái" />
       ),
       cell: ({ row }) => {
-        const liveStatus = LiveStatusMap[row.original.status]
+        const status = row.original.status as LiveStatus
+        const liveStatus = status
+          ? LiveStatusMap[status]
+          : LiveStatusMap[LiveStatus.UPCOMING]
+
         return (
           <Badge
             variant={liveStatus.badge}

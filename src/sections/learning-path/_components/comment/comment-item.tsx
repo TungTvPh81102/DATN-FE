@@ -113,7 +113,7 @@ export const CommentItem = ({
       setActiveReplyEditor(false)
       setReplyContent('')
     }
-  }, [isBlocked])
+  }, [activeReplyEditor, isBlocked])
 
   const handleReactionClick = (emoji: string, reactionType: string) => {
     setCommentReaction(emoji)
