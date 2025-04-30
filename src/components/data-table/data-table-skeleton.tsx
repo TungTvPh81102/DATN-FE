@@ -38,7 +38,7 @@ interface DataTableSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   filterableColumnCount?: number
 
   /**
-   * Flag to show the table view options.
+   * Flag to show the table views options.
    * @default undefined
    * @type boolean | undefined
    */

@@ -53,3 +53,10 @@ export interface UpdateLastTimePayload {
   lesson_id: number
   last_time_video: number
 }
+
+export interface LessonAccessResponse {
+  can_access: boolean
+  next_valid_lesson_id?: number
+  next_valid_lesson_title?: string
+  last_completed_lesson_index?: number
+}

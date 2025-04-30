@@ -49,6 +49,7 @@ export const ChatSidebar = ({
     useState(false)
   const [systemMessageReason, setSystemMessageReason] = useState('')
   const [selectedEmployee, setSelectedEmployee] = useState('')
+
   const getGroupChat = isInstructor ? useGetGroupChats : useGetGroupStudent
 
   const { data: groupChatData, isLoading: isLoadingGroupChat } = getGroupChat()
@@ -161,20 +162,22 @@ export const ChatSidebar = ({
                   )}
                 </div>
 
-                {!isLoadingGroupChat ? (
-                  groupChatData?.map((channel) => (
-                    <ChatItem
-                      key={channel.conversation_id}
-                      channel={channel}
-                      isSelected={
-                        channel.conversation_id === selectedChannel?.id
-                      }
-                      onClick={() => handleChannelSelect(channel)}
-                    />
-                  ))
-                ) : (
-                  <GroupChatSkeleton />
-                )}
+                <ScrollArea className="h-[300px]">
+                  {!isLoadingGroupChat ? (
+                    groupChatData?.map((channel) => (
+                      <ChatItem
+                        key={channel.conversation_id}
+                        channel={channel}
+                        isSelected={
+                          channel.conversation_id === selectedChannel?.id
+                        }
+                        onClick={() => handleChannelSelect(channel)}
+                      />
+                    ))
+                  ) : (
+                    <GroupChatSkeleton />
+                  )}
+                </ScrollArea>
               </div>
             </div>
           ) : (

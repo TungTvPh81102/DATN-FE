@@ -11,6 +11,20 @@ export const useGetLearners = () => {
 }
 
 export const useGetLearnerProcess = (
+  learner: string
+  // params?: {
+  //   start_date?: string
+  //   end_date?: string
+  // }
+) => {
+  return useQuery({
+    queryKey: [QueryKey.INSTRUCTOR_LEARNER, learner],
+    queryFn: () => instructorLearnerApi.getLearnerProcess(learner),
+    enabled: !!learner,
+  })
+}
+
+export const useGetWeeklyStudyTime = (
   learner: string,
   params?: {
     start_date?: string
@@ -18,8 +32,8 @@ export const useGetLearnerProcess = (
   }
 ) => {
   return useQuery({
-    queryKey: [QueryKey.INSTRUCTOR_LEARNER, learner, params],
-    queryFn: () => instructorLearnerApi.getLearnerProcess(learner, params),
+    queryKey: [QueryKey.INSTRUCTOR_LEARNER_WEEKLY_STUDY_TIME, learner, params],
+    queryFn: () => instructorLearnerApi.getWeeklyStudyTime(learner, params),
     enabled: !!learner,
   })
 }

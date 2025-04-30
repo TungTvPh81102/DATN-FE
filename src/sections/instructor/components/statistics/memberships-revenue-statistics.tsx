@@ -60,7 +60,7 @@ export const MembershipsRevenueStatistics = () => {
     () =>
       data && data.length > 0
         ? data.map((item) => ({
-            month: item.month,
+            month: item.membershipPlanName,
             purchase: item.membershipRevenue ?? 0,
           }))
         : [],

@@ -1,11 +1,12 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
 import QUERY_KEY from '@/constants/query-key'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 import { chatApi } from '@/services/chat/chat-api'
 import {
   AddMemberGroupChatPayload,
   CreateGroupChatPayload,
   MessagePayload,
 } from '@/validations/chat'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 export const useGetDirectChats = () => {
   return useQuery({
@@ -97,5 +98,12 @@ export const useKickMemberGroupChat = () => {
   return useMutation({
     mutationFn: (data: { conversation_id: number; member_id: number }) =>
       chatApi.kickMemberGroupChat(data),
+  })
+}
+
+export const useToggleBlockMemberInChat = () => {
+  return useToastMutation({
+    mutationFn: chatApi.toggleBlockMemberGroupChat,
+    queryKey: [QUERY_KEY.GROUP_CHAT],
   })
 }

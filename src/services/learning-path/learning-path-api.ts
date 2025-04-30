@@ -4,6 +4,7 @@ import {
   CompleteLessonPayload,
   GetLessonDetailResponse,
   GetLessonsResponse,
+  LessonAccessResponse,
   UpdateLastTimePayload,
 } from '@/types/LearningPath'
 import { CodeSubmissionPayLoad } from '@/validations/code-submission'
@@ -33,6 +34,19 @@ export const learningPathApi = {
     lessonId: number
   }): Promise<GetLessonDetailResponse> => {
     const response = await api.get(`${prefix}/${courseSlug}/lesson/${lessonId}`)
+    return response.data
+  },
+
+  getLessonAccess: async ({
+    courseSlug,
+    lessonId,
+  }: {
+    courseSlug: string
+    lessonId: number
+  }): Promise<LessonAccessResponse> => {
+    const response = await api.get(
+      `${prefix}/${courseSlug}/lessons/${lessonId}/validate-access`
+    )
     return response.data
   },
 

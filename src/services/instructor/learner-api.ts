@@ -8,13 +8,18 @@ export const instructorLearnerApi = {
     const res = await api.get(`${prefix}`)
     return res.data
   },
-  getLearnerProcess: async (
+
+  getLearnerProcess: async (learner: string) => {
+    return await api.get(`${prefix}/${learner}`)
+  },
+
+  getWeeklyStudyTime: async (
     learner: string,
     params?: {
       start_date?: string
       end_date?: string
     }
   ) => {
-    return await api.get(`${prefix}/${learner}`, { params })
+    return await api.get(`${prefix}/${learner}/weekly-study-time`, { params })
   },
 }

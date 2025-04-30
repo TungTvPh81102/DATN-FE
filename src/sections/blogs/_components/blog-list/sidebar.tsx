@@ -26,8 +26,6 @@ const BlogListSideBar = ({
   })
   const { data: CategoriesData } = useGetCategories()
   const { data: TagsData } = useGetTags()
-  console.log('CategoriesData', CategoriesData)
-  console.log('TagsData', TagsData)
 
   const toggleSection = (section: 'categories' | 'recentPosts' | 'tags') => {
     setOpenSections((prev) => ({

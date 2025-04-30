@@ -326,3 +326,25 @@ export const useMedia = (params: IMediaQueryParams = {}) => {
     queryFn: () => instructorLessonApi.searchMediaItem(params),
   })
 }
+
+export function useMoveLesson() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: instructorLessonApi.moveLesson,
+    onSuccess: async (res: any) => {
+      toast.success(res.message)
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [QueryKey.INSTRUCTOR_COURSE],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [QueryKey.VALIDATE_COURSE],
+        }),
+      ])
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+}

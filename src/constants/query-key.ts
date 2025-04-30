@@ -32,6 +32,7 @@ enum QueryKey {
   INSTRUCTOR_LIVE_SESSIONS = 'instructor-live-sessions',
   INSTRUCTOR_WALLET = 'instructor-wallet',
   INSTRUCTOR_LEARNER = 'instructor-learner',
+  INSTRUCTOR_LEARNER_WEEKLY_STUDY_TIME = 'instructor-learn-weekly-study-time',
   INSTRUCTOR_WITH_DRAW_REQUEST = 'instructor-with-draw-request',
   INSTRUCTOR_COUPON = 'instructor-coupon',
   INSTRUCTOR_MEMBERSHIP_PLANS = 'instructor-membership-plans',
@@ -59,6 +60,7 @@ enum QueryKey {
   BANKS = 'banks',
   COURSE_PROGRESS = 'course-progress',
   LESSON_COMMENT = 'lesson-comment',
+  LESSON_ACCESS_VALIDATION = 'lesson-access-validation',
   COMMENT_BLOCK_TIME = 'comment-block-time',
   BLOG_COMMENT = 'blog-comment',
   CERTIFICATE = 'certificate',
@@ -91,6 +93,8 @@ enum QueryKey {
   GET_UPLOAD_URL = 'get-upload-url',
   GET_VIDEO_INFO = 'get-video-info',
   GET_MEDIA_DATA = 'get-media-data',
+  STREAM_KEY = 'stream-key',
+  LIVE_SCHEDULE = 'live-schedule',
 }
 
 export default QueryKey

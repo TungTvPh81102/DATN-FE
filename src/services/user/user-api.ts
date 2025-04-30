@@ -30,4 +30,7 @@ export const userApi = {
   getRecentCourse: async () => {
     return await api.get(`/users/recentCourse`)
   },
+  checkPassword: async (password: string) => {
+    return await api.post(`/check-password`, { password })
+  },
 }
