@@ -17,7 +17,7 @@ export interface DraftLesson {
   title: string
   updated_at: Date
   type: LessonType
-  sample_code?: string
+  student_code?: string
   hints?: string[]
   instruct?: null
   language?: string

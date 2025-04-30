@@ -168,7 +168,6 @@ export const instructorLessonApi = {
     return api.put(`${prefix}/${lessonSlug}/${codingId}/coding-exercise`, {
       ...payload,
       hints: payload.hints?.map((item) => item?.hint),
-      test_case: !payload.ignore_test_case ? payload.test_case : null,
     })
   },
   updateQuizContent: ({

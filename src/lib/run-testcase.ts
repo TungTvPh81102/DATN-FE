@@ -8,9 +8,11 @@ export type TestResult = {
   testPath: string[]
 }
 
+let prevResult: TestResult[] = []
+
 export const runTestCase = async (userCode: string, testCode: string) => {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const executeAll = new Function(
       'describe',
@@ -22,7 +24,11 @@ export const runTestCase = async (userCode: string, testCode: string) => {
     executeAll(describe, it, expect, test)
 
     const result = (await run()) as TestResult[]
-    return result
+
+    const newResult = result.slice(prevResult.length)
+    prevResult = result
+
+    return newResult
   } catch (error) {
     console.error('Error executing the code:', error)
   }

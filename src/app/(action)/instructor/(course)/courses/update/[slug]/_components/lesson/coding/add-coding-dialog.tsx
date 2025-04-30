@@ -135,7 +135,7 @@ const AddCodingDialog = ({ chapterId, open, onOpenChange }: Props) => {
                             {value.displayName}
                             {!value.isSupported && (
                               <Badge variant="info" className="ml-2">
-                                Sắp có
+                                Đang phát triển
                               </Badge>
                             )}
                           </SelectItem>

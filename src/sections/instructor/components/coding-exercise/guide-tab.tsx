@@ -45,15 +45,15 @@ const GuideTab = () => {
   })
 
   const language = useWatch({ name: 'language' })
+  const student_code = useWatch({ name: 'student_code' })
 
-  const { fileName, version, sampleStudentCode } =
-    LANGUAGE_CONFIG[language as Language]
+  const { fileName, version } = LANGUAGE_CONFIG[language as Language]
 
   const files = {
     [fileName]: {
       name: fileName,
       language,
-      value: sampleStudentCode,
+      value: student_code,
       version,
     },
   }
@@ -216,7 +216,7 @@ const GuideTab = () => {
       <ResizablePanel minSize={30}>
         <FormField
           control={control}
-          name="sample_code"
+          name="student_code"
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           render={({ field: { ref, ...field } }) => (
             <FormItem className="flex h-full flex-col space-y-0 text-white">

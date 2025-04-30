@@ -214,45 +214,15 @@ export const updateCodingLessonSchema = z
         message: 'Số lượng gợi ý tối đa là 10',
       })
       .optional(),
-    sample_code: z.string().optional(),
-    // result_code: z
-    //   .string({
-    //     required_error: 'Vui lòng chạy mã',
-    //     invalid_type_error: 'Vui lòng chạy mã',
-    //   })
-    //   .trim(),
-    // solution_code: z
-    //   .string({
-    //     required_error: 'Vui lòng nhập giải pháp',
-    //     invalid_type_error: 'Vui lòng nhập giải pháp',
-    //   })
-    //   .trim(),
-    test_case: z
-      .array(
-        z.object({
-          input: z.string().trim(),
-          output: z.string().trim(),
-        })
-      )
-      .nullish(),
-    ignore_test_case: z.boolean(),
+    code: z.string().optional(),
+    student_code: z.string().optional(),
+    test_case: z.string().trim(),
 
     // Check test case
     checkTestCase: z.boolean().optional(),
   })
   .superRefine((data, ctx) => {
-    if (!data.ignore_test_case) {
-      if (!data.test_case || data.test_case.length < 2) {
-        ctx.addIssue({
-          path: ['test_case'],
-          code: z.ZodIssueCode.custom,
-          message: 'Phải có ít nhất 2 test case',
-          fatal: true,
-        })
-
-        return z.NEVER
-      }
-
+    if (data.test_case) {
       if (data.checkTestCase === undefined) {
         ctx.addIssue({
           path: ['test_case'],

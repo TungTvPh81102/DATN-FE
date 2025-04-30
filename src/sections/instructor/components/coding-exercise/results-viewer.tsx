@@ -9,15 +9,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { TestResult } from '@/lib/run-testcase'
 import { cn } from '@/lib/utils'
-import { ExecuteTestCaseResponse } from '@/types/execute'
 import { CheckCircle, FileText, SquareTerminal, XCircle } from 'lucide-react'
 
 interface Props {
   activeTab: 'code-execution' | 'test-results'
   setActiveTab: (tab: 'code-execution' | 'test-results') => void
   executeResult: string
-  testResults: ExecuteTestCaseResponse['data']['testCase']
+  testResults: TestResult[]
 }
 
 export const ResultsViewer = ({
@@ -40,7 +40,7 @@ export const ResultsViewer = ({
             )}
           >
             <SquareTerminal />
-            Console
+            Thực thi mã
           </Button>
 
           <Button
@@ -65,9 +65,7 @@ export const ResultsViewer = ({
               <TableHeader>
                 <TableRow className="border-gray-500 hover:bg-gray-500/30">
                   <TableHead className="w-[100px]">Trạng thái</TableHead>
-                  <TableHead>Đầu vào</TableHead>
-                  <TableHead>Kỳ vọng</TableHead>
-                  <TableHead>Kết quả</TableHead>
+                  <TableHead>Mô tả</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -77,7 +75,7 @@ export const ResultsViewer = ({
                     className="border-gray-500 hover:bg-gray-500/30"
                   >
                     <TableCell>
-                      {test.passed === true ? (
+                      {test.status === 'pass' ? (
                         <Badge
                           variant="outline"
                           className="border-green-800 bg-green-950 text-green-400"
@@ -85,7 +83,7 @@ export const ResultsViewer = ({
                           <CheckCircle className="mr-1 size-3" /> Pass
                         </Badge>
                       ) : (
-                        test.passed === false && (
+                        test.status === 'fail' && (
                           <Badge
                             variant="outline"
                             className="border-red-800 bg-red-950 text-red-400"
@@ -95,9 +93,14 @@ export const ResultsViewer = ({
                         )
                       )}
                     </TableCell>
-                    <TableCell>{test.input.join(', ')}</TableCell>
-                    <TableCell>{test.expected}</TableCell>
-                    <TableCell>{test.actual}</TableCell>
+                    <TableCell>
+                      <div className="font-medium">{test.testPath[1]}</div>
+                      {test.testPath[2] && (
+                        <div className="text-sm text-gray-400">
+                          {test.testPath[2]}
+                        </div>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

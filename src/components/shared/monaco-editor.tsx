@@ -4,14 +4,13 @@ import { CirclePlay, RotateCcw } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
 
-import { useExecuteCode, useExecuteTestCase } from '@/hooks/use-execute'
+import { useExecuteCode } from '@/hooks/use-execute'
 import { cn } from '@/lib/utils'
 
+import { runTestCase, TestResult } from '@/lib/run-testcase'
 import { toast } from 'react-toastify'
 import { Button } from '../ui/button'
 import { LoadingButton } from '../ui/loading-button'
-import { TestCase } from '@/validations/execute'
-import { ExecuteTestCaseResponse } from '@/types/execute'
 
 const Editor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
@@ -30,8 +29,8 @@ type Props = {
   onChange?: (value?: string, fileName?: string) => void
   execute?: boolean
   onExecute?: (result: string) => void
-  testCase?: TestCase
-  onRunTest?: (result: ExecuteTestCaseResponse['data']) => void
+  testCase?: string
+  onRunTest?: (result: TestResult[]) => void
   theme?: 'light' | 'vs-dark'
   disabled?: boolean
   readOnly?: boolean
@@ -53,8 +52,8 @@ const MonacoEditor = ({
 }: Props) => {
   const firstFileName = Object.keys(files)[0]
   const { mutate: executeCode, isPending: isCodePending } = useExecuteCode()
-  const { mutate: executeTestCase, isPending: isTestCasePending } =
-    useExecuteTestCase()
+
+  const [isTestCasePending, setIsTestCasePending] = useState(false)
 
   const isPending = isCodePending || isTestCasePending
 
@@ -92,29 +91,23 @@ const MonacoEditor = ({
   const handleRunTest = async () => {
     if (markers?.length > 0) return
 
-    if (!value || !testCase || testCase.some((tc) => !tc.input || !tc.output)) {
+    if (!value || !testCase) {
       toast.error('Vui lòng nhập mã và bài kiểm tra')
       return
     }
 
-    executeTestCase(
-      {
-        language: file.language,
-        version: file.version,
-        files: [{ content: value! }],
-        testCase: [
-          ...testCase.map((tc) => ({
-            input: `[${tc.input}]`,
-            output: tc.output,
-          })),
-        ],
-      },
-      {
-        onSuccess: (res) => {
-          onRunTest?.(res)
-        },
-      }
-    )
+    try {
+      setIsTestCasePending(true)
+      const result = await runTestCase(value, testCase)
+
+      if (result) onRunTest?.(result)
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast.error('Lỗi khi chạy bài kiểm tra')
+    } finally {
+      setIsTestCasePending(false)
+    }
   }
 
   useEffect(() => {

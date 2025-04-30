@@ -151,11 +151,11 @@ export interface Lessonable {
   language?: string
   hints?: string[]
   instruct?: string
-  sample_code?: string
+  student_code?: string
   // result_code?: string
   // solution_code?: string
   test_case?: string
-  ignore_test_case?: 1 | 0
+  // ignore_test_case?: 1 | 0
 
   user_submitted_answers?: UserQuizSubmissionAnswer[]
 }

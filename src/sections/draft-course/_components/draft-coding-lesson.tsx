@@ -25,7 +25,7 @@ const DraftCodingLesson = ({ lesson }: Props) => {
     [fileName]: {
       name: fileName,
       language,
-      value: lesson?.sample_code || '',
+      value: lesson?.student_code || '',
       version,
     },
   }
