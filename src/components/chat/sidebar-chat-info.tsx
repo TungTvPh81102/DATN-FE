@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { IChannel, IMessage } from '@/types/Chat'
 import {
   Ban,
   Bell,
@@ -12,31 +13,8 @@ import {
   UserRoundPlus,
   Users,
 } from 'lucide-react'
-import { IChannel, IMessage } from '@/types/Chat'
 
-import Image from 'next/image'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useState } from 'react'
 import { ImagePreview } from '@/components/shared/image-preview'
-import {
-  useKickMemberGroupChat,
-  useStartDirectChat,
-  useToggleBlockMemberInChat,
-} from '@/hooks/chat/useChat'
-import { useQueryClient } from '@tanstack/react-query'
-import QUERY_KEY from '@/constants/query-key'
-import InviteMember from '@/sections/chats/_components/invite-member'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { toast } from 'react-toastify'
-import { PLACEHOLDER_AVATAR } from '@/constants/common'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,13 +26,35 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Separator } from '@/components/ui/separator'
+import { PLACEHOLDER_AVATAR } from '@/constants/common'
+import QUERY_KEY from '@/constants/query-key'
+import {
+  useKickMemberGroupChat,
+  useStartDirectChat,
+  useToggleBlockMemberInChat,
+} from '@/hooks/chat/useChat'
+import InviteMember from '@/sections/chats/_components/invite-member'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { useQueryClient } from '@tanstack/react-query'
+import Image from 'next/image'
+import { useState } from 'react'
+import { toast } from 'react-toastify'
 
 interface ChannelInfoPanelProps {
   selectedChannel: IChannel

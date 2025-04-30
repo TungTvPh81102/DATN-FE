@@ -17,12 +17,12 @@ export const MembershipTab = ({ data }: Props) => {
           <h3 className="mb-2 text-lg font-bold text-gray-800">
             Danh sách Membership trống!
           </h3>
-          <p className="mb-4 text-gray-500">
+          {/* <p className="mb-4 text-gray-500">
             Hiện tại chưa có gói Membership nào được tạo.
           </p>
           <button className="rounded-lg bg-[#E27447] px-5 py-2 font-medium text-white transition">
             Tạo gói membership mới
-          </button>
+          </button> */}
         </div>
       </div>
     )

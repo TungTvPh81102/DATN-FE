@@ -46,8 +46,8 @@ enum Tab {
 
 const tabFields: Record<Tab, (keyof UpdateCodingLessonPayload)[]> = {
   [Tab.PLAN]: ['title', 'language'],
-  [Tab.SOLUTION]: ['test_case', 'ignore_test_case'],
-  [Tab.GUIDE]: ['content', 'hints', 'instruct', 'sample_code'],
+  [Tab.SOLUTION]: ['test_case'],
+  [Tab.GUIDE]: ['content', 'hints', 'instruct', 'student_code'],
 }
 
 const getTabName = (tab: Tab) => {
@@ -64,6 +64,7 @@ const getTabName = (tab: Tab) => {
 }
 
 const getTabsWithErrors = (errors: FieldErrors): Tab[] => {
+  console.log(errors)
   return Object.values(Tab).filter((tab) => {
     const fields = tabFields[tab]
     return fields.some((field) => !!errors[field])
@@ -82,6 +83,12 @@ const CourseCodingView = ({
 
   const router = useRouter()
   const { data: lessonCoding, isLoading } = useGetLessonCoding(slug, codingId)
+
+  const isUpdated =
+    lessonCoding?.data.updated_at !== lessonCoding?.data.created_at
+
+  console.log('isUpdated', isUpdated)
+
   const updateCodingLesson = useUpdateCodingLesson()
 
   const disabled = updateCodingLesson.isPending
@@ -91,12 +98,12 @@ const CourseCodingView = ({
     defaultValues: {
       title: '',
       language: '',
-      sample_code: '',
-      test_case: Array.from({ length: 2 }, () => ({ input: '', output: '' })),
+      student_code: '',
+      test_case: '',
       hints: [],
       instruct: '',
       content: '',
-      ignore_test_case: false,
+      checkTestCase: true,
     },
     disabled,
   })
@@ -119,14 +126,13 @@ const CourseCodingView = ({
     form.reset({
       title: lessonCoding?.data.title || '',
       language: lessonCoding?.data.language || '',
-      sample_code: lessonCoding?.data.sample_code || '',
+      code: lessonCoding?.data.code || '',
+      student_code: lessonCoding?.data.student_code || '',
       content: lessonCoding?.data.content || '',
       hints: lessonCoding?.data.hints?.map((hint: string) => ({ hint })) || [],
       instruct: lessonCoding?.data.instruct || '',
-      test_case:
-        lessonCoding?.data.test_case ||
-        Array.from({ length: 2 }, () => ({ input: '', output: '' })),
-      ignore_test_case: !!lessonCoding?.data.ignore_test_case || false,
+      test_case: lessonCoding?.data.test_case || '',
+      checkTestCase: true,
     })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,14 +141,23 @@ const CourseCodingView = ({
   useEffect(() => {
     if (!language || !lessonCoding?.data) return
 
-    const { sampleStudentCode } = LANGUAGE_CONFIG[language as Language]
+    const { sampleCode, sampleStudentCode, testCase } =
+      LANGUAGE_CONFIG[language as Language]
 
-    if (
-      !lessonCoding?.data.sample_code ||
-      language !== lessonCoding?.data.language
-    ) {
-      form.setValue('sample_code', sampleStudentCode)
-    }
+    const fieldsToSet = [
+      { key: 'code', value: sampleCode },
+      { key: 'student_code', value: sampleStudentCode },
+      { key: 'test_case', value: testCase },
+    ]
+
+    fieldsToSet.forEach(({ key, value }) => {
+      if (
+        (!isUpdated && !lessonCoding?.data?.[key]) ||
+        language !== lessonCoding?.data?.language
+      ) {
+        form.setValue(key as any, value)
+      }
+    })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, lessonCoding?.data])

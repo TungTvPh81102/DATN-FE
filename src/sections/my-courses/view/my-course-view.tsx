@@ -64,7 +64,8 @@ const MyCourseView = () => {
 
   const totalPages = Math.ceil((course?.length || 0) / itemsPerPage)
 
-  const handleNavigate = (code: string) => {
+  const handleNavigate = (code?: string) => {
+    if (!code) return
     const targetPath = user?.code === code ? '/me' : `/profile/${code}`
     router.push(targetPath)
   }

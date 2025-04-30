@@ -20,7 +20,7 @@ import { dateRangeFilterFn } from '@/lib/data-table'
 import { IPost, PostStatusMap } from '@/types'
 
 interface GetColumnsProps {
-  sendRequest: (slug: string | undefined) => void
+  sendRequest: (slug: string) => void
 }
 
 export function getColumns({
@@ -190,7 +190,9 @@ export function getColumns({
                       </Link>
                     </DropdownMenuItem>
                     {post.status === 'draft' && (
-                      <DropdownMenuItem onClick={() => sendRequest(post?.slug)}>
+                      <DropdownMenuItem
+                        onClick={() => post?.slug && sendRequest(post.slug)}
+                      >
                         <Check /> Gửi yêu cầu
                       </DropdownMenuItem>
                     )}

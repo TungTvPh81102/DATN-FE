@@ -83,8 +83,8 @@ export function getColumns(
         )
       },
       sortingFn: (rowA, rowB) => {
-        const dateA = rowA.original.starts_at ?? new Date(0)
-        const dateB = rowB.original.starts_at ?? new Date(0)
+        const dateA = new Date(rowA.original.starts_at ?? 0)
+        const dateB = new Date(rowB.original.starts_at ?? 0)
         return dateA.getTime() - dateB.getTime()
       },
       meta: {

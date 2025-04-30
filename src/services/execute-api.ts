@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { ExecuteCodeResponse, ExecuteTestCaseResponse } from '@/types/Execute'
+import { ExecuteCodeResponse, ExecuteTestCaseResponse } from '@/types/execute'
 import {
   ExecuteCodeRequest,
   ExecuteTestCaseRequest,

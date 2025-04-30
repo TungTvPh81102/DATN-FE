@@ -2,8 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowUpDown } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import ReactDOMServer from 'react-dom/server'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 
@@ -29,43 +28,8 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TestResult } from '@/lib/run-testcase'
 import { ResultsViewer } from '@/sections/instructor/components/coding-exercise/results-viewer'
-import { ExecuteTestCaseResponse } from '@/types/Execute'
-import { TestCase } from '@/validations/execute'
-
-const renderTestCase = (testCase: TestCase) => {
-  return ReactDOMServer.renderToString(
-    <ul>
-      {testCase.map((test, index) => (
-        <li key={index}>
-          <strong>Thử nghiệm {index + 1}:</strong>
-          <p>
-            Input
-            <pre
-              style={{
-                marginTop: '0.25rem',
-                marginBottom: '1rem',
-              }}
-            >
-              <code>{test.input}</code>
-            </pre>
-          </p>
-          <p>
-            Output
-            <pre
-              style={{
-                marginTop: '0.25rem',
-                marginBottom: '1rem',
-              }}
-            >
-              <code>{test.output}</code>
-            </pre>
-          </p>
-        </li>
-      ))}
-    </ul>
-  )
-}
 
 type Props = {
   lesson: ILesson
@@ -74,19 +38,22 @@ type Props = {
 
 const CodingLesson = ({ lesson, isCompleted }: Props) => {
   const { lessonable: codeData } = lesson
-  const ignoreTestCase = !!codeData?.ignore_test_case || false
 
   const resultPanelRef = useRef<ImperativePanelHandle>(null)
   const [executeResult, setExecuteResult] = useState('')
-  const [testResults, setTestResults] = useState<
-    ExecuteTestCaseResponse['data']
-  >({
-    passed: false,
-    testCase: [],
-  })
+  const [testResults, setTestResults] = useState<TestResult[]>([])
   const [activeTab, setActiveTab] = useState<'test-results' | 'code-execution'>(
     'code-execution'
   )
+
+  const isPass = useMemo(() => {
+    if (!codeData?.test_case) return true
+
+    if (testResults.length === 0) return false
+
+    return testResults.every((result) => result.status === 'pass')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [testResults])
 
   const { data: codeSubmission } = useGetCodeSubmission(
     isCompleted,
@@ -97,7 +64,7 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
   const form = useForm<CodeSubmissionPayLoad>({
     resolver: zodResolver(codeSubmissionSchema),
     defaultValues: {
-      code: codeData?.sample_code,
+      code: codeData?.student_code,
     },
   })
 
@@ -111,7 +78,7 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
     [fileName]: {
       name: fileName,
       language,
-      value: codeData?.sample_code || '',
+      value: codeData?.student_code || '',
       version,
     },
   }
@@ -142,26 +109,17 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
                 <TabsTrigger
                   value="instruct"
                   variant="outline"
-                  className="h-12 min-w-32 border-b-2 text-base duration-500 data-[state=active]:text-primary data-[state=active]:focus:bg-primary/5"
+                  className="h-12 basis-1/2 border-b-2 text-base duration-500 data-[state=active]:text-primary data-[state=active]:focus:bg-primary/5"
                 >
                   NỘI DUNG
                 </TabsTrigger>
                 <TabsTrigger
                   value="hints"
                   variant="outline"
-                  className="h-12 min-w-32 border-b-2 text-base duration-500 data-[state=active]:text-primary data-[state=active]:focus:bg-primary/5"
+                  className="h-12 basis-1/2 border-b-2 text-base duration-500 data-[state=active]:text-primary data-[state=active]:focus:bg-primary/5"
                 >
                   GỢI Ý
                 </TabsTrigger>
-                {!ignoreTestCase && (
-                  <TabsTrigger
-                    value="test-case"
-                    variant="outline"
-                    className="h-12 min-w-32 border-b-2 text-base duration-500 data-[state=active]:text-primary data-[state=active]:focus:bg-primary/5"
-                  >
-                    THỬ NGHIỆM
-                  </TabsTrigger>
-                )}
               </TabsList>
               <div className="h-full overflow-y-auto p-8 pb-20 scrollbar-thin lg:px-16">
                 <TabsContent value="instruct">
@@ -185,17 +143,6 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
                     ))}
                   </ol>
                 </TabsContent>
-                {!ignoreTestCase && (
-                  <TabsContent value="test-case" className="prose">
-                    <HtmlRenderer
-                      html={renderTestCase(
-                        JSON.parse(
-                          codeData?.test_case ? codeData.test_case : '[]'
-                        )
-                      )}
-                    />
-                  </TabsContent>
-                )}
               </div>
             </Tabs>
           </ResizablePanel>
@@ -222,19 +169,11 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
                             resultPanelRef.current?.resize(70)
                           }}
                           execute
-                          testCase={
-                            !ignoreTestCase && codeData?.test_case && !isPending
-                              ? JSON.parse(codeData.test_case)
-                              : undefined
-                          }
+                          testCase={codeData?.test_case}
                           onRunTest={(value) => {
                             setTestResults(value)
                             setActiveTab('test-results')
                             resultPanelRef.current?.resize(70)
-
-                            if (!isCompleted && value.passed) {
-                              form.handleSubmit(onSubmit)()
-                            }
                           }}
                         />
                       </FormControl>
@@ -275,7 +214,7 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
                       activeTab={activeTab}
                       setActiveTab={setActiveTab}
                       executeResult={executeResult}
-                      testResults={testResults.testCase}
+                      testResults={testResults}
                     />
                   </div>
                 </div>
@@ -284,7 +223,7 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
           </ResizablePanel>
         </ResizablePanelGroup>
 
-        {!isCompleted && ignoreTestCase && (
+        {!isCompleted && isPass && (
           <LoadingButton
             type="submit"
             className="absolute bottom-5 right-5"

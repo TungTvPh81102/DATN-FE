@@ -18,7 +18,13 @@ export const instructorProfileApi = {
   checkFollow: async (code: string): Promise<IInstructorFollow> => {
     return await api.get(`instructors/${code}/follow-status`)
   },
-  followInstructor: async (code: string) => {
+  followInstructor: async ({
+    code,
+  }: {
+    code: string
+  }): Promise<{
+    message: string
+  }> => {
     return await api.put(`users/follow/${code}`)
   },
 }

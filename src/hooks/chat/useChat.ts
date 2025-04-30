@@ -1,12 +1,12 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
 import QUERY_KEY from '@/constants/query-key'
+import { useToastMutation } from '@/hooks/use-toast-mutation'
 import { chatApi } from '@/services/chat/chat-api'
 import {
   AddMemberGroupChatPayload,
   CreateGroupChatPayload,
   MessagePayload,
 } from '@/validations/chat'
-import { useToastMutation } from '@/hooks/use-toast-mutation'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 export const useGetDirectChats = () => {
   return useQuery({
