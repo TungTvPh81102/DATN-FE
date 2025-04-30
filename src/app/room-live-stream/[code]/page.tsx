@@ -4,13 +4,13 @@ import { LivestreamDetails } from '@/sections/livestream/views/livestream-detail
 
 interface Props {
   params: {
-    stream_key: string
+    code: string
   }
 }
 
 const Page = ({ params }: Props) => {
-  const { stream_key } = params
-  return <LivestreamDetails stream_key={stream_key} />
+  const { code } = params
+  return <LivestreamDetails code={code} />
 }
 
 export default Page

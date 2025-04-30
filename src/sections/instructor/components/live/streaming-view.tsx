@@ -15,13 +15,14 @@ import {
   Send,
   Edit,
   Loader2,
-  Clock,
   CircleHelp,
   AlertCircle,
+  SmilePlus,
+  Clock,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { useGetLiveSchedule } from '@/hooks/live/useLive'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useGetLiveSchedule, useSendMessageLive } from '@/hooks/live/useLive'
 import { formatDate } from '@/lib/common'
 import { useAuthStore } from '@/stores/useAuthStore'
 import echo from '@/lib/echo'
@@ -38,86 +39,43 @@ import {
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import StreamContent from '@/app/live-streaming/components/stream-content'
+import { toast } from 'react-toastify'
+import { toast as toastHot } from 'react-hot-toast'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { LiveChat } from '@/types/Live'
 
 const StreamingView = ({ code }: { code: string }) => {
   const { user } = useAuthStore()
   const router = useRouter()
 
-  const [message, setMessage] = useState('')
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [streamTitle, setStreamTitle] = useState('')
   const [streamDescription, setStreamDescription] = useState('')
   const [privacy, setPrivacy] = useState('public')
   const [thumbnailUrl, setThumbnailUrl] = useState('/api/placeholder/640/360')
   const [startTime, setStartTime] = useState('')
-
   const [streamStatus, setStreamStatus] = useState('upcoming')
   const [streamUrl, setStreamUrl] = useState('')
   const [playbackId, setPlaybackId] = useState('')
   const [viewerCount, setViewerCount] = useState(0)
   const [duration, setDuration] = useState(0)
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isOBSDialogOpen, setIsOBSDialogOpen] = useState(false)
 
+  const [message, setMessage] = useState('')
+  const [chatMessages, setChatMessages] = useState<LiveChat[]>([])
+
   const { data, isLoading } = useGetLiveSchedule(code)
-
-  const chatMessages = [
-    {
-      id: 1,
-      name: 'Nguyễn Văn A',
-      message: 'Xin chào thầy/cô!',
-      time: '10:02',
-      avatar: 'A',
-    },
-    {
-      id: 2,
-      name: 'Trần Thị B',
-      message: 'Buổi học hôm nay có gì thú vị vậy ạ?',
-      time: '10:03',
-      avatar: 'B',
-    },
-    {
-      id: 3,
-      name: 'Lê Văn C',
-      message: 'Thầy/cô có thể giải thích lại phần đầu được không ạ?',
-      time: '10:05',
-      avatar: 'C',
-    },
-    {
-      id: 4,
-      name: 'Phạm Thị D',
-      message: 'Xin cảm ơn thầy/cô vì bài giảng rất hay!',
-      time: '10:08',
-      avatar: 'D',
-    },
-    {
-      id: 5,
-      name: 'Hồ Văn E',
-      message: 'Tôi có một câu hỏi về phần React Hooks...',
-      time: '10:10',
-      avatar: 'E',
-    },
-    {
-      id: 6,
-      name: 'Vũ Thị F',
-      message: 'Có thể chia sẻ thêm các ví dụ không ạ?',
-      time: '10:12',
-      avatar: 'F',
-    },
-    {
-      id: 7,
-      name: 'Đinh Văn G',
-      message: 'Phần cuối mình không nghe rõ, có thể nhắc lại không ạ?',
-      time: '10:15',
-      avatar: 'G',
-    },
-  ]
-
-  console.log(data)
+  const { mutate: sendMessageLive, isPending } = useSendMessageLive()
 
   useEffect(() => {
     if (!user?.id) return
 
-    const channel = echo.channel(`live-sessions.${data?.id}`)
+    const channel = echo.channel(`live-session.${data?.id}`)
 
     channel.listen('.status-changed', (event: any) => {
       if (event.data.session.status === 'live') {
@@ -139,10 +97,32 @@ const StreamingView = ({ code }: { code: string }) => {
       }
     })
 
+    channel.listen('LiveChatMessageSent', (event: any) => {
+      const newMessage: LiveChat = {
+        id: event.id || Date.now(),
+        userId: event.user_id,
+        userName: event.user_name,
+        message: event.message,
+        timestamp: formatDate(event.timestamp, {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        userAvatar: event.user_avater || '',
+      }
+
+      setChatMessages((prev) => [...prev, newMessage])
+    })
+
+    channel.listen('UserJoinedLiveSession', (event: any) => {
+      toastHot.success(event.message)
+    })
+
     return () => {
       channel.stopListening('.status-changed')
+      channel.stopListening('LiveChatMessageSent')
+      channel.stopListening('UserJoinedLiveSession')
     }
-  }, [user?.id, data?.id])
+  }, [data?.id, data?.instructor_id, user?.id])
 
   useEffect(() => {
     if (streamStatus === 'live') {
@@ -189,13 +169,42 @@ const StreamingView = ({ code }: { code: string }) => {
       } else {
         setStreamStatus('upcoming')
       }
+
+      if (data.conversation?.messages) {
+        const oldMessages = data.conversation.messages.map((msg: any) => ({
+          id: msg.id,
+          userId: msg.sender_id,
+          userName: msg.sender.name,
+          message: msg.content,
+          userAvatar: msg.sender.avatar,
+          timestamp: formatDate(msg.created_at),
+        }))
+
+        setChatMessages(oldMessages)
+      }
     }
   }, [data])
 
-  const sendMessage = () => {
-    if (message.trim()) {
-      setMessage('')
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && message.trim()) {
+      handleSendMessage()
     }
+  }
+
+  const handleSendMessage = () => {
+    if (!message.trim() || !data?.id) return
+
+    sendMessageLive(
+      { liveSessionId: data.id, data: { message: message.trim() } },
+      {
+        onSuccess: () => {
+          setMessage('')
+        },
+        onError: (error: any) => {
+          toast.error(error?.message || 'Không thể gửi tin nhắn')
+        },
+      }
+    )
   }
 
   if (isLoading) {
@@ -374,19 +383,20 @@ const StreamingView = ({ code }: { code: string }) => {
               </div>
             ) : (
               <div className="space-y-4">
-                {chatMessages.map((msg) => (
+                {chatMessages?.map((msg) => (
                   <div key={msg.id} className="flex space-x-2">
                     <Avatar className="size-8 shrink-0">
+                      <AvatarImage
+                        src={msg?.userAvatar || '/default-avatar.png'}
+                        alt={msg?.userName || ''}
+                      />
                       <AvatarFallback className="bg-slate-200 text-slate-700">
-                        {msg.avatar}
+                        {msg?.userName?.charAt(0) || ''}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium">{msg.name}</p>
-                        <span className="text-xs text-slate-500">
-                          {msg.time}
-                        </span>
+                        <span className={`font-medium`}>{msg?.userName}</span>
                       </div>
                       <p className="text-sm text-slate-700">{msg.message}</p>
                     </div>
@@ -398,21 +408,67 @@ const StreamingView = ({ code }: { code: string }) => {
 
           <div className="border-t border-slate-200 p-4">
             <div className="flex items-center space-x-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0"
+                    disabled={streamStatus !== 'live'}
+                  >
+                    <SmilePlus className="size-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start" side="top">
+                  <div className="emoji-picker-container">
+                    <div className="grid grid-cols-5 gap-2">
+                      {[
+                        '😀',
+                        '😍',
+                        '😂',
+                        '😢',
+                        '👍',
+                        '👎',
+                        '👏',
+                        '🔥',
+                        '🎉',
+                        '💯',
+                      ].map((emoji, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setMessage((prev) => prev + emoji)}
+                          className="p-2 text-lg"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
               <Input
                 placeholder="Nhập tin nhắn..."
                 value={message}
+                onKeyDown={handleKeyDown}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                 className="flex-1"
                 disabled={streamStatus !== 'live'}
               />
               <Button
                 size="icon"
-                onClick={sendMessage}
-                disabled={!message.trim() || streamStatus !== 'live'}
-                className="bg-blue-500 hover:bg-blue-600"
+                onClick={handleSendMessage}
+                disabled={
+                  !user?.id ||
+                  !message.trim() ||
+                  streamStatus !== 'live' ||
+                  isPending
+                }
               >
-                <Send className="size-4" />
+                {isPending ? (
+                  <Loader2 className="size-4 animate-spin text-primary-foreground" />
+                ) : (
+                  <Send className="size-4" />
+                )}
               </Button>
             </div>
             {streamStatus === 'ended' && (

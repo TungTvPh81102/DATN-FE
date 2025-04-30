@@ -7,6 +7,7 @@ import {
 import QueryKey from '@/constants/query-key'
 import { liveSteamApi } from '@/services/live/live'
 import { useToastMutation } from '@/hooks/use-toast-mutation'
+import { GetLiveSessionParams } from '@/types/Live'
 
 export const useGetLiveSessions = (filters?: {
   fromDate?: string | undefined
@@ -19,10 +20,10 @@ export const useGetLiveSessions = (filters?: {
   })
 }
 
-export const useGetLiveSessionClient = () => {
+export const useGetLiveSessionClient = (params: GetLiveSessionParams) => {
   return useQuery({
-    queryKey: [QueryKey.LIVE_SESSION_CLIENT],
-    queryFn: () => liveSteamApi.getLiveSessionClient(),
+    queryKey: [QueryKey.LIVE_SESSION_CLIENT, params],
+    queryFn: () => liveSteamApi.getLiveSessionClient(params),
   })
 }
 
@@ -46,11 +47,11 @@ export const useCreateLiveSteam = () => {
   })
 }
 
-export const useLiveSessionInfo = (id: string) => {
+export const useLiveSessionInfo = (code: string) => {
   return useQuery({
-    queryKey: [QueryKey.LIVE_SESSION_CLIENT, id],
-    queryFn: () => liveSteamApi.getLiveSession(id!),
-    enabled: !!id,
+    queryKey: [QueryKey.LIVE_SESSION_CLIENT, code],
+    queryFn: () => liveSteamApi.getLiveSession(code!),
+    enabled: !!code,
   })
 }
 
