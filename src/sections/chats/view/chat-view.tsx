@@ -247,8 +247,6 @@ const ChatView = () => {
       const channel = echo.join(`conversation.${conversationId}`)
 
       const handleNewMessage = (event: any) => {
-        console.log(event)
-
         setChats((prevChats) => ({
           ...prevChats,
           [conversationId]: [

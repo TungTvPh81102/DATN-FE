@@ -1,10 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Loader2,
   RefreshCw,
   Trophy,
+  XCircle,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -31,7 +33,6 @@ import {
 } from '@/components/ui/form'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import Image from 'next/image'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import confetti from 'canvas-confetti'
 
 type Props = {
@@ -193,8 +194,48 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
 
   if (!quizData || !questions.length) return <p>Không có câu hỏi nào.</p>
 
+  if (isCompleted && !isRevising) {
+    return (
+      <div className="mx-6 mt-8 space-y-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-gray-900">{lesson.title}</h1>
+          <p className="text-sm text-gray-500">
+            Cập nhật{' '}
+            {formatDate(lesson.updated_at, {
+              dateStyle: 'long',
+            })}
+          </p>
+        </div>
+
+        <div className="mt-8 overflow-hidden rounded-lg border-none bg-gradient-to-br from-[#E27447]/10 to-[#E27447]/5">
+          <div className="p-8">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="mb-6 rounded-full bg-[#E27447]/20 p-4">
+                <Trophy className="size-16 text-[#E27447]" />
+              </div>
+              <h2 className="mb-2 text-2xl font-bold text-gray-900">
+                Chúc mừng! Bạn đã hoàn thành bài học
+              </h2>
+              <p className="mb-6 text-lg text-gray-600">
+                Bạn đã trả lời đúng {questions.length}/{questions.length} câu
+                hỏi.
+              </p>
+              <Button
+                variant="outline"
+                onClick={resetQuiz}
+                className="flex items-center gap-2 border-[#E27447] bg-white text-[#E27447] hover:bg-[#E27447]/10"
+              >
+                <RefreshCw className="size-4" /> Ôn tập lại
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="mx-16 mb-40 mt-8 space-y-4">
+    <div className="mx-6 mb-40 mt-8 space-y-4">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">{lesson.title}</h1>
         <p className="text-sm text-muted-foreground">
@@ -204,25 +245,6 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
           })}
         </p>
       </div>
-      {isCompleted && !isRevising && (
-        <Alert className="mt-6 border-green-200 bg-green-50 text-green-800">
-          <div className="flex items-start gap-4">
-            <div className="rounded-full bg-green-100 p-2">
-              <Trophy className="size-6 text-green-600" />
-            </div>
-            <div>
-              <AlertTitle className="text-xl font-semibold">
-                Đã hoàn thành bài học
-              </AlertTitle>
-              <AlertDescription>
-                Bạn đã trả lời đúng {questions.length}/{questions.length} câu
-                hỏi. Bạn có thể tiếp tục với bài học tiếp theo hoặc ôn tập lại
-                bài này.
-              </AlertDescription>
-            </div>
-          </div>
-        </Alert>
-      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -260,7 +282,6 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
                 </div>
               )}
 
-              {/* Display question description if available */}
               {question.description && (
                 <HtmlRenderer html={question.description} className="mt-2" />
               )}
@@ -298,7 +319,19 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
                                         value={answer.id!.toString()}
                                       />
                                     </FormControl>
-                                    <span>{answer.answer}</span>
+                                    <div className="flex flex-1 items-center justify-between">
+                                      <span>{answer.answer}</span>
+                                      {answerStatus[currentQuestion]?.[
+                                        answer.id!
+                                      ]?.includes('green') && (
+                                        <CheckCircle2 className="size-5 text-green-600" />
+                                      )}
+                                      {answerStatus[currentQuestion]?.[
+                                        answer.id!
+                                      ]?.includes('red') && (
+                                        <XCircle className="size-5 text-red-600" />
+                                      )}
+                                    </div>
                                   </FormLabel>
                                 </FormItem>
                               )
@@ -353,7 +386,19 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
                                         }}
                                       />
                                     </FormControl>
-                                    <span>{answer.answer}</span>
+                                    <div className="flex flex-1 items-center justify-between">
+                                      <span>{answer.answer}</span>
+                                      {answerStatus[currentQuestion]?.[
+                                        answer.id!
+                                      ]?.includes('green') && (
+                                        <CheckCircle2 className="size-5 text-green-600" />
+                                      )}
+                                      {answerStatus[currentQuestion]?.[
+                                        answer.id!
+                                      ]?.includes('red') && (
+                                        <XCircle className="size-5 text-red-600" />
+                                      )}
+                                    </div>
                                   </FormLabel>
                                 </FormItem>
                               )
@@ -406,7 +451,7 @@ const QuizLesson = ({ lesson, isCompleted }: Props) => {
                 </Button>
               )}
 
-              {isRevising && isCorrectAll && (
+              {isCorrectAll && (
                 <Button type="submit" disabled={isPending}>
                   {isPending && (
                     <Loader2 className="mr-2 size-4 animate-spin" />

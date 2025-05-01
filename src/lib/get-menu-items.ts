@@ -60,10 +60,6 @@ export const getMenuItem = (type: type = 'instructor'): MenuItem[] => {
               url: '/instructor/learner-manage',
             },
             {
-              title: 'Theo dõi tiến độ',
-              url: '#',
-            },
-            {
               title: 'Khoá học đã xóa',
               url: '/instructor/courses/trash',
             },

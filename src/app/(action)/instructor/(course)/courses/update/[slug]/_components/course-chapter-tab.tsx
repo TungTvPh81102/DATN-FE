@@ -40,6 +40,12 @@ import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import SortableLesson from './lesson/sortable-lesson'
 import { Badge } from '@/components/ui/badge'
 import MoveLessonsDialog from '@/app/(action)/instructor/(course)/courses/update/[slug]/_components/lesson/move-lesson-dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 type Props = {
   chapters: IChapter[]
@@ -136,7 +142,7 @@ const CourseChapterTab = ({
   }, [chapterList])
 
   return (
-    <div className="rounded-md">
+    <div className="rounded-lg">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold">Chương trình giảng dạy</h1>
@@ -232,39 +238,67 @@ const CourseChapterTab = ({
 
                           {isDraftOrRejected && (
                             <div className="flex items-center gap-2">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setChapterEdit(chapter.id as number)
-                                  setEditTitle(chapter.title || '')
-                                }}
-                              >
-                                <SquarePen />
-                              </Button>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setChapterEdit(chapter.id as number)
+                                        setEditTitle(chapter.title || '')
+                                      }}
+                                    >
+                                      <SquarePen />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    Sửa tên chương
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
 
-                              <SortableDragHandle>
-                                <GripVertical />
-                              </SortableDragHandle>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <SortableDragHandle>
+                                      <GripVertical />
+                                    </SortableDragHandle>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    Kéo để sắp xếp
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
 
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="text-destructive hover:text-destructive/80"
-                                disabled={isDeleting}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setChapterEdit(chapter.id as number)
-                                  handleDeleteChapter(chapter.id as number)
-                                }}
-                              >
-                                {isDeleting && chapterEdit === chapter.id ? (
-                                  <Loader2 className="animate-spin" />
-                                ) : (
-                                  <Trash2 />
-                                )}
-                              </Button>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="text-destructive hover:text-destructive/80"
+                                      disabled={isDeleting}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setChapterEdit(chapter.id as number)
+                                        handleDeleteChapter(
+                                          chapter.id as number
+                                        )
+                                      }}
+                                    >
+                                      {isDeleting &&
+                                      chapterEdit === chapter.id ? (
+                                        <Loader2 className="animate-spin" />
+                                      ) : (
+                                        <Trash2 />
+                                      )}
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Xóa chương</TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </div>
                           )}
                         </>
@@ -275,7 +309,15 @@ const CourseChapterTab = ({
                     {isDraftOrRejected &&
                       chapter.lessons &&
                       chapter.lessons.length > 0 && (
-                        <div className="mb-4 flex justify-end">
+                        <div className="mb-4 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <h2 className="font-bold text-primary">
+                              Nội dung chương học
+                            </h2>
+                            <Badge variant="outline" className="ml-1">
+                              {chapter.lessons.length} bài học
+                            </Badge>
+                          </div>
                           <MoveLessonsDialog
                             chapters={chapters}
                             currentChapter={chapter}

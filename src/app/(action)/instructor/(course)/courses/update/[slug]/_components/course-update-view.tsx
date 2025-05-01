@@ -264,7 +264,7 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
             </div>
           </div>
 
-          <div className="col-span-8 rounded border bg-white p-4 shadow-lg xl:col-span-9">
+          <div className="col-span-8 rounded-lg border bg-white p-4 shadow-lg xl:col-span-9">
             {(() => {
               if (!courseOverviewData) return null
 
