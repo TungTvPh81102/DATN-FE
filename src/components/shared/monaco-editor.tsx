@@ -50,6 +50,8 @@ const MonacoEditor = ({
   readOnly,
   ...rest
 }: Props) => {
+  const initialValue = useRef('')
+
   const firstFileName = Object.keys(files)[0]
   const { mutate: executeCode, isPending: isCodePending } = useExecuteCode()
 
@@ -143,7 +145,7 @@ const MonacoEditor = ({
           size="icon"
           className="ml-auto mr-2 bg-transparent hover:bg-transparent"
           onClick={() => {
-            onChange?.(files[firstFileName]?.value, fileName)
+            onChange?.(initialValue.current, fileName)
           }}
         >
           <RotateCcw />
@@ -160,7 +162,10 @@ const MonacoEditor = ({
           path={file.name}
           defaultLanguage={file.language}
           defaultValue={file.value}
-          onMount={(editor) => (editorRef.current = editor)}
+          onMount={(editor) => {
+            editorRef.current = editor
+            initialValue.current = editor.getValue()
+          }}
           onValidate={(markers) => setMarkers(markers)}
           options={{
             readOnly,

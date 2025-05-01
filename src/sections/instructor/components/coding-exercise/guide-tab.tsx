@@ -17,7 +17,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -28,6 +27,7 @@ import {
   SortableDragHandle,
   SortableItem,
 } from '@/components/ui/sortable'
+import { Textarea } from '@/components/ui/textarea'
 import { Language, LANGUAGE_CONFIG } from '@/constants/language'
 
 const GuideTab = () => {
@@ -75,17 +75,6 @@ const GuideTab = () => {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('hints')}
-            className={`rounded-lg px-4 py-1 shadow transition-colors duration-300 ${
-              activeTab === 'hints'
-                ? 'bg-primary/10 font-bold text-primary'
-                : 'text-muted-foreground hover:bg-primary/5 hover:text-primary'
-            }`}
-          >
-            Gợi ý
-          </button>
-          <button
-            type="button"
             onClick={() => setActiveTab('guide')}
             className={`rounded-lg px-4 py-1 shadow transition-colors duration-300 ${
               activeTab === 'guide'
@@ -94,6 +83,17 @@ const GuideTab = () => {
             }`}
           >
             Hướng dẫn
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('hints')}
+            className={`rounded-lg px-4 py-1 shadow transition-colors duration-300 ${
+              activeTab === 'hints'
+                ? 'bg-primary/10 font-bold text-primary'
+                : 'text-muted-foreground hover:bg-primary/5 hover:text-primary'
+            }`}
+          >
+            Gợi ý
           </button>
         </div>
 
@@ -148,9 +148,10 @@ const GuideTab = () => {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input
+                              <Textarea
                                 placeholder={`Nhập gợi ý thứ ${index + 1}`}
                                 {...field}
+                                className="max-h-40 min-h-28"
                               />
                             </FormControl>
                             <FormMessage />
@@ -203,7 +204,11 @@ const GuideTab = () => {
                 </FormDescription>
 
                 <FormControl>
-                  <TiptapEditor {...field} scrollAreaClassName="h-[600px]" />
+                  <TiptapEditor
+                    {...field}
+                    scrollAreaClassName="h-[600px]"
+                    toolbar="full"
+                  />
                 </FormControl>
                 <FormMessage className="mt-2" />
               </FormItem>

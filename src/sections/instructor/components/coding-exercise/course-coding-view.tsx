@@ -46,7 +46,7 @@ enum Tab {
 
 const tabFields: Record<Tab, (keyof UpdateCodingLessonPayload)[]> = {
   [Tab.PLAN]: ['title', 'language'],
-  [Tab.SOLUTION]: ['test_case'],
+  [Tab.SOLUTION]: ['code', 'test_case'],
   [Tab.GUIDE]: ['content', 'hints', 'instruct', 'student_code'],
 }
 
@@ -64,7 +64,6 @@ const getTabName = (tab: Tab) => {
 }
 
 const getTabsWithErrors = (errors: FieldErrors): Tab[] => {
-  console.log(errors)
   return Object.values(Tab).filter((tab) => {
     const fields = tabFields[tab]
     return fields.some((field) => !!errors[field])
@@ -86,8 +85,6 @@ const CourseCodingView = ({
 
   const isUpdated =
     lessonCoding?.data.updated_at !== lessonCoding?.data.created_at
-
-  console.log('isUpdated', isUpdated)
 
   const updateCodingLesson = useUpdateCodingLesson()
 
