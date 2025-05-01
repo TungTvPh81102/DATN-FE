@@ -1,11 +1,13 @@
 'use client'
 
 import { ArrowUpDown, Info } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
+import { useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 
 import MonacoEditor from '@/components/shared/monaco-editor'
+import { Button } from '@/components/ui/button'
 import {
   FormField,
   FormItem,
@@ -23,9 +25,8 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { Language, LANGUAGE_CONFIG } from '@/constants/language'
-import { UpdateCodingLessonPayload } from '@/validations/course'
-
 import { TestResult } from '@/lib/run-testcase'
+import { UpdateCodingLessonPayload } from '@/validations/course'
 import { ResultsViewer } from './results-viewer'
 
 const SolutionTab = () => {
@@ -63,23 +64,6 @@ const SolutionTab = () => {
     },
   }
 
-  useEffect(() => {
-    if (form.getValues('checkTestCase')) {
-      form.setValue('checkTestCase', undefined)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code, testCase])
-
-  useEffect(() => {
-    form.setValue(
-      'checkTestCase',
-      testResults.every((result) => result.status === 'pass')
-    )
-
-    form.trigger('test_case')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [testResults])
-
   return (
     <ResizablePanelGroup direction="vertical">
       <ResizablePanel>
@@ -93,7 +77,7 @@ const SolutionTab = () => {
                 <FormItem className="flex h-full flex-col space-y-0 text-white">
                   <div className="flex h-14 items-center gap-2 border-b border-gray-500 bg-[#0d0d0d] px-4 py-2">
                     <FormLabel className="text-lg font-bold">
-                      Kiểm thử
+                      Giải pháp
                     </FormLabel>
 
                     <Popover>
@@ -130,9 +114,23 @@ const SolutionTab = () => {
                         setTestResults(value)
                         setActiveTab('test-results')
 
+                        form.setValue(
+                          'checkTestCase',
+                          value.every((result) => result.status === 'pass')
+                        )
+
+                        form.trigger('test_case')
+
                         resultPanelRef.current?.resize(70)
                       }}
                       {...field}
+                      onChange={(value) => {
+                        field.onChange(value)
+                        if (
+                          typeof form.getValues('checkTestCase') !== 'undefined'
+                        )
+                          form.setValue('checkTestCase', undefined)
+                      }}
                     />
                   </div>
                 </FormItem>
@@ -161,14 +159,21 @@ const SolutionTab = () => {
                       </PopoverTrigger>
                       <PopoverContent align="start" className="space-y-2">
                         <p>
-                          Cung cấp nhiều trường hợp kiểm tra, tên kiểm tra mô tả
-                          và thông báo xác nhận giúp học viên khắc phục sự cố và
-                          cải thiện giải pháp của họ.
+                          Chúng tôi sử dụng Jest – một thư viện kiểm thử mạnh mẽ
+                          và phổ biến trong hệ sinh thái JavaScript – để đảm bảo
+                          rằng các hàm và chức năng trong ứng dụng hoạt động
+                          chính xác.
                         </p>
-                        <p className="text-sm italic text-muted-foreground">
-                          <span className="text-destructive">*</span> Có thể
-                          truyền nhiều tham số bằng cách sử dụng dấu phẩy
-                        </p>
+                        <div className="flex justify-end">
+                          <Button size="sm" asChild>
+                            <Link
+                              href="https://jestjs.io/docs/getting-started"
+                              target="_blank"
+                            >
+                              Xem tài liệu
+                            </Link>
+                          </Button>
+                        </div>
                       </PopoverContent>
                     </Popover>
 
@@ -180,6 +185,13 @@ const SolutionTab = () => {
                       files={testCaseFiles}
                       readOnly={field.disabled}
                       {...field}
+                      onChange={(value) => {
+                        field.onChange(value)
+                        if (
+                          typeof form.getValues('checkTestCase') !== 'undefined'
+                        )
+                          form.setValue('checkTestCase', undefined)
+                      }}
                     />
                   </div>
                 </FormItem>
