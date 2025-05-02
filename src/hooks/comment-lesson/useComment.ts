@@ -4,6 +4,7 @@ import { toast } from 'react-toastify'
 import {
   LessonCommentPayload,
   ReplyLessonCommentPayload,
+  ReportCommentPayload,
 } from '@/validations/comment'
 import QueryKey from '@/constants/query-key'
 import { commentLessonApi } from '@/services/comment-lesson/comment-lesson-api'
@@ -67,6 +68,23 @@ export const useDeleteComment = (commentId: string) => {
     },
     onError: (error: any) => {
       toast.error(error?.message || 'Xóa bình luận không thành công')
+    },
+  })
+}
+
+export const useReportComment = () => {
+  return useMutation({
+    mutationFn: ({
+      chapterId,
+      lessonId,
+      data,
+    }: {
+      chapterId: string
+      lessonId: number
+      data: ReportCommentPayload
+    }) => commentLessonApi.reportComment(chapterId, lessonId, data),
+    onSuccess: async () => {
+      toast.success('báo cáo succss')
     },
   })
 }

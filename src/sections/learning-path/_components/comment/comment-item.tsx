@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Loader2, Send, Trash2, X } from 'lucide-react'
@@ -25,13 +26,16 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { ReactionData, reactionEmojis } from '@/types/Reaction'
 import { LoadingButton } from '@/components/ui/loading-button'
 import { useCommentBlockStore } from '@/stores/useCommentBlockStore'
+import ReportButton from '@/sections/learning-path/_components/comment/replybutton'
 
 export const CommentItem = ({
   comment,
   lessonId,
+  chapterId,
 }: {
   comment: any
   lessonId: number
+  chapterId: string
 }) => {
   const { user } = useAuthStore()
 
@@ -40,7 +44,6 @@ export const CommentItem = ({
   const dropdownRef = useRef<HTMLDivElement>(null)
   const reactionDetailsRef = useRef<HTMLDivElement>(null)
   const [activeTab, setActiveTab] = useState('all')
-
   const [showReactionPicker, setShowReactionPicker] = useState<boolean>(false)
   const [showReactionDetails, setShowReactionDetails] = useState<boolean>(false)
   const [openDropdown, setOpenDropdown] = useState<boolean>(false)
@@ -239,6 +242,11 @@ export const CommentItem = ({
         >
           Phản hồi
         </button>
+        <ReportButton
+          chapterId={chapterId}
+          lessonId={lessonId}
+          commentId={comment.id}
+        />
 
         <span className="text-gray-500">{timeAgo(comment?.created_at)}</span>
 

@@ -1,6 +1,7 @@
 import {
   LessonCommentPayload,
   ReplyLessonCommentPayload,
+  ReportCommentPayload,
 } from '@/validations/comment'
 import api from '@/configs/api'
 
@@ -32,5 +33,16 @@ export const commentLessonApi = {
 
   deleteComment: async (commentId: string) => {
     return await api.delete(`${prefix}/${commentId}`)
+  },
+
+  reportComment: async (
+    chapterId: string,
+    lessonId: number,
+    data: ReportCommentPayload
+  ) => {
+    return await api.post(
+      `${prefix}/report-comment/${chapterId}/${lessonId}`,
+      data
+    )
   },
 }

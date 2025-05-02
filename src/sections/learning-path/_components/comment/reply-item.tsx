@@ -22,17 +22,20 @@ import HtmlRenderer from '@/components/shared/html-renderer'
 import { ReactionPicker } from '@/sections/learning-path/_components/comment/reaction-picker'
 import { ReactionData, reactionEmojis } from '@/types/Reaction'
 import { useCommentBlockStore } from '@/stores/useCommentBlockStore'
+import ReportButton from '@/sections/learning-path/_components/comment/replybutton'
 
 export const ReplyItem = ({
   reply,
   user,
   lessonId,
   commentId,
+  chapterId,
 }: {
   reply: any
   user: any
   lessonId: number
   commentId: string
+  chapterId: string
 }) => {
   const queryClient = useQueryClient()
   const reactionPickerRef = useRef<HTMLDivElement>(null)
@@ -218,7 +221,7 @@ export const ReplyItem = ({
               <HtmlRenderer html={reply?.content || 'No content available'} />
             </div>
           </div>
-          <div className="mt-4 flex items-center gap-4 pl-2 text-xs">
+          <div className="mt-4 flex items-center gap-4 pl-2 text-sm">
             <ReactionPicker
               showPicker={showReactionPicker}
               setShowPicker={setShowReactionPicker}
@@ -238,6 +241,11 @@ export const ReplyItem = ({
             >
               Phản hồi
             </button>
+            <ReportButton
+              chapterId={chapterId}
+              lessonId={lessonId}
+              commentId={reply.id}
+            />
 
             <span className="text-gray-500">{timeAgo(reply?.created_at)}</span>
 

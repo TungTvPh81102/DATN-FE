@@ -18,6 +18,15 @@ export const replyLessonCommentSchema = z.object({
     .max(2000, 'Nội dung bình luận không được quá 2000 ký tự'),
 })
 
+export const reportCommentSchema = z.object({
+  comment_id: z.string().optional(),
+  report_content: z
+    .string()
+    .trim()
+    .min(1, { message: 'Nội dung báo cáo không được để trống' })
+    .max(100, 'Nội dung báo cáo không được quá 100 ký tự'),
+})
+export type ReportCommentPayload = z.infer<typeof reportCommentSchema>
 export type LessonCommentPayload = z.infer<typeof lessonCommentSchema>
 export type ReplyLessonCommentPayload = z.infer<typeof replyLessonCommentSchema>
 
