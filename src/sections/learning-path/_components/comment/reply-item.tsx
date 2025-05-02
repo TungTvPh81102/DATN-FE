@@ -29,13 +29,11 @@ export const ReplyItem = ({
   user,
   lessonId,
   commentId,
-  chapterId,
 }: {
   reply: any
   user: any
   lessonId: number
   commentId: string
-  chapterId: string
 }) => {
   const queryClient = useQueryClient()
   const reactionPickerRef = useRef<HTMLDivElement>(null)
@@ -241,11 +239,10 @@ export const ReplyItem = ({
             >
               Phản hồi
             </button>
-            <ReportButton
-              chapterId={chapterId}
-              lessonId={lessonId}
-              commentId={reply.id}
-            />
+
+            {user?.id !== reply?.user?.id && (
+              <ReportButton lessonId={lessonId} commentId={reply.id} />
+            )}
 
             <span className="text-gray-500">{timeAgo(reply?.created_at)}</span>
 

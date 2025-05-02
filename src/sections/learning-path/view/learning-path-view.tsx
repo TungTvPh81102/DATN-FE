@@ -65,6 +65,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 
 type Props = {
   courseSlug: string
@@ -363,6 +364,7 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
                           {chapter?.lessons?.map((lesson, lessonIndex) => {
                             const isSelected =
                               lesson?.id === lessonDetail?.lesson?.id
+
                             return (
                               <div
                                 onClick={() => {
@@ -384,10 +386,17 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
                                 key={lessonIndex}
                               >
                                 <div className="ml-2 w-full flex-1 space-y-1">
-                                  <h4>
-                                    {chapterIndex + 1}.{lessonIndex + 1}{' '}
-                                    {lesson?.title}
-                                  </h4>
+                                  <div className="flex gap-2">
+                                    <h4>
+                                      {chapterIndex + 1}.{lessonIndex + 1}{' '}
+                                      {lesson?.title}
+                                    </h4>
+                                    {lesson?.is_supplement === 1 && (
+                                      <Badge className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-400 px-2 py-0.5 text-xs font-medium text-white shadow-sm ring-1 ring-amber-500/20">
+                                        Bài bổ sung
+                                      </Badge>
+                                    )}
+                                  </div>
                                   <div className="flex items-center gap-1 text-xs font-light [&_svg]:size-3">
                                     {lessonTypeIcons[lesson?.type]}{' '}
                                     {formatDuration(
@@ -435,9 +444,16 @@ const LearningPathView = ({ courseSlug, lessonId }: Props) => {
                       key={lessonIndex}
                     >
                       <div className="ml-2 w-full flex-1 space-y-1">
-                        <h4 className="font-semibold">
-                          {lessonIndex + 1} {lesson?.title}
-                        </h4>
+                        <div className="flex gap-2">
+                          <h4 className="font-semibold">
+                            {lessonIndex + 1}. {lesson?.title}
+                          </h4>
+                          {lesson?.is_supplement === 1 && (
+                            <Badge className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-400 px-2 py-0.5 text-xs font-medium text-white shadow-sm ring-1 ring-amber-500/20">
+                              Bài bổ sung
+                            </Badge>
+                          )}
+                        </div>
                         <div className="flex items-center gap-1 text-xs font-light [&_svg]:size-3">
                           {lessonTypeIcons[lesson?.type]}{' '}
                           {lesson.total_questions ?? 0} câu hỏi

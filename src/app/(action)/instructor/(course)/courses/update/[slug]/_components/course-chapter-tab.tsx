@@ -46,6 +46,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useGetCourseOverview } from '@/hooks/instructor/course/useCourse'
 
 type Props = {
   chapters: IChapter[]
@@ -63,12 +64,23 @@ const CourseChapterTab = ({
   const [chapterEdit, setChapterEdit] = useState<number | null>(null)
   const [editTitle, setEditTitle] = useState<string>('')
 
-  const { courseStatus, isDraftOrRejected } = useCourseStatusStore()
+  const { courseStatus, isDraftOrRejected, setCourseStatus } =
+    useCourseStatusStore()
 
+  const { data: courseData } = useGetCourseOverview(slug)
   const { mutate: updateChapter } = useUpdateChapter()
   const { mutate: deleteChapter, isPending: isDeleting } = useDeleteChapter()
   const { mutate: updateChapterOrder, isPending: isUpdateOrder } =
     useUpdateChapterOrder()
+
+  useEffect(() => {
+    if (courseData) {
+      setCourseStatus(
+        courseData.status as CourseStatus,
+        courseData.modification_request
+      )
+    }
+  }, [courseData, setCourseStatus])
 
   const handleUpdateChapter = (id: number) => {
     if (!editTitle.trim()) {

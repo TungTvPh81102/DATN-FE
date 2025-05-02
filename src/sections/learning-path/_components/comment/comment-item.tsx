@@ -31,11 +31,9 @@ import ReportButton from '@/sections/learning-path/_components/comment/replybutt
 export const CommentItem = ({
   comment,
   lessonId,
-  chapterId,
 }: {
   comment: any
   lessonId: number
-  chapterId: string
 }) => {
   const { user } = useAuthStore()
 
@@ -242,11 +240,10 @@ export const CommentItem = ({
         >
           Phản hồi
         </button>
-        <ReportButton
-          chapterId={chapterId}
-          lessonId={lessonId}
-          commentId={comment.id}
-        />
+
+        {user?.id !== comment?.user?.id && (
+          <ReportButton lessonId={lessonId} commentId={comment.id} />
+        )}
 
         <span className="text-gray-500">{timeAgo(comment?.created_at)}</span>
 

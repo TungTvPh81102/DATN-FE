@@ -118,6 +118,7 @@ export interface ILesson {
   type: LessonType
   lessonable_id: number
   lessonable_type: string
+  is_supplement?: number
   status: string
   is_new: 0 | 1
   created_at: Date
