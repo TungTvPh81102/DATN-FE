@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   Card,
   CardContent,
@@ -68,6 +68,7 @@ const StreamingView = ({ code }: { code: string }) => {
 
   const [message, setMessage] = useState('')
   const [chatMessages, setChatMessages] = useState<LiveChat[]>([])
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   const { data, isLoading } = useGetLiveSchedule(code)
   const { mutate: sendMessageLive, isPending } = useSendMessageLive()
@@ -113,14 +114,14 @@ const StreamingView = ({ code }: { code: string }) => {
       setChatMessages((prev) => [...prev, newMessage])
     })
 
-    channel.listen('UserJoinedLiveSession', (event: any) => {
+    channel.listen('.user-joined', (event: any) => {
       toastHot.success(event.message)
     })
 
     return () => {
       channel.stopListening('.status-changed')
       channel.stopListening('LiveChatMessageSent')
-      channel.stopListening('UserJoinedLiveSession')
+      channel.stopListening('.user-joined')
     }
   }, [data?.id, data?.instructor_id, user?.id])
 
@@ -135,6 +136,10 @@ const StreamingView = ({ code }: { code: string }) => {
       return () => clearInterval(interval)
     }
   }, [streamStatus])
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [chatMessages])
 
   useEffect(() => {
     let timer: string | number | NodeJS.Timeout | undefined
@@ -166,19 +171,24 @@ const StreamingView = ({ code }: { code: string }) => {
       } else if (data.status === 'ended') {
         setStreamStatus('ended')
         setPlaybackId(data.recording_playback_id || '')
+      } else if (data.status === 'overdue') {
+        setStreamStatus('overdue')
       } else {
         setStreamStatus('upcoming')
       }
 
       if (data.conversation?.messages) {
-        const oldMessages = data.conversation.messages.map((msg: any) => ({
-          id: msg.id,
-          userId: msg.sender_id,
-          userName: msg.sender.name,
-          message: msg.content,
-          userAvatar: msg.sender.avatar,
-          timestamp: formatDate(msg.created_at),
-        }))
+        const oldMessages = data.conversation.messages
+          .slice()
+          .reverse()
+          .map((msg: any) => ({
+            id: msg.id,
+            userId: msg.sender_id,
+            userName: msg.sender.name,
+            message: msg.content,
+            userAvatar: msg.sender.avatar,
+            timestamp: formatDate(msg.created_at),
+          }))
 
         setChatMessages(oldMessages)
       }
@@ -191,6 +201,15 @@ const StreamingView = ({ code }: { code: string }) => {
     }
   }
 
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
+  }
+
   const handleSendMessage = () => {
     if (!message.trim() || !data?.id) return
 
@@ -199,6 +218,9 @@ const StreamingView = ({ code }: { code: string }) => {
       {
         onSuccess: () => {
           setMessage('')
+          setTimeout(() => {
+            scrollToBottom()
+          }, 100)
         },
         onError: (error: any) => {
           toast.error(error?.message || 'Không thể gửi tin nhắn')
@@ -270,7 +292,7 @@ const StreamingView = ({ code }: { code: string }) => {
                 <CardTitle className="text-xl">
                   Thông tin phát trực tiếp
                 </CardTitle>
-                {streamStatus !== 'ended' && (
+                {streamStatus !== 'ended' && streamStatus !== 'overdue' && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -341,11 +363,14 @@ const StreamingView = ({ code }: { code: string }) => {
                               ? 'border-red-500 bg-red-50 text-red-700'
                               : streamStatus === 'upcoming'
                                 ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                : 'border-gray-500 bg-gray-50 text-gray-700'
+                                : streamStatus === 'overdue'
+                                  ? 'border-amber-500 bg-amber-50 text-amber-700'
+                                  : 'border-gray-500 bg-gray-50 text-gray-700'
                           }
                         >
                           {streamStatus === 'live' && 'Đang phát sóng'}
                           {streamStatus === 'upcoming' && 'Sắp diễn ra'}
+                          {streamStatus === 'overdue' && 'Đã quá hạn'}
                           {streamStatus === 'ended' &&
                             'Đã kết thúc - Có bản ghi'}
                         </Badge>
@@ -373,12 +398,19 @@ const StreamingView = ({ code }: { code: string }) => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4">
+          <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4">
             {streamStatus === 'upcoming' ? (
               <div className="flex h-full flex-col items-center justify-center text-center">
                 <Clock className="mb-2 size-12 text-slate-300" />
                 <p className="text-sm text-slate-600">
                   Chat sẽ khả dụng khi buổi học bắt đầu
+                </p>
+              </div>
+            ) : streamStatus === 'overdue' ? (
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <AlertCircle className="mb-2 size-12 text-amber-400" />
+                <p className="text-sm text-slate-600">
+                  Buổi học đã quá hạn và không diễn ra
                 </p>
               </div>
             ) : (
@@ -479,6 +511,11 @@ const StreamingView = ({ code }: { code: string }) => {
             {streamStatus === 'upcoming' && (
               <p className="mt-2 text-center text-xs text-slate-500">
                 Chat sẽ mở khi buổi học bắt đầu.
+              </p>
+            )}
+            {streamStatus === 'overdue' && (
+              <p className="mt-2 text-center text-xs text-slate-500">
+                Buổi học đã quá hạn. Chat không khả dụng.
               </p>
             )}
             {streamStatus === 'connecting' && (

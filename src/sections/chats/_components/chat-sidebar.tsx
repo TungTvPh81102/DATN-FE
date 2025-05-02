@@ -12,6 +12,7 @@ import {
   useGetDirectChats,
   useGetGroupChats,
   useGetGroupStudent,
+  useStartChatWithSystem,
 } from '@/hooks/chat/useChat'
 import { setLocalStorage } from '@/lib/common'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -22,6 +23,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -32,6 +34,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { SystemMessagePayload, systemMessageSchema } from '@/validations/chat'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 
 export const ChatSidebar = ({
   selectedChannel,
@@ -47,27 +61,68 @@ export const ChatSidebar = ({
   const [addGroupChat, setAddGroupChat] = useState(false)
   const [isSystemMessageModalOpen, setIsSystemMessageModalOpen] =
     useState(false)
-  const [systemMessageReason, setSystemMessageReason] = useState('')
-  const [selectedEmployee, setSelectedEmployee] = useState('')
 
   const getGroupChat = isInstructor ? useGetGroupChats : useGetGroupStudent
 
   const { data: groupChatData, isLoading: isLoadingGroupChat } = getGroupChat()
   const { data: directChatData, isLoading: isLoadingDirectChatData } =
     useGetDirectChats()
+  const { mutate: startChatWithSystem, isPending } = useStartChatWithSystem()
 
   const systemMessageReasons = [
-    'Technical Support',
-    'Billing Inquiry',
-    'Account Issue',
-    'Other',
+    'Hỗ trợ kỹ thuật',
+    'Yêu cầu thanh toán',
+    'Vấn đề tài khoản',
+    'Đăng ký khóa học',
+    'Khác',
   ]
 
-  const employees = [
-    { id: '1', name: 'John Doe', department: 'Support' },
-    { id: '2', name: 'Jane Smith', department: 'Billing' },
-    { id: '3', name: 'Mike Johnson', department: 'Admin' },
-  ]
+  const reasonDetails = {
+    'Hỗ trợ kỹ thuật': [
+      'Lỗi đăng nhập',
+      'Ứng dụng bị treo',
+      'Sự cố phát video',
+      'Lỗi tải tài liệu',
+      'Vấn đề kỹ thuật khác',
+    ],
+    'Yêu cầu thanh toán': [
+      'Thanh toán chưa xử lý',
+      'Yêu cầu hoàn tiền',
+      'Lỗi hóa đơn',
+      'Vấn đề đăng ký gói',
+      'Vấn đề thanh toán khác',
+    ],
+    'Vấn đề tài khoản': [
+      'Không truy cập được tài khoản',
+      'Lỗi cập nhật hồ sơ',
+      'Vấn đề về quyền hạn',
+      'Xác minh tài khoản',
+      'Vấn đề tài khoản khác',
+    ],
+    'Đăng ký khóa học': [
+      'Không thể đăng ký khóa học',
+      'Không hiển thị khóa học',
+      'Hết hạn đăng ký',
+      'Vấn đề chứng chỉ',
+      'Vấn đề đăng ký khác',
+    ],
+    Khác: [
+      'Câu hỏi chung',
+      'Góp ý',
+      'Yêu cầu tính năng',
+      'Báo lỗi',
+      'Câu hỏi khác',
+    ],
+  }
+
+  const form = useForm<SystemMessagePayload>({
+    resolver: zodResolver(systemMessageSchema),
+    defaultValues: {
+      reason: '',
+      details: '',
+      description: '',
+    },
+  })
 
   const handleChannelSelect = (channel: IChannel) => {
     setSelectedChannel(channel)
@@ -75,7 +130,16 @@ export const ChatSidebar = ({
   }
 
   const handleSystemMessageClick = () => {
+    form.reset()
     setIsSystemMessageModalOpen(true)
+  }
+
+  const onSubmit = (values: SystemMessagePayload) => {
+    startChatWithSystem(values, {
+      onSuccess: () => {
+        setIsSystemMessageModalOpen(false)
+      },
+    })
   }
 
   return (
@@ -192,58 +256,111 @@ export const ChatSidebar = ({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create System Message</DialogTitle>
+            <DialogTitle>Gửi tin nhắn đến hệ thống</DialogTitle>
             <DialogDescription>
-              Select a reason and assign an employee to handle this issue.
+              Vui lòng chọn loại vấn đề và chi tiết để hỗ trợ bạn tốt hơn
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div>
-              <label className="mb-2 block">Reason for System Message</label>
-              <Select
-                value={systemMessageReason}
-                onValueChange={setSystemMessageReason}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a reason" />
-                </SelectTrigger>
-                <SelectContent>
-                  {systemMessageReasons.map((reason) => (
-                    <SelectItem key={reason} value={reason}>
-                      {reason}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="reason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Loại vấn đề</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value)
+                        form.setValue('details', '')
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn loại vấn đề" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {systemMessageReasons.map((reason) => (
+                          <SelectItem key={reason} value={reason}>
+                            {reason}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div>
-              <label className="mb-2 block">Assign to Employee</label>
-              <Select
-                value={selectedEmployee}
-                onValueChange={setSelectedEmployee}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an employee" />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees.map((employee) => (
-                    <SelectItem key={employee.id} value={employee.id}>
-                      {employee.name} - {employee.department}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <FormField
+                control={form.control}
+                name="details"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chi tiết vấn đề</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={!form.getValues('reason')}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn chi tiết vấn đề" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {form.getValues('reason') &&
+                          reasonDetails[
+                            form.getValues(
+                              'reason'
+                            ) as keyof typeof reasonDetails
+                          ]?.map((detail) => (
+                            <SelectItem key={detail} value={detail}>
+                              {detail}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Button
-              className="w-full"
-              disabled={!systemMessageReason || !selectedEmployee}
-            >
-              Submit System Message
-            </Button>
-          </div>
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mô tả thêm (không bắt buộc)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Nhập thêm thông tin về vấn đề của bạn..."
+                        className="h-24"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsSystemMessageModalOpen(false)}
+                >
+                  Hủy
+                </Button>
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? 'Đang gửi...' : 'Gửi yêu cầu'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
 

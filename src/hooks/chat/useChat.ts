@@ -5,6 +5,7 @@ import {
   AddMemberGroupChatPayload,
   CreateGroupChatPayload,
   MessagePayload,
+  SystemMessagePayload,
 } from '@/validations/chat'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
@@ -105,5 +106,13 @@ export const useToggleBlockMemberInChat = () => {
   return useToastMutation({
     mutationFn: chatApi.toggleBlockMemberGroupChat,
     queryKey: [QUERY_KEY.GROUP_CHAT],
+  })
+}
+
+export const useStartChatWithSystem = () => {
+  return useToastMutation({
+    mutationFn: (data: SystemMessagePayload) =>
+      chatApi.startChatWithSystem(data),
+    queryKeys: [[QUERY_KEY.GROUP_CHAT], [QUERY_KEY.GROUP_DIRECT]],
   })
 }

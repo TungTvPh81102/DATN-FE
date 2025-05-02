@@ -191,7 +191,7 @@ export const LivestreamList = () => {
         </>
       ) : (
         <div className="flex h-40 items-center justify-center rounded-lg bg-white">
-          <p className="text-gray-500">Không có video trực tiếp nào...</p>
+          <p className="text-gray-500">Không có sự kiện trực tiếp nào...</p>
         </div>
       )}
     </div>

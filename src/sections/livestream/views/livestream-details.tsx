@@ -26,6 +26,7 @@ export const LivestreamDetails = ({ code }: Props) => {
   const router = useRouter()
   const { data, isLoading, error } = useLiveSessionInfo(code)
   const [showPrivateAlert, setShowPrivateAlert] = useState(false)
+  const [showAccessAlert, setShowAccessAlert] = useState(false)
 
   useEffect(() => {
     if (data?.status == 'ended') {
@@ -40,6 +41,9 @@ export const LivestreamDetails = ({ code }: Props) => {
     )
     if (isPrivate && !isUserRegistered) {
       setShowPrivateAlert(true)
+    }
+    if (data && data.can_access === false) {
+      setShowAccessAlert(true)
     }
   }, [data])
 
@@ -90,7 +94,7 @@ export const LivestreamDetails = ({ code }: Props) => {
             </div>
 
             <div className="lg:col-span-1">
-              <LivestreamChat liveSession={data} streamStatus={data?.status} />
+              <LivestreamChat liveSession={data} />
             </div>
           </div>
         </main>
@@ -108,6 +112,32 @@ export const LivestreamDetails = ({ code }: Props) => {
             <AlertDialogDescription className="mt-2 text-slate-600">
               Phiên học này chỉ dành cho học viên đã đăng ký. Vui lòng đăng ký
               khóa học để tham gia.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 flex justify-end gap-3">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 rounded-md bg-[#E27447] px-4 py-2 text-white shadow-md hover:bg-[#E27447]/90"
+            >
+              <ArrowLeft className="size-4" />
+              Quay lại
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showAccessAlert} onOpenChange={setShowAccessAlert}>
+        <AlertDialogContent className="border-l-4 border-[#E27447] shadow-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-3 text-lg text-[#E27447]">
+              <div className="flex size-9 items-center justify-center rounded-full bg-orange-100">
+                <Lock className="size-5 text-[#E27447]" />
+              </div>
+              Không thể truy cập sự kiện
+            </AlertDialogTitle>
+            <AlertDialogDescription className="mt-2 text-slate-600">
+              Bạn không có quyền truy cập vào sự kiện này. Sự kiện này có thể là
+              riêng tư hoặc yêu cầu đăng ký trước.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4 flex justify-end gap-3">

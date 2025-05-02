@@ -41,6 +41,13 @@ export const messageSchema = z.object({
     }, 'Chỉ được phép gửi các file cùng loại'),
 })
 
+export const systemMessageSchema = z.object({
+  reason: z.string({ required_error: 'Vui lòng chọn loại vấn đề' }),
+  details: z.string({ required_error: 'Vui lòng chọn chi tiết vấn đề' }),
+  description: z.string().optional(),
+})
+
 export type CreateGroupChatPayload = z.infer<typeof createGroupChatSchema>
 export type AddMemberGroupChatPayload = z.infer<typeof addMemberGroupChatSchema>
 export type MessagePayload = z.infer<typeof messageSchema>
+export type SystemMessagePayload = z.infer<typeof systemMessageSchema>

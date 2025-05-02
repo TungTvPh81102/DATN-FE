@@ -27,7 +27,7 @@ export function LivestreamPlayer({ liveSession }: LivestreamPlayerProps) {
   const [showEndedAlert, setShowEndedAlert] = useState(false)
 
   useEffect(() => {
-    const channel = echo.channel(`live-sessions.${liveSession?.id}`)
+    const channel = echo.channel(`live-session.${liveSession?.id}`)
 
     channel.listen('.status-changed', (event: any) => {
       if (event.data.session.status === 'live') {
@@ -56,7 +56,7 @@ export function LivestreamPlayer({ liveSession }: LivestreamPlayerProps) {
     if (liveSession) {
       if (liveSession.status === 'live') {
         setStreamStatus('live')
-        setStreamUrl(liveSession.live_stream_credential.mux_playback_id || '')
+        setStreamUrl(liveSession.live_stream_credential.mux_playback_id)
       } else if (liveSession.status === 'ended') {
         setStreamStatus('completed')
         setShowEndedAlert(true)
@@ -88,7 +88,7 @@ export function LivestreamPlayer({ liveSession }: LivestreamPlayerProps) {
           <AlertDialogFooter className="mt-4">
             <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 rounded-md bg-[#E27447] px-4 py-2 text-white shadow-md hover:bg-blue-600"
+              className="flex items-center gap-2 rounded-md bg-[#E27447] px-4 py-2 text-white shadow-md"
             >
               <ArrowLeft className="size-4" />
               Quay lại
