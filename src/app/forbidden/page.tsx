@@ -1,5 +1,12 @@
 import Link from 'next/link'
 import { MoveLeft } from 'lucide-react'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Truy cập bị từ chối',
+  description:
+    'Bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập bằng tài khoản phù hợp hoặc quay lại trang chủ để tiếp tục khám phá CourseMely.',
+}
 
 const ForbiddenPage = () => {
   return (
