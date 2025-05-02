@@ -4,6 +4,7 @@ export enum LiveStatus {
   LIVE = 'live',
   ENDED = 'ended',
   UPCOMING = 'upcoming',
+  OVERDUE = 'overdue',
 }
 
 export const LiveStatusMap: Record<
@@ -13,6 +14,7 @@ export const LiveStatusMap: Record<
   [LiveStatus.ENDED]: { label: 'Đã kết thúc', badge: 'secondary' },
   [LiveStatus.LIVE]: { label: 'Đang phát', badge: 'success' },
   [LiveStatus.UPCOMING]: { label: 'Đã lên lịch', badge: 'info' },
+  [LiveStatus.OVERDUE]: { label: 'Đã hết hạn', badge: 'warning' },
 }
 
 export interface LiveSession {

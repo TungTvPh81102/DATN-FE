@@ -426,25 +426,27 @@ const CourseOverView = ({ courseOverView }: { courseOverView: ICourse }) => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="allow_coding_lesson"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={
-                          field.disabled ||
-                          hasCodingLesson(courseOverView.chapters)
-                        }
-                      />
-                    </FormControl>
-                    <FormLabel>Bài tập coding</FormLabel>
-                  </FormItem>
-                )}
-              />
+              {!courseOverView.is_practical_course && (
+                <FormField
+                  control={form.control}
+                  name="allow_coding_lesson"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={
+                            field.disabled ||
+                            hasCodingLesson(courseOverView.chapters)
+                          }
+                        />
+                      </FormControl>
+                      <FormLabel>Bài tập coding</FormLabel>
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
           </div>
 

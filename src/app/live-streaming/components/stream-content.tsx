@@ -1,6 +1,6 @@
 import React from 'react'
 import { Badge } from '@/components/ui/badge'
-import { Clock, Loader2, Video, Eye } from 'lucide-react'
+import { Clock, Loader2, Video, Eye, AlertCircle } from 'lucide-react'
 import MuxPlayer from '@mux/mux-player-react'
 
 interface StreamContentProps {
@@ -77,6 +77,24 @@ const StreamContent = ({
           </Badge>
           <p className="mt-4 text-sm text-slate-300">
             Buổi phát trực tiếp sẽ bắt đầu theo lịch
+          </p>
+        </div>
+      )
+
+    case 'overdue':
+      return (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-amber-900 to-amber-950 text-white">
+          <AlertCircle className="mb-2 size-16 text-amber-400" />
+          <h3 className="mb-2 text-xl font-medium">Đã quá hạn</h3>
+          <p className="mb-3 text-lg">{streamTitle}</p>
+          <Badge
+            variant="outline"
+            className="border-amber-400 bg-amber-900/50 text-amber-100"
+          >
+            Không được phát sóng
+          </Badge>
+          <p className="mt-4 text-sm text-amber-200">
+            Buổi phát trực tiếp đã quá thời hạn và không diễn ra
           </p>
         </div>
       )

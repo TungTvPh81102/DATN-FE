@@ -42,6 +42,12 @@ import LessonVideo from './lesson-video'
 import LessonDocument from './lesson-document'
 import LessonQuiz from './lesson-quiz'
 import CreateLesson from './create-lesson'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 export interface Props {
   chapter: IChapter
@@ -201,27 +207,44 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
                               <SquarePen />
                             </Button>
                           )}
-                          <SortableDragHandle>
-                            <GripVertical />
-                          </SortableDragHandle>
 
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="text-destructive hover:text-destructive/80"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setLessonEdit(lesson.id as number)
-                              handleDeleteLesson(lesson.id as number)
-                            }}
-                            disabled={isDeleting && lessonEdit === lesson.id}
-                          >
-                            {isDeleting && lessonEdit === lesson.id ? (
-                              <Loader2 className="animate-spin" />
-                            ) : (
-                              <Trash2 />
-                            )}
-                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <SortableDragHandle>
+                                  <GripVertical />
+                                </SortableDragHandle>
+                              </TooltipTrigger>
+                              <TooltipContent> Kéo để sắp xếp</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="text-destructive hover:text-destructive/80"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setLessonEdit(lesson.id as number)
+                                    handleDeleteLesson(lesson.id as number)
+                                  }}
+                                  disabled={
+                                    isDeleting && lessonEdit === lesson.id
+                                  }
+                                >
+                                  {isDeleting && lessonEdit === lesson.id ? (
+                                    <Loader2 className="animate-spin" />
+                                  ) : (
+                                    <Trash2 />
+                                  )}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Xóa bài học</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                       )}
                     </div>

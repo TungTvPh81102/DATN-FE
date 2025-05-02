@@ -4,6 +4,7 @@ import {
   AddMemberGroupChatPayload,
   CreateGroupChatPayload,
   MessagePayload,
+  SystemMessagePayload,
 } from '@/validations/chat'
 
 const prefix = '/chats'
@@ -107,5 +108,8 @@ export const chatApi = {
     return await api.put(
       `${prefixGroupChat}/${conversation_id}/${action}/toggle-block/${member_id}`
     )
+  },
+  startChatWithSystem: async (data: SystemMessagePayload) => {
+    return await api.post(`${prefixDirectChat}/start-chat-with-system`, data)
   },
 }

@@ -69,9 +69,6 @@ const ChatView = () => {
   const [message, setMessage] = useState('')
   const [replyTo, setReplyTo] = useState<IMessage | null>(null)
   const [chats, setChats] = useState<Record<number, IMessage[]>>({})
-  // const selectedChannelLocal: IChannel | null = getLocalStorage(
-  //   StorageKey.CHANNEL
-  // )
   const [selectedChannel, setSelectedChannel] = useState<IChannel | null>(null)
   const [activeUsers, setActiveUsers] = useState<any[]>([])
   const [currentUser, setCurrentUser] = useState<number | null>(null)
@@ -247,8 +244,6 @@ const ChatView = () => {
       const channel = echo.join(`conversation.${conversationId}`)
 
       const handleNewMessage = (event: any) => {
-        console.log(event)
-
         setChats((prevChats) => ({
           ...prevChats,
           [conversationId]: [

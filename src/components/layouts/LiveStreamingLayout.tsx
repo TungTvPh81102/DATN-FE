@@ -115,9 +115,7 @@ const LiveStreamingLayout = ({ children }: LayoutProps) => {
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          <button className="relative rounded-full bg-slate-100 hover:bg-slate-200">
-            <NotificationPopover />
-          </button>
+          <NotificationPopover />
           <Avatar className="size-8 cursor-pointer md:size-10">
             <AvatarImage src={user?.avatar ?? ''} alt={user?.name ?? ''} />
             <AvatarFallback>GV</AvatarFallback>
