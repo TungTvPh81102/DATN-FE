@@ -2,18 +2,24 @@ import { CourseStatus } from '@/types'
 import { create } from 'zustand'
 
 interface CourseStatusStore {
-  courseStatus?: `${CourseStatus}`
-  setCourseStatus: (status?: `${CourseStatus}`) => void
+  courseStatus: CourseStatus | null
+  modificationRequest: number | null
   isDraftOrRejected: boolean
+  setCourseStatus: (
+    status: CourseStatus | null,
+    modificationRequest?: number | null
+  ) => void
 }
 
 export const useCourseStatusStore = create<CourseStatusStore>((set) => ({
-  courseStatus: undefined,
-  setCourseStatus: (status) =>
-    set({
+  courseStatus: null,
+  modificationRequest: null,
+  isDraftOrRejected: false,
+  setCourseStatus: (status, modificationRequest = null) =>
+    set(() => ({
       courseStatus: status,
+      modificationRequest,
       isDraftOrRejected:
         status === CourseStatus.DRAFT || status === CourseStatus.REJECT,
-    }),
-  isDraftOrRejected: true,
+    })),
 }))

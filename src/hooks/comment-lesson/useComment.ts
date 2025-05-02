@@ -75,16 +75,11 @@ export const useDeleteComment = (commentId: string) => {
 export const useReportComment = () => {
   return useMutation({
     mutationFn: ({
-      chapterId,
       lessonId,
       data,
     }: {
-      chapterId: string
       lessonId: number
       data: ReportCommentPayload
-    }) => commentLessonApi.reportComment(chapterId, lessonId, data),
-    onSuccess: async () => {
-      toast.success('báo cáo succss')
-    },
+    }) => commentLessonApi.reportComment(lessonId, data),
   })
 }

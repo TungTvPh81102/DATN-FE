@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const actualOutputs = result.run.stdout
       .split('\n')
-      .filter((line) => line.trim() !== '')
+      .filter((line: string) => line.trim() !== '')
 
     const testResults = testCase.map((tc, index) => {
       const input = JSON.parse(tc.input)

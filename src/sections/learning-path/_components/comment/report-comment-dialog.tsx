@@ -7,11 +7,11 @@ import {
   ReportCommentPayload,
   reportCommentSchema,
 } from '@/validations/comment'
+import { toast } from 'react-toastify'
 
 interface ReportCommentDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  chapterId: string
   lessonId: number
   commentId: string
 }
@@ -19,7 +19,6 @@ interface ReportCommentDialogProps {
 const ReportCommentDialog: React.FC<ReportCommentDialogProps> = ({
   open,
   onOpenChange,
-  chapterId,
   lessonId,
   commentId,
 }) => {
@@ -51,14 +50,25 @@ const ReportCommentDialog: React.FC<ReportCommentDialogProps> = ({
   if (!open) return null
 
   const handleFormSubmit = (data: ReportCommentPayload) => {
-    reportComment({
-      data: {
-        comment_id: commentId,
-        report_content: data.report_content,
+    reportComment(
+      {
+        data: {
+          comment_id: commentId,
+          report_content: data.report_content,
+        },
+        lessonId,
       },
-      chapterId,
-      lessonId,
-    })
+      {
+        onSuccess: async (res: any) => {
+          toast.success(res.message)
+          onOpenChange(false)
+          reset()
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }
+    )
   }
 
   return (

@@ -2,16 +2,11 @@ import React, { useState } from 'react'
 import ReportCommentDialog from '@/sections/learning-path/_components/comment/report-comment-dialog'
 
 interface ReportButtonProps {
-  chapterId: string
   lessonId: number
   commentId: string
 }
 
-const ReportButton: React.FC<ReportButtonProps> = ({
-  chapterId,
-  lessonId,
-  commentId,
-}) => {
+const ReportButton: React.FC<ReportButtonProps> = ({ lessonId, commentId }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   return (
@@ -26,7 +21,6 @@ const ReportButton: React.FC<ReportButtonProps> = ({
       <ReportCommentDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        chapterId={chapterId}
         lessonId={lessonId}
         commentId={commentId}
       />

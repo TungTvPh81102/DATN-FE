@@ -35,14 +35,7 @@ export const commentLessonApi = {
     return await api.delete(`${prefix}/${commentId}`)
   },
 
-  reportComment: async (
-    chapterId: string,
-    lessonId: number,
-    data: ReportCommentPayload
-  ) => {
-    return await api.post(
-      `${prefix}/report-comment/${chapterId}/${lessonId}`,
-      data
-    )
+  reportComment: async (lessonId: number, data: ReportCommentPayload) => {
+    return await api.post(`${prefix}/report-comment/${lessonId}`, data)
   },
 }

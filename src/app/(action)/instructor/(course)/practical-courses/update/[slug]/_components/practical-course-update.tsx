@@ -82,7 +82,11 @@ export const PracticalCourseUpdate = ({ slug }: { slug: string }) => {
   }
 
   useEffect(() => {
-    if (courseOverviewData?.status) setCourseStatus(courseOverviewData?.status)
+    if (courseOverviewData?.status)
+      setCourseStatus(
+        courseOverviewData?.status as CourseStatus,
+        courseOverviewData?.modification_request
+      )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseOverviewData?.status])
 

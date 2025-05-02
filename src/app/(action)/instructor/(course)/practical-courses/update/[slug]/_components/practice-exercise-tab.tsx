@@ -32,6 +32,12 @@ import {
 import { cn } from '@/lib/utils'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import LessonQuiz from '../../../../courses/update/[slug]/_components/lesson/lesson-quiz'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 export interface Props {
   chapter: IChapter
@@ -39,7 +45,7 @@ export interface Props {
 }
 
 export const PracticeExerciseTab = ({ chapter, slug }: Props) => {
-  const { isDraftOrRejected } = useCourseStatusStore()
+  const { isDraftOrRejected, modificationRequest } = useCourseStatusStore()
 
   const [addNewLesson, setAddNewLesson] = useState(false)
   const [lessons, setLessons] = useState<ILesson[]>([])
@@ -71,6 +77,18 @@ export const PracticeExerciseTab = ({ chapter, slug }: Props) => {
       }))
 
     updateLessonOrder({ slug, lessons: payload })
+  }
+
+  const canDeleteLesson = (lesson: ILesson) => {
+    if (isDraftOrRejected && !modificationRequest) {
+      return true
+    }
+
+    return !!(
+      isDraftOrRejected &&
+      modificationRequest &&
+      lesson.is_supplement === 1
+    )
   }
 
   const handleDeleteLesson = (id: number) => {
@@ -114,6 +132,8 @@ export const PracticeExerciseTab = ({ chapter, slug }: Props) => {
         onValueChange={onValueChange}
       >
         {lessons.map((lesson) => {
+          const isLessonDeletable = canDeleteLesson(lesson)
+
           return (
             <SortableItem
               key={lesson.id}
@@ -141,30 +161,56 @@ export const PracticeExerciseTab = ({ chapter, slug }: Props) => {
                         <span>
                           Bài {lesson.order}: {lesson.title}
                         </span>
+                        {lesson.is_supplement === 1 && (
+                          <div className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-400 px-2 py-0.5 text-xs font-medium text-white shadow-sm ring-1 ring-amber-500/20">
+                            Bài bổ sung
+                          </div>
+                        )}
                       </div>
                       {isDraftOrRejected && (
                         <div className="flex items-center gap-2">
-                          <SortableDragHandle>
-                            <GripVertical />
-                          </SortableDragHandle>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <SortableDragHandle>
+                                  <GripVertical />
+                                </SortableDragHandle>
+                              </TooltipTrigger>
+                              <TooltipContent> Kéo để sắp xếp</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
 
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="text-destructive hover:text-destructive/80"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setLessonEdit(lesson.id as number)
-                              handleDeleteLesson(lesson.id as number)
-                            }}
-                            disabled={isDeleting && lessonEdit === lesson.id}
-                          >
-                            {isDeleting && lessonEdit === lesson.id ? (
-                              <Loader2 className="animate-spin" />
-                            ) : (
-                              <Trash2 />
-                            )}
-                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="text-destructive hover:text-destructive/80"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setLessonEdit(lesson.id as number)
+                                    handleDeleteLesson(lesson.id as number)
+                                  }}
+                                  disabled={
+                                    (isDeleting && lessonEdit === lesson.id) ||
+                                    !isLessonDeletable
+                                  }
+                                >
+                                  {isDeleting && lessonEdit === lesson.id ? (
+                                    <Loader2 className="animate-spin" />
+                                  ) : (
+                                    <Trash2 />
+                                  )}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {isLessonDeletable
+                                  ? 'Xóa bài học'
+                                  : 'Không thể xóa bài học này'}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                       )}
                     </div>

@@ -34,6 +34,7 @@ export interface LearningPathLesson {
   order: number
   lessonable: Lessonable
   total_questions?: number
+  is_supplement?: number
 }
 
 export interface GetLessonDetailResponse {

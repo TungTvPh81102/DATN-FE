@@ -65,7 +65,7 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
   const [lessons, setLessons] = useState<ILesson[]>([])
   const [lessonEdit, setLessonEdit] = useState<number | null>(null)
 
-  const { isDraftOrRejected } = useCourseStatusStore()
+  const { isDraftOrRejected, modificationRequest } = useCourseStatusStore()
 
   const { mutate: updateLessonOrder, isPending: isUpdateOrder } =
     useUpdateOrderLesson()
@@ -93,6 +93,18 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
       }))
 
     updateLessonOrder({ slug, lessons: payload })
+  }
+
+  const canDeleteLesson = (lesson: ILesson) => {
+    if (isDraftOrRejected && !modificationRequest) {
+      return true
+    }
+
+    return !!(
+      isDraftOrRejected &&
+      modificationRequest &&
+      lesson.is_supplement === 1
+    )
   }
 
   const handleDeleteLesson = (id: number) => {
@@ -131,6 +143,8 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
           if (lesson.type) {
             typeIndexMap[lesson.type]++
           }
+
+          const isLessonDeletable = canDeleteLesson(lesson)
           return (
             <SortableItem
               key={lesson.id}
@@ -191,6 +205,11 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
                           {lesson?.type ? typeIndexMap[lesson?.type] : ''}:{' '}
                           {lesson.title}
                         </div>
+                        {lesson.is_supplement === 1 && (
+                          <div className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-400 px-2 py-0.5 text-xs font-medium text-white shadow-sm ring-1 ring-amber-500/20">
+                            Bài bổ sung
+                          </div>
+                        )}
                       </div>
                       {isDraftOrRejected && (
                         <div className="flex items-center gap-2">
@@ -232,7 +251,8 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
                                     handleDeleteLesson(lesson.id as number)
                                   }}
                                   disabled={
-                                    isDeleting && lessonEdit === lesson.id
+                                    (isDeleting && lessonEdit === lesson.id) ||
+                                    !isLessonDeletable
                                   }
                                 >
                                   {isDeleting && lessonEdit === lesson.id ? (
@@ -242,7 +262,11 @@ const SortableLesson = ({ chapter, slug, allowCoding }: Props) => {
                                   )}
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Xóa bài học</TooltipContent>
+                              <TooltipContent>
+                                {isLessonDeletable
+                                  ? 'Xóa bài học'
+                                  : 'Không thể xóa bài học này'}
+                              </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         </div>
