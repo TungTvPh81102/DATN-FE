@@ -1,7 +1,13 @@
 'use client'
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowUpDown } from 'lucide-react'
+import { ArrowUpDown, Lightbulb } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ImperativePanelHandle } from 'react-resizable-panels'
@@ -30,6 +36,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TestResult } from '@/lib/run-testcase'
 import { ResultsViewer } from '@/sections/instructor/components/coding-exercise/results-viewer'
+import { cn } from '@/lib/utils'
 
 type Props = {
   lesson: ILesson
@@ -136,12 +143,23 @@ const CodingLesson = ({ lesson, isCompleted }: Props) => {
                   <HtmlRenderer html={lesson.content} className="mt-8" />
                   <HtmlRenderer html={codeData?.instruct} className="mt-8" />
                 </TabsContent>
-                <TabsContent value="hints" className="prose">
-                  <ol>
+                <TabsContent value="hints">
+                  <Accordion type="multiple">
                     {codeData?.hints?.map((hint, index) => (
-                      <li key={index}>{hint}</li>
+                      <AccordionItem value={`hint-${index + 1}`} key={index}>
+                        <AccordionTrigger
+                          className={cn('border-0', index !== 0 && 'border-t')}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Lightbulb className="size-4" /> Gợi ý {index + 1}
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="mt-0 border-none pt-0 font-normal">
+                          {hint}
+                        </AccordionContent>
+                      </AccordionItem>
                     ))}
-                  </ol>
+                  </Accordion>
                 </TabsContent>
               </div>
             </Tabs>

@@ -531,7 +531,11 @@ const Header = () => {
                                 <Link
                                   href={`/courses/${course?.slug}`}
                                   data-bs-dismiss="offcanvas"
-                                  onClick={() => setQuery('')}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    setQuery('')
+                                    router.push(`/courses/${course?.slug}`)
+                                  }}
                                   className="block rounded-lg p-2 transition-all hover:bg-gray-50"
                                 >
                                   <div className="flex items-center space-x-3">
