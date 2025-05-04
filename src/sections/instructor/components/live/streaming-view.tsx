@@ -19,10 +19,16 @@ import {
   AlertCircle,
   SmilePlus,
   Clock,
+  BarChart3,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useGetLiveSchedule, useSendMessageLive } from '@/hooks/live/useLive'
+import {
+  useGetLiveSchedule,
+  useLeaveStream,
+  useSendHeartbeat,
+  useSendMessageLive,
+} from '@/hooks/live/useLive'
 import { formatDate } from '@/lib/common'
 import { useAuthStore } from '@/stores/useAuthStore'
 import echo from '@/lib/echo'
@@ -47,6 +53,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { LiveChat } from '@/types/Live'
+import LiveSessionStats from '@/app/live-streaming/components/live-session-stats'
 
 const StreamingView = ({ code }: { code: string }) => {
   const { user } = useAuthStore()
@@ -65,6 +72,7 @@ const StreamingView = ({ code }: { code: string }) => {
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isOBSDialogOpen, setIsOBSDialogOpen] = useState(false)
+  const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false)
 
   const [message, setMessage] = useState('')
   const [chatMessages, setChatMessages] = useState<LiveChat[]>([])
@@ -72,10 +80,11 @@ const StreamingView = ({ code }: { code: string }) => {
 
   const { data, isLoading } = useGetLiveSchedule(code)
   const { mutate: sendMessageLive, isPending } = useSendMessageLive()
+  const { mutate: sendHeartbeat } = useSendHeartbeat(data?.id)
+  const { mutate: leaveStream } = useLeaveStream(data?.id)
 
   useEffect(() => {
     if (!user?.id) return
-
     const channel = echo.channel(`live-session.${data?.id}`)
 
     channel.listen('.status-changed', (event: any) => {
@@ -118,24 +127,44 @@ const StreamingView = ({ code }: { code: string }) => {
       toastHot.success(event.message)
     })
 
+    channel.listen('.viewer-count-updated', (event: any) => {
+      setViewerCount(event.viewer_count)
+    })
+
     return () => {
       channel.stopListening('.status-changed')
       channel.stopListening('LiveChatMessageSent')
       channel.stopListening('.user-joined')
+      channel.stopListening('.viewer-count-updated')
     }
-  }, [data?.id, data?.instructor_id, user?.id])
+  }, [data?.id, data?.instructor_id, streamStatus, user?.id])
 
   useEffect(() => {
-    if (streamStatus === 'live') {
-      const interval = setInterval(() => {
-        setViewerCount((prev) =>
-          Math.min(prev + Math.floor(Math.random() * 3), 100)
-        )
-      }, 30000)
+    let heartbeatInterval: string | number | NodeJS.Timeout | undefined
 
-      return () => clearInterval(interval)
+    if (streamStatus === 'live' && data?.id) {
+      sendHeartbeat()
+
+      heartbeatInterval = setInterval(() => {
+        sendHeartbeat()
+      }, 20000)
+
+      const handleBeforeUnload = () => {
+        leaveStream()
+      }
+      window.addEventListener('beforeunload', handleBeforeUnload)
+
+      return () => {
+        clearInterval(heartbeatInterval)
+        window.removeEventListener('beforeunload', handleBeforeUnload)
+        leaveStream()
+      }
     }
-  }, [streamStatus])
+
+    return () => {
+      if (heartbeatInterval) clearInterval(heartbeatInterval)
+    }
+  }, [data?.id, streamStatus, sendHeartbeat, leaveStream])
 
   useEffect(() => {
     scrollToBottom()
@@ -292,6 +321,18 @@ const StreamingView = ({ code }: { code: string }) => {
                 <CardTitle className="text-xl">
                   Thông tin phát trực tiếp
                 </CardTitle>
+                {streamStatus === 'ended' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsStatsDialogOpen(true)}
+                    className="flex items-center"
+                  >
+                    <BarChart3 className="mr-1 size-4" />
+                    Chi tiết
+                  </Button>
+                )}
+
                 {streamStatus !== 'ended' && streamStatus !== 'overdue' && (
                   <Button
                     variant="outline"
@@ -589,6 +630,26 @@ const StreamingView = ({ code }: { code: string }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {data && (
+        <LiveSessionStats
+          open={isStatsDialogOpen}
+          onOpenChange={setIsStatsDialogOpen}
+          session={{
+            id: data.id,
+            title: streamTitle,
+            description: streamDescription,
+            status: streamStatus,
+            starts_at: data?.starts_at,
+            actual_start_time: data?.actual_start_time,
+            actual_end_time: data?.actual_end_time,
+            recording_playback_id: playbackId,
+            recording_url: data?.recording_url || '',
+            duration: data?.duration || duration,
+            viewers_count: data?.viewers_count || viewerCount,
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,10 +26,17 @@ export function LivestreamChat({ liveSession }: LivestreamChatProps) {
   const [chatMessages, setChatMessages] = useState<LiveChat[]>([])
   const [message, setMessage] = useState('')
   const [streamStatus, setStreamStatus] = useState('upcoming')
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   const { user, isAuthenticated } = useAuthStore()
   const { mutate: sendMessageLive, isPending } = useSendMessageLive()
   const canAccess = liveSession?.can_access !== false
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+    }
+  }, [chatMessages])
 
   useEffect(() => {
     if (liveSession?.conversation?.messages) {
@@ -151,7 +158,10 @@ export function LivestreamChat({ liveSession }: LivestreamChatProps) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200"
+      >
         {streamStatus === 'upcoming' ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <Clock className="mb-2 size-12 text-slate-300" />

@@ -82,22 +82,24 @@ export const LivestreamDetails = ({ code }: Props) => {
 
   return (
     <>
-      <div className="flex w-full flex-1 flex-col">
-        <main className="flex flex-1 flex-col gap-4 md:gap-6">
-          <h1 className="text-2xl font-bold text-slate-900">
-            {data?.title || 'Phiên học trực tuyến'}
-          </h1>
-          <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-3">
-            <div className="space-y-4 lg:col-span-2">
+      <div className="relative flex size-full flex-1">
+        <div
+          className={`mr-[380px] flex w-full flex-1 flex-col overflow-y-auto`}
+        >
+          <main className="flex flex-1 flex-col gap-4 md:gap-6 md:p-2">
+            <h1 className="text-2xl font-bold text-slate-900">
+              {data?.title || 'Phiên học trực tuyến'}
+            </h1>
+            <div className="space-y-6">
               <LivestreamPlayer liveSession={data} />
               <LivestreamInfo liveSession={data} />
             </div>
+          </main>
+        </div>
 
-            <div className="lg:col-span-1">
-              <LivestreamChat liveSession={data} />
-            </div>
-          </div>
-        </main>
+        <div className="fixed right-0 top-0 z-10 h-full w-[380px] border-l border-slate-200 bg-white shadow-lg">
+          <LivestreamChat liveSession={data} />
+        </div>
       </div>
 
       <AlertDialog open={showPrivateAlert} onOpenChange={setShowPrivateAlert}>

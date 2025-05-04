@@ -35,29 +35,12 @@ const formatTimeRemaining = (startTimeStr: string) => {
   }
 }
 
-const formatDuration = (seconds: number | undefined) => {
-  if (typeof seconds === 'undefined') return '00:00'
-
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = seconds % 60
-
-  return [
-    hours > 0 ? hours.toString().padStart(2, '0') : null,
-    minutes.toString().padStart(2, '0'),
-    secs.toString().padStart(2, '0'),
-  ]
-    .filter(Boolean)
-    .join(':')
-}
-
 const StreamContent = ({
   streamStatus,
   streamTitle,
   startTime,
   streamUrl,
   playbackId,
-  duration,
   viewerCount,
 }: StreamContentProps) => {
   switch (streamStatus) {
@@ -144,9 +127,6 @@ const StreamContent = ({
                 <span className="block size-2 animate-pulse rounded-full bg-white"></span>
                 LIVE
               </Badge>
-              <span className="rounded-md bg-black/70 px-2 py-1 text-sm text-white">
-                {formatDuration(duration)}
-              </span>
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="bg-black/70 text-white">
