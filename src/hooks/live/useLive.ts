@@ -94,3 +94,15 @@ export const useCreateLiveSchedule = () => {
     queryKey: [QueryKey.LIVE_SCHEDULE],
   })
 }
+
+export const useSendHeartbeat = (liveSessionId: number) => {
+  return useMutation({
+    mutationFn: () => liveSteamApi.sendHeartbeat(liveSessionId),
+  })
+}
+
+export const useLeaveStream = (liveSessionId: number) => {
+  return useMutation({
+    mutationFn: () => liveSteamApi.leaveStream(liveSessionId),
+  })
+}

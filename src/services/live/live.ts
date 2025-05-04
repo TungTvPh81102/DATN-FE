@@ -71,4 +71,10 @@ export const liveSteamApi = {
       },
     })
   },
+  sendHeartbeat: async (liveSessionId: number) => {
+    return await api.post(`/livestreams/${liveSessionId}/heartbeat`)
+  },
+  leaveStream: async (liveSessionId: number) => {
+    return await api.post(`/livestreams/${liveSessionId}/leave`)
+  },
 }

@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import { useLeaveStream, useSendHeartbeat } from '@/hooks/live/useLive'
 
 interface LivestreamPlayerProps {
   liveSession?: any
@@ -25,6 +26,10 @@ export function LivestreamPlayer({ liveSession }: LivestreamPlayerProps) {
   const [streamUrl, setStreamUrl] = useState('')
   const [playbackId, setPlaybackId] = useState('')
   const [showEndedAlert, setShowEndedAlert] = useState(false)
+  const [viewerCount, setViewerCount] = useState(0)
+
+  const { mutate: sendHeartbeat } = useSendHeartbeat(liveSession?.id)
+  const { mutate: leaveStream } = useLeaveStream(liveSession?.id)
 
   useEffect(() => {
     const channel = echo.channel(`live-session.${liveSession?.id}`)
@@ -47,8 +52,13 @@ export function LivestreamPlayer({ liveSession }: LivestreamPlayerProps) {
       }
     })
 
+    channel.listen('.viewer-count-updated', (event: any) => {
+      setViewerCount(event.viewer_count)
+    })
+
     return () => {
       channel.stopListening('.status-changed')
+      channel.stopListening('.viewer-count-updated')
     }
   }, [liveSession?.id])
 
@@ -66,6 +76,33 @@ export function LivestreamPlayer({ liveSession }: LivestreamPlayerProps) {
     }
   }, [liveSession])
 
+  useEffect(() => {
+    let heartbeatInterval: string | number | NodeJS.Timeout | undefined
+
+    if (streamStatus === 'live' && liveSession?.id) {
+      sendHeartbeat()
+
+      heartbeatInterval = setInterval(() => {
+        sendHeartbeat()
+      }, 20000)
+
+      const handleBeforeUnload = () => {
+        leaveStream()
+      }
+      window.addEventListener('beforeunload', handleBeforeUnload)
+
+      return () => {
+        clearInterval(heartbeatInterval)
+        window.removeEventListener('beforeunload', handleBeforeUnload)
+        leaveStream()
+      }
+    }
+
+    return () => {
+      if (heartbeatInterval) clearInterval(heartbeatInterval)
+    }
+  }, [liveSession?.id, streamStatus, sendHeartbeat, leaveStream])
+
   return (
     <div className="relative aspect-video overflow-hidden rounded-xl bg-black">
       <StreamContent
@@ -74,6 +111,7 @@ export function LivestreamPlayer({ liveSession }: LivestreamPlayerProps) {
         startTime={liveSession?.starts_at}
         playbackId={playbackId || ''}
         streamUrl={streamUrl}
+        viewerCount={viewerCount}
       />
 
       <AlertDialog open={showEndedAlert} onOpenChange={setShowEndedAlert}>

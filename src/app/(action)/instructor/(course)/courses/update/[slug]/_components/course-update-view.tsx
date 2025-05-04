@@ -111,10 +111,10 @@ const CourseUpdateView = ({ slug }: { slug: string }) => {
   }
 
   useEffect(() => {
-    setCourseStatus(courseOverviewData?.status)
+    setCourseStatus(courseOverviewData?.status as CourseStatus)
 
     return () => {
-      setCourseStatus(undefined)
+      setCourseStatus(null)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseOverviewData?.status])
