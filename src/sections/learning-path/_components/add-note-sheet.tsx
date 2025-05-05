@@ -58,14 +58,7 @@ const AddNoteSheet = ({ open, onOpenChange, currentTime, lessonId }: Props) => {
   }
 
   return (
-    <Sheet
-      open={open}
-      onOpenChange={(open) => {
-        if (isPendingStoreNote) return
-        onOpenChange(open)
-        form.reset()
-      }}
-    >
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" aria-describedby={undefined} overlay={false}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -92,11 +85,16 @@ const AddNoteSheet = ({ open, onOpenChange, currentTime, lessonId }: Props) => {
 
             <SheetFooter>
               <SheetClose asChild>
-                <Button variant="outline" disabled={isPendingStoreNote}>
+                <Button
+                  variant="outline"
+                  disabled={isPendingStoreNote}
+                  size="sm"
+                  onClick={() => form.reset()}
+                >
                   Huỷ bỏ
                 </Button>
               </SheetClose>
-              <Button disabled={isPendingStoreNote} type="submit">
+              <Button disabled={isPendingStoreNote} type="submit" size="sm">
                 {isPendingStoreNote && <Loader2 className="animate-spin" />}
                 Tạo ghi chú
               </Button>

@@ -87,7 +87,7 @@ export const TiptapEditor = React.forwardRef<HTMLDivElement, TiptapProps>(
             className={cn(
               'min-h-24 px-3 py-2',
               {
-                'h-24': toolbar === 'default',
+                'h-48': toolbar === 'default',
                 'h-[600px]': toolbar === 'full',
               },
               scrollAreaClassName
