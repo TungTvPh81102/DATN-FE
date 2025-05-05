@@ -10,7 +10,15 @@ import {
 } from '@/components/ui/dialog'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
-import { ClipboardList, Copy, Check, X, Loader2, ArrowUp } from 'lucide-react'
+import {
+  ClipboardList,
+  Copy,
+  Check,
+  X,
+  Loader2,
+  ArrowUp,
+  HelpCircle,
+} from 'lucide-react'
 import {
   useGetRewards,
   useGetSpinHistory,
@@ -63,13 +71,13 @@ export default function LuckyWheel() {
   const [showResult, setShowResult] = useState(false)
   const [copied, setCopied] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [showRules, setShowRules] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const historyRef = useRef<HTMLDivElement>(null)
   const wheelRef = useRef<SVGSVGElement | null>(null)
   const { data: statusData } = useGetStatus() as {
     data: StatusData | undefined
   }
-  console.log('statusData', statusData)
   const { data: rewardsData } = useGetRewards()
   const { data: spinTurn } = useGetSpinTurn()
   const { mutate: spinRun, isPending: loadingSpinRun } = useSpinRun()
@@ -79,7 +87,6 @@ export default function LuckyWheel() {
     ? parseInt((spinTurn as Record<string, any>)['Số lượt quay còn lại'])
     : 0
 
-  // Reset copied state when result changes
   useEffect(() => {
     setCopied(false)
   }, [result])
@@ -99,11 +106,8 @@ export default function LuckyWheel() {
 
     setIsSpinning(true)
 
-    // Gọi API quay vòng quay
     spinRun(undefined, {
       onSuccess: (data) => {
-        console.log('Kết quả từ API:', data)
-
         const prizeList = Array.isArray(rewardsData)
           ? rewardsData
           : (rewardsData?.data ?? [])
@@ -333,13 +337,23 @@ export default function LuckyWheel() {
 
   return (
     <div className="flex flex-col items-center">
-      <button
-        onClick={() => setShowHistory(!showHistory)}
-        className="absolute right-6 top-6 rounded-full bg-orange-100 p-2 text-orange-500 transition-colors hover:bg-orange-200"
-        aria-label="View spin history"
-      >
-        <ClipboardList size={20} />
-      </button>
+      <div className="absolute right-6 top-6 flex flex-col space-y-2">
+        <button
+          onClick={() => setShowHistory(!showHistory)}
+          className="rounded-full bg-orange-100 p-2 text-orange-500 transition-colors hover:bg-orange-200"
+          aria-label="View spin history"
+        >
+          <ClipboardList size={20} />
+        </button>
+
+        <button
+          onClick={() => setShowRules(true)}
+          className="animate-pulse-subtle rounded-full bg-orange-100 p-2 text-orange-500 transition-colors hover:bg-orange-200"
+          aria-label="View game rules"
+        >
+          <HelpCircle size={20} />
+        </button>
+      </div>
 
       <div className="relative mb-12">
         <div className="animate-spin-slow absolute -inset-4 rounded-full border-8 border-dashed border-orange-300"></div>
@@ -410,7 +424,7 @@ export default function LuckyWheel() {
         <Button
           onClick={spinWheel}
           disabled={isSpinning || spinsLeft <= 0}
-          className={`bg-gradient-to-r ${spinsLeft <= 0 ? 'from-gray-400 to-gray-300' : 'from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500'} rounded-full px-8 py-6 text-xl font-bold text-white shadow-[0_0_15px_rgba(249,115,22,0.5)] transition-all ${isSpinning || spinsLeft <= 0 ? 'opacity-70' : ''}`}
+          className={`bg-gradient-to-r ${spinsLeft <= 0 ? 'from-orange-400 to-orange-300' : 'from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500'} rounded-full px-8 py-6 text-xl font-bold text-white shadow-[0_0_15px_rgba(249,115,22,0.5)] transition-all ${isSpinning || spinsLeft <= 0 ? 'opacity-70' : ''}`}
           style={{
             textShadow: '0 1px 2px rgba(0,0,0,0.1)',
           }}
@@ -418,7 +432,7 @@ export default function LuckyWheel() {
           {isSpinning
             ? 'Đang quay ^^'
             : spinsLeft <= 0
-              ? 'Bạn không có lượt quay'
+              ? 'Bạn không có lượt quay nào!'
               : `Quay (${spinsLeft} lượt quay)`}
         </Button>
       </div>
@@ -514,6 +528,121 @@ export default function LuckyWheel() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={showRules} onOpenChange={setShowRules}>
+        <DialogContent className="border-orange-200 bg-white text-orange-950 sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-center text-3xl text-orange-500">
+              Thể lệ & Quy tắc
+            </DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[60vh] max-w-5xl overflow-y-auto p-6">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="mb-6">
+                <h3 className="mb-2 text-xl font-bold text-orange-600">
+                  Cách thức tham gia
+                </h3>
+                <ul className="ml-6 list-disc space-y-2 text-orange-800">
+                  <li>Nhận 1 lượt quay khi đăng ký mua khóa học trên 900K</li>
+                  <li>Nhận 1 lượt quay khi đăng ký mua gói thành viên</li>
+                  <li>Nhấn nút Quay để bắt đầu quay vòng quay may mắn</li>
+                  <li>
+                    Vòng quay sẽ quay trong vài giây và dừng lại ở phần thưởng
+                    ngẫu nhiên
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="mb-2 text-xl font-bold text-orange-600">
+                  Các loại phần thưởng
+                </h3>
+                <ul className="ml-6 list-disc space-y-2 text-orange-800">
+                  <li>
+                    <span className="font-semibold">
+                      Giải thưởng vật phẩm (📱):
+                    </span>{' '}
+                    Điện thoại, máy tính bảng,...
+                  </li>
+                  <li>
+                    <span className="font-semibold">Mã giảm giá (🎫):</span> Các
+                    mã giảm giá có giá trị khác nhau cho khóa học tiếp theo
+                  </li>
+                  <li>
+                    <span className="font-semibold">Thêm lượt quay (🔄):</span>{' '}
+                    Nhận thêm lượt quay để tiếp tục thử vận may
+                  </li>
+                  <li>
+                    <span className="font-semibold">May mắn lần sau (🍀):</span>{' '}
+                    Không nhận được phần thưởng lần này
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="mb-2 text-xl font-bold text-orange-600">
+                  Quy định chung
+                </h3>
+                <ul className="ml-6 list-disc space-y-2 text-orange-800">
+                  <li>Mỗi lượt quay đảm bảo cơ hội trúng thưởng công bằng</li>
+                  <li>Phần thưởng được xác định ngẫu nhiên từ hệ thống</li>
+                  <li>
+                    Các mã giảm giá có thời hạn sử dụng, vui lòng sử dụng trước
+                    khi hết hạn
+                  </li>
+                  <li>
+                    Đối với giải thưởng vật phẩm, đội ngũ chăm sóc khách hàng sẽ
+                    liên hệ để xác nhận thông tin giao hàng
+                  </li>
+                  <li>
+                    Người dùng có thể xem lịch sử quay của mình trong phần Lịch
+                    sử quay
+                  </li>
+                  <li>
+                    Ban tổ chức có quyền thay đổi cơ cấu giải thưởng mà không
+                    cần thông báo trước
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="mb-2 text-xl font-bold text-orange-600">
+                  Điều khoản sử dụng
+                </h3>
+                <ul className="ml-6 list-disc space-y-2 text-orange-800">
+                  <li>
+                    Không sử dụng công cụ, phần mềm gian lận để tăng lượt quay
+                    hoặc tỷ lệ trúng thưởng
+                  </li>
+                  <li>
+                    Ban tổ chức có quyền từ chối trao thưởng nếu phát hiện gian
+                    lận
+                  </li>
+                  <li>Phần thưởng không được quy đổi thành tiền mặt</li>
+                </ul>
+              </div>
+
+              <div className="animate-pulse-slow rounded-lg bg-orange-50 p-4 text-center">
+                <p className="text-orange-700">
+                  Chúc bạn may mắn và nhận được những phần quà hấp dẫn! 🎁
+                </p>
+              </div>
+            </motion.div>
+          </div>
+          <div className="flex justify-center">
+            <Button
+              onClick={() => setShowRules(false)}
+              className="mt-4 bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:from-orange-600 hover:to-orange-500"
+            >
+              Đã hiểu
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <AnimatePresence>
         {showHistory && (
           <motion.div
@@ -572,7 +701,6 @@ export default function LuckyWheel() {
                             {item.reward_type === 'coupon' && (
                               <Link href={`/my-courses?tab=coupon`}>
                                 <p className="mt-1 font-mono text-sm text-orange-600">
-                                  {/*Mã giảm giá: {item.reward_name}*/}
                                   Xem mã giảm giá của bạn
                                 </p>
                               </Link>
