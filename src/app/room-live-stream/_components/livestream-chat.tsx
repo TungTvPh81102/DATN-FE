@@ -185,6 +185,14 @@ export function LivestreamChat({ liveSession }: LivestreamChatProps) {
                 <div className="flex-1 overflow-hidden">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{msg?.userName}</span>
+                    {msg.userId === liveSession?.instructor_id && (
+                      <Badge
+                        variant="outline"
+                        className="border-orange-200 bg-orange-50 px-1 py-0 text-[10px] text-orange-700"
+                      >
+                        Giảng viên
+                      </Badge>
+                    )}
                   </div>
                   <p className="max-h-32 overflow-y-auto whitespace-pre-wrap break-words text-sm text-slate-700">
                     {msg.message}

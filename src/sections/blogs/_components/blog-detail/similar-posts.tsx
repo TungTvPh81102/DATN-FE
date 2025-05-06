@@ -14,6 +14,8 @@ const BlogDetailSimilarPosts = ({
 }: BlogDetailSimilarPostsProps) => {
   const { data: categoryBlogs, isLoading } = useGetBlogsOfCategory(categorySlug)
 
+  console.log(categoryBlogs)
+
   const relatedPosts =
     categoryBlogs?.data
       ?.filter((post: any) => post.id !== currentPostId)
@@ -60,7 +62,7 @@ const BlogDetailSimilarPosts = ({
                     <Image
                       fill
                       className="object-cover"
-                      src={post.thumbnail || '/placeholder-image.jpg'}
+                      src={post?.thumbnail || '/placeholder-image.jpg'}
                       alt={post.title}
                     />
                   </div>

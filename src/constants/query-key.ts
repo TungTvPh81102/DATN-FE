@@ -95,6 +95,7 @@ enum QueryKey {
   GET_MEDIA_DATA = 'get-media-data',
   STREAM_KEY = 'stream-key',
   LIVE_SCHEDULE = 'live-schedule',
+  LIVE_RECENT = 'live-recent',
 }
 
 export default QueryKey

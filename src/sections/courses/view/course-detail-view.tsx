@@ -36,6 +36,7 @@ import { IChapter } from '@/types'
 import CourseSlideRelated from '@/sections/courses/_components/course-slide-related'
 import { CourseItemSkeleton } from '@/components/shared/course-item-skeletion'
 import { RatingsList } from '@/sections/courses/_components/ratings-list'
+import CourseFaq from '@/sections/courses/_components/course-faq'
 
 const lessonTypeIcons = {
   video: <CirclePlay size={16} />,
@@ -65,6 +66,9 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
   const [selectedLesson, setSelectedLesson] = useState(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [expandedChapters, setExpandedChapters] = useState<number[]>([])
+  const [faqItems, setFaqItems] = useState<
+    { question: string; answer: string }[]
+  >([])
 
   const { user, isAuthenticated } = useAuthStore()
 
@@ -112,7 +116,11 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
       setRequirementsColumn1(parsedRequirements.slice(0, halfLength))
       setRequirementsColumn2(parsedRequirements.slice(halfLength))
     }
-  }, [courseDetails?.benefits, courseDetails?.requirements])
+
+    if (courseDetails?.qa) {
+      setFaqItems(courseDetails.qa as { question: string; answer: string }[])
+    }
+  }, [courseDetails?.benefits, courseDetails?.requirements, courseDetails?.qa])
 
   useEffect(() => {
     if (isOpenIntro) {
@@ -526,6 +534,8 @@ const CourseDetailView = ({ slug }: { slug: string }) => {
                       onClose={() => setIsPreviewOpen(false)}
                       lesson={selectedLesson}
                     />
+
+                    {faqItems.length > 0 && <CourseFaq faqs={faqItems} />}
                   </div>
                   {coursesOtherData?.profile_instructor && (
                     <InstructorDetail

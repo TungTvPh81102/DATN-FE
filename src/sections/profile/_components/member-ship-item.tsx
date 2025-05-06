@@ -49,6 +49,8 @@ export const MemberShipItem = ({ membership }: Props) => {
 
   const isPurchased = !!userMembership
 
+  console.log(membership)
+
   return (
     <>
       <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-lg">

@@ -37,6 +37,7 @@ export interface IMediaItem {
   type: string
   asset_id: string | undefined
   playback_id?: string | undefined
+  duration?: number | undefined
   thumbnail?: string
   created_at: string
   updated_at: string

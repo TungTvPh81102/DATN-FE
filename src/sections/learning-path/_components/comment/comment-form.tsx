@@ -276,7 +276,7 @@ export const CommentForm = ({ lessonId }: { lessonId: number }) => {
                           {...field}
                           value={field.value || ''}
                           placeholder="Nhập bình luận của bạn..."
-                          className="min-h-[100px] resize-none rounded-2xl bg-white/80 px-4 py-3 focus:border-[#E27447] focus:outline-none focus:ring-1 focus:ring-[#E27447] focus-visible:border-[#E27447] focus-visible:ring-1 focus-visible:ring-[#E27447]"
+                          className="min-h-[100px] resize-none rounded-xl border-gray-200 bg-white/95 px-4 py-3 shadow-sm transition-all focus:outline-none focus:ring-0 focus-visible:border-gray-300 focus-visible:ring-0"
                           autoFocus
                           disabled={isBlocked}
                         />

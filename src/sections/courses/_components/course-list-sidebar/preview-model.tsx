@@ -1,5 +1,6 @@
 import React from 'react'
 import { XCircle as CircleX } from 'lucide-react'
+import MuxPlayer from '@mux/mux-player-react'
 
 interface Video {
   id: number
@@ -76,22 +77,12 @@ export function LessonPreviewModal({
           {lesson.type === 'video' && lesson.lessonable && (
             <div className="overflow-hidden rounded-lg bg-black">
               <div className="aspect-video">
-                {(lesson.lessonable as Video).url ? (
-                  <video
-                    controls
+                {(lesson.lessonable as Video).mux_playback_id ? (
+                  <MuxPlayer
+                    playbackId={(lesson.lessonable as Video).mux_playback_id}
+                    accentColor={'hsl(var(--primary))'}
                     className="size-full"
-                    src={(lesson.lessonable as Video).url}
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                ) : (lesson.lessonable as Video).mux_playback_id ? (
-                  <video
-                    controls
-                    className="size-full"
-                    src={`https://stream.mux.com/${(lesson.lessonable as Video).mux_playback_id}/high.mp4`}
-                  >
-                    Your browser does not support the video tag.
-                  </video>
+                  />
                 ) : (
                   <div className="flex h-full items-center justify-center text-white">
                     Video không khả dụng

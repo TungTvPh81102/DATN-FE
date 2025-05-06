@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { NotificationPopover } from '@/components/notification/notification-popover'
 import Link from 'next/link'
+import { useGetRecentLiveSessions } from '@/hooks/live/useLive'
 
 interface SidebarItemProps {
   icon: React.ReactNode
@@ -59,11 +60,13 @@ const menuItems: MenuItem[] = [
 const LiveStreamingLayout = ({ children }: LayoutProps) => {
   const { user } = useAuthStore()
 
-  const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(false)
+  const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== 'undefined' ? window.innerWidth : 1024
   )
+
+  const { data: liveRecent } = useGetRecentLiveSessions()
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -86,6 +89,11 @@ const LiveStreamingLayout = ({ children }: LayoutProps) => {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
+
+  const truncateText = (text: string, maxLength = 20) => {
+    if (text.length <= maxLength) return text
+    return text.slice(0, maxLength) + '...'
   }
 
   return (
@@ -175,26 +183,30 @@ const LiveStreamingLayout = ({ children }: LayoutProps) => {
 
                   <div className="px-3">
                     <h3 className="mb-2 px-2 text-xs font-medium uppercase tracking-wider text-slate-500">
-                      Khóa học gần đây
+                      Sự kiện gần đây
                     </h3>
 
-                    {[
-                      'React Nâng Cao',
-                      'JavaScript Cơ Bản',
-                      'Node.js Master',
-                    ].map((course, i) => (
-                      <div
-                        key={i}
-                        className="mb-2 cursor-pointer rounded-md p-2 hover:bg-slate-50"
-                      >
-                        <p className="text-sm font-medium text-slate-700">
-                          {course}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          Lượt xem: {Math.floor((i + 1) * 329)}
-                        </p>
-                      </div>
-                    ))}
+                    {liveRecent && liveRecent.length > 0 ? (
+                      liveRecent.map((event: any) => (
+                        <div
+                          key={event.code}
+                          className="mb-2 cursor-pointer rounded-md p-2 hover:bg-slate-50"
+                        >
+                          <Link href={`/live-streaming/${event.code}`}>
+                            <p className="text-sm font-medium text-slate-700">
+                              {truncateText(event.title, 20)}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              Lượt xem: {event.viewers_count || 0}
+                            </p>
+                          </Link>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="px-2 text-xs text-slate-500">
+                        Không có sự kiện nào gần đây
+                      </p>
+                    )}
                   </div>
                 </>
               )}

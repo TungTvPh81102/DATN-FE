@@ -35,7 +35,6 @@ import {
 } from '@/components/ui/sortable'
 
 import CreateChapter from './chapter/create-chapter'
-import Link from 'next/link'
 import { useCourseStatusStore } from '@/stores/use-course-status-store'
 import SortableLesson from './lesson/sortable-lesson'
 import { Badge } from '@/components/ui/badge'
@@ -163,12 +162,6 @@ const CourseChapterTab = ({
             và các hoạt động thực hành.
           </p>
         </div>
-
-        {isDraftOrRejected && (
-          <Button asChild size="sm">
-            <Link href={`/draft/${slug}`}>Xem trước</Link>
-          </Button>
-        )}
       </div>
       <div className="mt-4">
         <Sortable
