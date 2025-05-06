@@ -21,6 +21,7 @@ import {
 } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { CourseItemSkeleton } from '@/components/common/CourseItemSkeleton'
+import { BadgePercent, Sparkles, Tag } from 'lucide-react'
 
 SwiperCore.use([Navigation, Pagination, Autoplay])
 
@@ -189,20 +190,26 @@ const CourseListCategory = ({
                                 {course.is_free ? (
                                   <Link
                                     href="#"
-                                    className="item free best-seller"
+                                    className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-50 to-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-700 transition-all hover:from-emerald-100 hover:to-emerald-200 hover:shadow-md"
                                   >
+                                    <Tag size={14} />
                                     Miễn phí
                                   </Link>
                                 ) : course.price_sale > 0 ? (
                                   <Link
                                     href="#"
-                                    className="item sale best-seller"
+                                    className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-50 to-rose-100 px-3 py-1.5 text-sm font-medium text-rose-700 transition-all hover:from-rose-100 hover:to-rose-200 hover:shadow-md"
                                   >
+                                    <BadgePercent size={14} />
                                     Đang giảm giá
                                   </Link>
                                 ) : (
-                                  <Link href="#" className="item best-seller">
-                                    Best Seller
+                                  <Link
+                                    href="#"
+                                    className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800 hover:bg-amber-200"
+                                  >
+                                    <Sparkles size={14} />
+                                    Nổi bật
                                   </Link>
                                 )}
                               </div>

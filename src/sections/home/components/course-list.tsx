@@ -25,6 +25,8 @@ import { CourseItemSkeleton } from '@/components/common/CourseItemSkeleton'
 import { CourseItemRating } from '@/components/common/CourseItemRating'
 import { useRouter } from 'next/navigation'
 import { updateCourseFilters } from '@/lib/utils'
+import { BadgePercent, Tag } from 'lucide-react'
+import React from 'react'
 
 SwiperCore.use([Navigation, Pagination, Autoplay])
 
@@ -152,18 +154,22 @@ const CourseList = ({
 
                         <div className="box-tags">
                           {course.is_free ? (
-                            <Link href="#" className="item free best-seller">
+                            <Link
+                              href="#"
+                              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-50 to-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-700 transition-all hover:from-emerald-100 hover:to-emerald-200 hover:shadow-md"
+                            >
+                              <Tag size={14} />
                               Miễn phí
                             </Link>
                           ) : course.price_sale > 0 ? (
-                            <Link href="#" className="item sale best-seller">
+                            <Link
+                              href="#"
+                              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-50 to-rose-100 px-3 py-1.5 text-sm font-medium text-rose-700 transition-all hover:from-rose-100 hover:to-rose-200 hover:shadow-md"
+                            >
+                              <BadgePercent size={14} />
                               Đang giảm giá
                             </Link>
-                          ) : (
-                            <Link href="#" className="item best-seller">
-                              Best Seller
-                            </Link>
-                          )}
+                          ) : null}
                         </div>
                         <div
                           onClick={() =>

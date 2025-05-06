@@ -20,6 +20,8 @@ import {
   SmilePlus,
   Clock,
   BarChart3,
+  MoreHorizontal,
+  Ban,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -54,6 +56,13 @@ import {
 } from '@/components/ui/popover'
 import { LiveChat } from '@/types/Live'
 import LiveSessionStats from '@/app/live-streaming/components/live-session-stats'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useToggleBlockMemberInChat } from '@/hooks/chat/useChat'
 
 const StreamingView = ({ code }: { code: string }) => {
   const { user } = useAuthStore()
@@ -69,6 +78,7 @@ const StreamingView = ({ code }: { code: string }) => {
   const [playbackId, setPlaybackId] = useState('')
   const [viewerCount, setViewerCount] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [blockedUsers, setBlockedUsers] = useState<string[]>([])
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isOBSDialogOpen, setIsOBSDialogOpen] = useState(false)
@@ -82,6 +92,7 @@ const StreamingView = ({ code }: { code: string }) => {
   const { mutate: sendMessageLive, isPending } = useSendMessageLive()
   const { mutate: sendHeartbeat } = useSendHeartbeat(data?.id)
   const { mutate: leaveStream } = useLeaveStream(data?.id)
+  const { mutate: blockMember } = useToggleBlockMemberInChat()
 
   useEffect(() => {
     if (!user?.id) return
@@ -221,6 +232,11 @@ const StreamingView = ({ code }: { code: string }) => {
 
         setChatMessages(oldMessages)
       }
+
+      if (data?.blocked_users) {
+        const blockedIds = data?.blocked_users?.map((user: any) => String(user))
+        setBlockedUsers(blockedIds)
+      }
     }
   }, [data])
 
@@ -257,6 +273,44 @@ const StreamingView = ({ code }: { code: string }) => {
       }
     )
   }
+
+  const handleBlockUser = (userId: number | null | undefined) => {
+    if (!userId || !data?.id) return
+
+    const userIdStr = String(userId)
+
+    const isBlocked = isUserBlocked(userId)
+    const action = isBlocked ? 'unblock' : 'block'
+
+    blockMember(
+      {
+        conversation_id: data.id,
+        member_id: Number(userId),
+        action: action,
+      },
+      {
+        onSuccess: () => {
+          if (isBlocked) {
+            setBlockedUsers((prev) => prev.filter((id) => id !== userIdStr))
+          } else {
+            setBlockedUsers((prev) => [...prev, userIdStr])
+          }
+        },
+        onError: (error: any) => {
+          toast.error(
+            error?.message ||
+              `Không thể ${isBlocked ? 'bỏ chặn' : 'chặn'} người dùng`
+          )
+        },
+      }
+    )
+  }
+
+  const isUserBlocked = (userId: number | null | undefined) => {
+    return userId ? blockedUsers.includes(String(userId)) : false
+  }
+
+  const isStreamOwner = user?.id === data?.instructor_id
 
   if (isLoading) {
     return (
@@ -329,7 +383,7 @@ const StreamingView = ({ code }: { code: string }) => {
                     className="flex items-center"
                   >
                     <BarChart3 className="mr-1 size-4" />
-                    Chi tiết
+                    Chi tiêt
                   </Button>
                 )}
 
@@ -457,22 +511,52 @@ const StreamingView = ({ code }: { code: string }) => {
             ) : (
               <div className="space-y-4">
                 {chatMessages?.map((msg) => (
-                  <div key={msg.id} className="flex space-x-2">
-                    <Avatar className="size-8 shrink-0">
-                      <AvatarImage
-                        src={msg?.userAvatar || '/default-avatar.png'}
-                        alt={msg?.userName || ''}
-                      />
-                      <AvatarFallback className="bg-slate-200 text-slate-700">
-                        {msg?.userName?.charAt(0) || ''}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className={`font-medium`}>{msg?.userName}</span>
+                  <div className="flex justify-between" key={msg.id}>
+                    <div className="group relative flex space-x-2">
+                      <Avatar className="size-8 shrink-0 cursor-pointer hover:ring-2 hover:ring-primary hover:ring-offset-2">
+                        <AvatarImage
+                          src={msg?.userAvatar || '/default-avatar.png'}
+                          alt={msg?.userName || ''}
+                        />
+                        <AvatarFallback className="bg-slate-200 text-slate-700">
+                          {msg?.userName?.charAt(0) || ''}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className={`font-medium`}>{msg?.userName}</span>
+                        </div>
+                        <p className="text-sm text-slate-700">{msg.message}</p>
                       </div>
-                      <p className="text-sm text-slate-700">{msg.message}</p>
                     </div>
+                    {isStreamOwner && user?.id !== msg.userId && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="ml-1 flex size-5 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+                            <MoreHorizontal className="size-3" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem
+                            className="flex cursor-pointer items-center text-red-600 focus:text-red-600"
+                            onClick={() => handleBlockUser(msg.userId)}
+                          >
+                            {isUserBlocked(msg.userId) ? (
+                              <>
+                                <Ban className="mr-2 size-4" />
+                                Bỏ chặn
+                              </>
+                            ) : (
+                              <>
+                                <Ban className="mr-2 size-4" />
+                                Chặn
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </div>
                 ))}
               </div>

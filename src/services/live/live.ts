@@ -71,10 +71,17 @@ export const liveSteamApi = {
       },
     })
   },
+  getRecentLiveSessions: async () => {
+    const res = await api.get(`${prefix}/recent-live-sessions`)
+    return res.data
+  },
   sendHeartbeat: async (liveSessionId: number) => {
     return await api.post(`/livestreams/${liveSessionId}/heartbeat`)
   },
   leaveStream: async (liveSessionId: number) => {
     return await api.post(`/livestreams/${liveSessionId}/leave`)
+  },
+  blockUser: async (liveSessionId: number, userId: number) => {
+    return await api.put(`/livestreams/${liveSessionId}/block-user/${userId}`)
   },
 }

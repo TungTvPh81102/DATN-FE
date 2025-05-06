@@ -111,7 +111,7 @@ export const lessonQuizSchema = z.object({
     .string()
     .trim()
     .min(1, 'Nội dung là bắt buộc')
-    .max(255, 'Nội dung không được vượt quá 255 ký tự'),
+    .max(500, 'Nội dung không được vượt quá 500 ký tự'),
 })
 
 export const lessonCodingSchema = z.object({

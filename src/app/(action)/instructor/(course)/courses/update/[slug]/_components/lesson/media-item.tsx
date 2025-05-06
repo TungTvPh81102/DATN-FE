@@ -25,7 +25,8 @@ type MediaItemProps = {
   item: IMediaItem
   onSelect: (
     playback_id: string | undefined,
-    asset_id: string | undefined
+    asset_id: string | undefined,
+    duration: number | undefined
   ) => void
 }
 
@@ -33,7 +34,7 @@ const MediaItem = ({ item, onSelect }: MediaItemProps) => {
   return (
     <Card
       className="cursor-pointer overflow-hidden transition-all hover:ring-2 hover:ring-primary/50"
-      onClick={() => onSelect(item.playback_id, item.asset_id)}
+      onClick={() => onSelect(item.playback_id, item.asset_id, item.duration)}
     >
       <CardContent className="p-0">
         <div className="relative aspect-video w-full">
@@ -100,7 +101,11 @@ const MediaLibraryDialog = ({
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSelectMedia: (playback_id: string, asset_id: string | undefined) => void
+  onSelectMedia: (
+    playback_id: string,
+    asset_id: string | undefined,
+    duration: number | undefined
+  ) => void
 }) => {
   const {
     data,
@@ -123,10 +128,11 @@ const MediaLibraryDialog = ({
 
   const handleSelectMedia = (
     playback_id: string | undefined,
-    asset_id: string | undefined
+    asset_id: string | undefined,
+    duration: number | undefined
   ) => {
     if (playback_id && asset_id) {
-      onSelectMedia(playback_id, asset_id)
+      onSelectMedia(playback_id, asset_id, duration)
       onOpenChange(false)
     }
   }

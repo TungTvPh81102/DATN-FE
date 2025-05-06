@@ -114,6 +114,7 @@ const InstructorTop = ({
                           }}
                         >
                           <Image
+                            className="rounded-lg"
                             width={260}
                             height={260}
                             data-src={instructor?.avatar ?? ''}

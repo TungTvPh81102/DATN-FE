@@ -94,7 +94,6 @@ const BecomeAnInstructor = () => {
 
     const privateChannel = echo.private(`App.Models.User.${user?.id}`)
     privateChannel.listen('InstructorApproved', (data: any) => {
-      console.log(data)
       const { new_role } = data
       setRole(new_role)
 

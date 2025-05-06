@@ -19,8 +19,6 @@ import {
 } from '@/components/ui/dialog'
 import { DataTable } from '@/components/shared/data-table'
 import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
-import { Card, CardContent } from '@/components/ui/card'
-import { formatCurrency } from '@/lib/common'
 import { Separator } from '@/components/ui/separator'
 import Container from '@/components/shared/container'
 
@@ -55,12 +53,6 @@ export default function TransactionManageCourseView() {
       course[field]?.toLowerCase()?.includes(searchTerm.toLowerCase())
     )
   })
-
-  const totalRevenue =
-    filteredData?.reduce(
-      (sum: number, item: any) => sum + Number(item.amount_paid),
-      0
-    ) || 0
 
   const columns: ColumnDef<any[]>[] = [
     {
@@ -208,24 +200,6 @@ export default function TransactionManageCourseView() {
             <Download />
             Xuất báo cáo
           </Button>
-        </div>
-        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Card className="border border-gray-200 bg-white shadow-sm">
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Tổng giao dịch</p>
-              <h3 className="mt-1 text-2xl font-bold text-gray-900">
-                {filteredData?.length || 0}
-              </h3>
-            </CardContent>
-          </Card>
-          <Card className="border border-gray-200 bg-white shadow-sm">
-            <CardContent className="p-4">
-              <p className="text-sm text-gray-500">Tổng doanh thu</p>
-              <h3 className="mt-1 text-2xl font-bold text-[#E27447]">
-                {formatCurrency(totalRevenue ?? 0)}
-              </h3>
-            </CardContent>
-          </Card>
         </div>
 
         <DataTable

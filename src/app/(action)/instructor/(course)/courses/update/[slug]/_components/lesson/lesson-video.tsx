@@ -49,7 +49,7 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
   const [muxAssetId, setMuxAssetId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<string>('upload')
   const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false)
-  const [duration, setDuration] = useState(null)
+  const [duration, setDuration] = useState<number | null>(null)
 
   const { data: lessonVideoData, isLoading: isLessonLoading } =
     useGetLessonVideo(chapterId, lessonId)
@@ -197,14 +197,18 @@ const LessonVideo = ({ onHide, chapterId, isEdit, lessonId }: Props) => {
   }, [refetchUploadUrl])
 
   const handleMediaSelect = useCallback(
-    (playback_id: string, asset_id: string | undefined) => {
+    (
+      playback_id: string,
+      asset_id: string | undefined,
+      duration: number | undefined
+    ) => {
       if (!asset_id) {
         toast.error('Không tìm thấy asset ID cho video này')
         return
       }
-
       setMuxPlaybackId(playback_id)
       setMuxAssetId(asset_id)
+      setDuration(duration ?? null)
       toast.success('Đã chọn video từ thư viện')
     },
     []
